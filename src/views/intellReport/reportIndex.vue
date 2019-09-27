@@ -1,5 +1,6 @@
 <template>
-<div v-loading.fullscreen="loading" style="height:100%">
+<!-- v-loading.fullscreen="loading" style="height:100%" -->
+<div >
 	<div class="intellReport">
 		<div class="inteLeft">
 			<a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a>

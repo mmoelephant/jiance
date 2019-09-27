@@ -19,11 +19,11 @@ let routes = [
     name: 'login',
     component: () => import('../views/login.vue')
   },
-  {
-    path: '/index',
-    name: 'index',
-    component: () => import('../views/index.vue')
-  },
+  // {
+  //   path: '/index',
+  //   name: 'index',
+  //   component: () => import('../views/index.vue')
+  // },
   {
     path:'/reportIndex',
     name:'reportIndex',
@@ -79,21 +79,22 @@ let routes = [
     name: 'help',
     component: () => import('../views/help/help.vue')
   },
-  {
-    path: '*',
-    name: 'index',
-    component: () => import('../views/index.vue')
-  },
+  // {
+  //   path: '*',
+  //   name: 'index',
+  //   component: () => import('../views/index.vue')
+  // },
 ]
 routes.push(...rout)
 let router = new Router({
   routes
+
 })
 router.beforeEach((to, from, next) => {
   if(to.name != 'index'&& to.name != 'login'&& to.name != 'help') {
-    const token = sessionStorage.getItem('token')
-    const user = JSON.parse(sessionStorage.getItem('user'))
-    if(token && token.length>0 && user && user.name) {
+    const userid = localStorage.getItem('userid')
+    const user = JSON.parse(localStorage.getItem('user'))
+    if(userid && user && user.username) {
       next()
     } else {
       next('/login')

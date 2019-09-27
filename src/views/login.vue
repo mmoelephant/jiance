@@ -1,5 +1,5 @@
 <template>
-    <div class='login'>
+    <div class='login' v-loading="loading">
         <div class='login-box'>
             <div class='left'>
                 <img src='../../public/img/logo.png'/>
@@ -15,14 +15,14 @@
                 <div class='input'>
                     <div :class='focusIndex == 1? "onfocus":error1&&error1.length>0?"onerror":""'>
                         <i class='iconfont icon-zhanghao'></i>
-                        <span v-if='focusIndex != 1 && name.length==0 && !isSupportPlaceholder' @click='getfocus(0)'>请输入手机号</span>
+                        <span v-if='focusIndex != 1 && username.length==0 && !isSupportPlaceholder' @click='getfocus(0)'>请输入手机号</span>
                         <input 
                             autocomplete="off"
-                            v-model='name' 
+                            v-model='username' 
                             :placeholder="isSupportPlaceholder?'请输入手机号/账号':''"
                             @focus="focus(1)"
                             @blur="blur(1)"
-                            :class='error1&&error1.length>0?"red":name&&name.length>0?"blue":""'>
+                            :class='error1&&error1.length>0?"red":username&&username.length>0?"blue":""'>
                     </div>
                     <p class='error'>{{error1}}</p>
                 </div>
@@ -42,7 +42,7 @@
                     <p class='error'>{{error2}}</p>
                 </div>
                 <el-button @click='login' 
-                    :class='!name || name.length ==0 || !password || password.length==0?"loginbtn disabled":"loginbtn abled"'>登录</el-button>
+                    :class='!username || username.length ==0 || !password || password.length==0?"loginbtn disabled":"loginbtn abled"'>登录</el-button>
                 <div class='tool'>
                     <p @click='$router.replace("/")'>&lt;返回首页</p>
                     <!--p>帮助中心</p-->
@@ -54,19 +54,64 @@
 
 <script>
 import $ from 'jquery'
+import {datawork} from '../plugins/datawork.js'
+import {getCilentId} from '../plugins/getclientidagain'
+import {getToken} from '../plugins/gettoken.js'
 export default {
     data() {
         return {
-            name:'',
+            loading:true,
+            username:'',
             password:'',
             error2:'',
             error1:'',
             focusIndex:0,
-            isSupportPlaceholder:''
+            isSupportPlaceholder:'',
+            requestaData:{},
+            clientid:'',
+            accesstoken:'',
+            random16:'',
+            random15:'',
+            tt:'',
+            userid:''
         }
     },
     created() {
-        
+        // 获取16位的随机数(nonce_str)
+        this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+		// 获取15位的随机数(unique_code)
+        if(localStorage.getItem('uniquecode')){
+            this.random15 = localStorage.getItem('uniquecode')
+        }else{
+            this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+        }
+        // 获取user_id
+        if(localStorage.getItem('userid')){
+            this.userid = localStorage.getItem('userid')
+        }else{
+            this.userid = 0
+        }
+        // 获取10位时间戳(秒级,timestamp)
+        this.tt = Math.round(new Date().getTime() / 1000).toString()
+        // 获取公共请求参数
+        this.requestaData = this.$store.state.login.commonParam
+
+        this.requestaData.nonce_str = this.random16
+        this.requestaData.timestamp = this.tt
+        this.requestaData.unique_code = this.random15
+        this.requestaData.user_id = this.userid
+        this.clientid = localStorage.getItem('clientid')
+        this.accesstoken = localStorage.getItem('accesstoken')
+        if(this.clientid && this.clientid.length > 0 && this.accesstoken && this.accesstoken.length > 0){
+            this.requestaData.client_id = this.clientid
+            this.requestaData.access_token = this.accesstoken
+        }else{
+			this.$store.commit('login/SET_CLIENT_ID', '')
+            this.$store.commit('login/SET_ACCESS_TOKEN', '')
+        }
+        this.$nextTick(() => {
+            this.loading = false
+        })
     },
     mounted() {
         const input = $('input')[0]
@@ -94,7 +139,7 @@ export default {
         },
         blur(i) {
             if(i==1) {
-                if(this.name.length>0) {
+                if(this.username.length>0) {
                     return
                 } else {
                     this.error1 = '请输入正确的账号/手机号'
@@ -107,45 +152,85 @@ export default {
                     this.error2 = '请输入正确的密码'
                 }
             } 
-            this.focusIndex=0
+            this.focusIndex = 0
         },
         async login() {
-            if(!this.check()) return 
-            const data = {
-                phone: this.name,
-                password: this.password
-            }
-            const res = await this.$api.login(data)
-            if(res.data.user) {
-                this.$store.commit('login/SET_TOKEN', res.data.user.token)
-                sessionStorage.setItem('token', res.data.user.token)
-                sessionStorage.setItem('user', JSON.stringify(res.data.user))
-                this.$store.commit('login/SET_USER_INFO', res.data.user)
-                // this.$message({
-                //     message: '恭喜你，登录成功',
-                //     type: 'success'
-                // });
-                this.$router.replace('/ref')
-            } else {
-                if(res.data.message == '此手机号未注册' || res.data.message == '手机号格式不对') {
-                    this.error1 = res.data.message
-                } else if(res.data.message == "密码错误") {
-                    this.error2 = res.data.message
+            let finaldata,getClientFinal,getTokenFinal
+            let me = this
+            if(!this.check()) return
+            this.loading = true
+            this.requestaData.username = this.username
+            this.requestaData.password = this.password
+            finaldata = datawork(this.requestaData)
+            this.$api.login(finaldata).then(v => {
+                console.log(v)
+                if(v.data.data && v.data.errcode == 0 && v.data.errmsg == 'ok') {
+                    this.loading = false
+                    this.$store.commit('login/SET_USER_ID', v.data.data.id)
+                    localStorage.setItem('userid', v.data.data.id)
+                    localStorage.setItem('user', JSON.stringify(v.data.data))
+                    this.$store.commit('login/SET_USER_INFO', v.data.data)
+                    this.$message({
+                        message: '恭喜你，登录成功',
+                        type: 'success',
+                        duration:1500
+                    });
+                    setTimeout(function(){
+                        me.$router.push({name:'ref'})
+                    },1500)
+                } else {
+                    if(v.data.errcode == 2901) {
+                        this.loading = false
+                        this.error1 = '账号不存在'
+                    }else if(v.data.errcode == 2902){
+                        this.loading = false
+                        this.error2 = '密码错误'
+                    }else if(v.data.errcode == 1103){
+                        getClientFinal = getCilentId(this.requestaData)
+                        this.$api.get_client(getClientFinal).then(v => {
+                            if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                                localStorage.setItem('clientid',v.data.data.client_id)
+                                this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
+                                localStorage.setItem('accesstoken',v.data.data.access_token)
+                                this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+                                this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                                this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                                this.requestaData.client_id = v.data.data.client_id
+                                this.requestaData.access_token = v.data.data.access_token
+                                this.requestaData.unique_code = localStorage.getItem('uniquecode')
+                                this.login()
+                            }else{
+                            }
+                        }) 
+                    }else if(v.data.errcode == 1104){
+                        getTokenFinal = getToken(this.requestaData)
+                        this.$api.get_token(getTokenFinal).then(v => {
+                            if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                                localStorage.setItem('accesstoken',v.data.data.access_token)
+                                this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                                this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                                this.requestaData.access_token = v.data.data.access_token
+                                this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+                                this.login()
+                            }
+                        })
+                    }
                 }
-            }
+            })
+            // const v = await this.$api.login(data1)
         },
         check() {
-            if(!this.name || this.name.length==0) {
+            if(!this.username || this.username.length==0) {
                 this.error1 = '请输入正确的账号/手机号'
                 return false
             } else if(!this.password || this.password.length==0) {
                 this.error2 = '请输入正确的密码'
                 return false
-            } 
+            }
             // else if(!(/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/.test(this.name))) {
             //     this.error1 = '手机号格式不正确'
             //     return false
-            // } 
+            // }
             else {
                 return true
             }

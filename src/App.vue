@@ -17,9 +17,10 @@
 					</div>
                 </div>
                 <div class='right'>
-                    <p @click='$router.push("/index")'>返回首页</p>
+                    <p @click='$router.push("/")'>返回首页</p>
                     <i></i>
-                    <p class='blue' @mouseenter="show=true" @mouseleave="show=false">{{token&&token.length>0?'设置中心':'登录'}}</p>
+					<!-- {{token&&token.length>0?'设置中心':'登录'}} -->
+                    <p class='blue' @mouseenter="show=true" @mouseleave="show=false">{{userid?'设置中心':'登录'}}</p>
 					<div class='set' v-show='show' @mouseenter="show=true" @mouseleave="show=false">
 						<p @click='goset'>账户设置</p>
 						<p @click='logout'>退出登录</p>
@@ -50,7 +51,8 @@
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
-				<el-button type="primary" @click="save">保存修改</el-button>
+				<!-- @click="save" -->
+				<el-button type="primary">保存修改</el-button>
 				<el-button @click="dialogVisible= false">取消</el-button>
 			</span>
 		</el-dialog>
@@ -58,6 +60,7 @@
 </template>
 
 <script>
+import {datawork} from './plugins/datawork.js'
 export default {
 	name: 'app',
 	data() {
@@ -97,15 +100,20 @@ export default {
 			defaultimg:'this.src="'+ require('../public/img/head.png') +'"',
 			show:false,
 			dialogVisible:false,
-			formInline:{}
+			formInline:{},
+			navi:'',
+			ip_addre:'',
+			random16:'',
+			random15:'',
+			tt:'',
         };
 	},
 	computed:{
 		user() {
 			return this.$store.state.login.userInfo
 		},
-		token() {
-			return this.$store.state.login.token
+		userid() {
+			return this.$store.state.login.userid
 		},
 		route() {
 			return this.$route.path
@@ -121,74 +129,133 @@ export default {
 		}
 	},
 	created() {
-		const token = sessionStorage.getItem('token')
-		const user = JSON.parse(sessionStorage.getItem('user'))
-        if(token && token.length>0 && user && user.phone) {
-			this.$store.commit('login/SET_TOKEN', token)
+		let finaldata;
+		let userid = localStorage.getItem('userid')
+		const user = JSON.parse(localStorage.getItem('user'))
+		// 先查看是否有用户信息存在（userid为0时，表示用户没有没有登录），如果存在就存储用户信息，如果不存在就将存储的值设置为空
+        if(userid && user && user.username) {
+			this.$store.commit('login/SET_USER_ID', userid)
             this.$store.commit('login/SET_USER_INFO', user)
         } else {
-            this.$store.commit('login/SET_TOKEN', '')
-            this.$store.commit('login/SET_USER_INFO', '')
-            sessionStorage.removeItem('token')
-			sessionStorage.removeItem('user')
+            this.$store.commit('login/SET_USER_ID', '')
+			this.$store.commit('login/SET_USER_INFO', '')
+			userid = 0
+            localStorage.removeItem('userid')
+			localStorage.removeItem('user')
 			//在没有登录的情况下，去往除首页以外的其他页面都会先跳转到登录页面。
 			if(this.$route.path == '/') {
-
 			} else {
 				this.$router.push('/login')
+			}	
+		}
+		// 获取浏览器信息
+		this.navi = navigator.userAgent
+		// 获取ip地址
+		this.ip_addre = returnCitySN["cip"]
+		// 获取16位的随机数(nonce_str)
+		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+		// 获取15位的随机数(unique_code)
+		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+		// 将客户端唯一身份码存储在本地
+		localStorage.setItem('uniquecode',this.random15)
+		this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
+		// 获取10位时间戳(秒级,timestamp)
+		this.tt = Math.round(new Date().getTime() / 1000).toString()
+		// 定义并存储公共参数
+		var data = {
+			agent:this.navi,
+			appid:'hlwpfc86b1f482c5f9',
+			charset:'utf-8',
+			format:'JSON',
+			ip:this.ip_addre,
+			sign_type:'md5',
+			unique_code:this.random15,
+			version:'2.0',
+		}
+		this.$store.commit('login/SET_COMMON_PARAM', data)
+		data.nonce_str = this.random16
+		data.user_id = userid
+		data.timestamp = this.tt
+		finaldata = datawork(data)
+		this.$api.get_client(finaldata).then(v =>{
+			if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+				localStorage.setItem('clientid',v.data.data.client_id)
+				this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
+				localStorage.setItem('accesstoken',v.data.data.access_token)
+				this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+			}else{
+
 			}
-			
-        }
+		})
 	},
 	mounted() {
-		var NV = {};    
-		var UA = navigator.userAgent.toLowerCase();    
-		try    
-		{    
-			NV.name=!-[1,]?'ie':    
-			(UA.indexOf("firefox")>0)?'firefox':    
-			(UA.indexOf("chrome")>0)?'chrome':    
-			window.opera?'opera':    
-			window.openDatabase?'safari':  
-			'unkonw';    
-		}catch(e){};    
-		try    
-		{    
-			NV.version=(NV.name=='ie')?UA.match(/msie ([\d.]+)/)[1]:    
-			(NV.name=='firefox')?UA.match(/firefox\/([\d.]+)/)[1]:    
-			(NV.name=='chrome')?UA.match(/chrome\/([\d.]+)/)[1]:    
-			(NV.name=='opera')?UA.match(/opera.([\d.]+)/)[1]:    
-			(NV.name=='safari')?UA.match(/version\/([\d.]+)/)[1]:    
-			'0';    
-		}catch(e){};    
-		try    
-		{    
-			NV.shell=(UA.indexOf('360ee')>-1)?'360极速浏览器':    
-			(UA.indexOf('360se')>-1)?'360安全浏览器':    
-			(UA.indexOf('se')>-1)?'搜狗浏览器':    
-			(UA.indexOf('aoyou')>-1)?'遨游浏览器':    
-			(UA.indexOf('theworld')>-1)?'世界之窗浏览器':    
-			(UA.indexOf('worldchrome')>-1)?'世界之窗极速浏览器':    
-			(UA.indexOf('greenbrowser')>-1)?'绿色浏览器':    
-			(UA.indexOf('qqbrowser')>-1)?'QQ浏览器':    
-			(UA.indexOf('baidu')>-1)?'百度浏览器':    
-			'未知或无壳';    
-		}catch(e){}    
-		console.log('浏览器UA='+UA+    
-		'\n\n浏览器名称='+NV.name+    
-		'\n\n浏览器版本='+parseInt(NV.version)+    
-		'\n\n浏览器外壳='+NV.shell)   
+		// console.log(this.$store.state.login.commonParam)
+		// 以下注释掉的部分是获取浏览器的信息
+		// var NV = {};    
+		// var UA = navigator.userAgent.toLowerCase();
+		// console.log(UA)
+		// try    
+		// {    
+		// 	NV.name=!-[1,]?'ie':    
+		// 	(UA.indexOf("firefox")>0)?'firefox':    
+		// 	(UA.indexOf("chrome")>0)?'chrome':    
+		// 	window.opera?'opera':    
+		// 	window.openDatabase?'safari':  
+		// 	'unkonw';    
+		// }catch(e){};    
+		// try    
+		// {    
+		// 	NV.version=(NV.name=='ie')?UA.match(/msie ([\d.]+)/)[1]:    
+		// 	(NV.name=='firefox')?UA.match(/firefox\/([\d.]+)/)[1]:    
+		// 	(NV.name=='chrome')?UA.match(/chrome\/([\d.]+)/)[1]:    
+		// 	(NV.name=='opera')?UA.match(/opera.([\d.]+)/)[1]:    
+		// 	(NV.name=='safari')?UA.match(/version\/([\d.]+)/)[1]:    
+		// 	'0';    
+		// }catch(e){};    
+		// try    
+		// {    
+		// 	NV.shell=(UA.indexOf('360ee')>-1)?'360极速浏览器':    
+		// 	(UA.indexOf('360se')>-1)?'360安全浏览器':    
+		// 	(UA.indexOf('se')>-1)?'搜狗浏览器':    
+		// 	(UA.indexOf('aoyou')>-1)?'遨游浏览器':    
+		// 	(UA.indexOf('theworld')>-1)?'世界之窗浏览器':    
+		// 	(UA.indexOf('worldchrome')>-1)?'世界之窗极速浏览器':    
+		// 	(UA.indexOf('greenbrowser')>-1)?'绿色浏览器':    
+		// 	(UA.indexOf('qqbrowser')>-1)?'QQ浏览器':    
+		// 	(UA.indexOf('baidu')>-1)?'百度浏览器':    
+		// 	'未知或无壳';    
+		// }catch(e){}    
+		// console.log('浏览器UA='+UA+    
+		// '\n\n浏览器名称='+NV.name+    
+		// '\n\n浏览器版本='+parseInt(NV.version)+    
+		// '\n\n浏览器外壳='+NV.shell)   
 	},
 	methods:{
 		logout() {
-			this.$store.commit('login/SET_TOKEN', '')
-            this.$store.commit('login/SET_USER_INFO', '')
-            sessionStorage.removeItem('token')
-			sessionStorage.removeItem('user')
-			this.$router.push('login')
+			this.$confirm('确定要退出登录吗?', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			}).then(() => {
+				this.$store.commit('login/SET_USER_ID', '')
+				this.$store.commit('login/SET_USER_INFO', '')
+				localStorage.removeItem('userid')
+				localStorage.removeItem('user')
+				this.$router.push('login')
+			}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '已取消'
+				});
+			});
 		},
 		hh() {
-			if(this.token&&this.token.length>0) {
+			// if(this.token&&this.token.length>0) {
+			// 	this.show = !this.show
+			// } else {
+			// 	this.$router.push('/login')
+			// }
+			if(this.userid&&this.userid.length>0) {
 				this.show = !this.show
 			} else {
 				this.$router.push('/login')
@@ -202,21 +269,20 @@ export default {
 			}
 			this.dialogVisible = true
 		},
-		async save() {
-			this.formInline.token = this.token
-			const res = await this.$api.updata_user(this.formInline)
-			console.log(res)
-			if(res.data.data) {
-                this.$store.commit('login/SET_USER_INFO', res.data.data)
-                sessionStorage.setItem('user', JSON.stringify(res.data.data))
-                this.$message({
-                    message: '修改成功',
-                    type: 'success'
-				});
-				this.dialogVisible=false
-            }
-		},
-
+		// async save() {
+		// 	this.formInline.token = this.token
+		// 	const res = await this.$api.updata_user(this.formInline)
+		// 	console.log(res)
+		// 	if(res.data.data) {
+        //         this.$store.commit('login/SET_USER_INFO', res.data.data)
+        //         sessionStorage.setItem('user', JSON.stringify(res.data.data))
+        //         this.$message({
+        //             message: '修改成功',
+        //             type: 'success'
+		// 		});
+		// 		this.dialogVisible=false
+        //     }
+		// },
 	}
 }
 </script>

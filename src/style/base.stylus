@@ -11,8 +11,7 @@ html,body
 ul,li 
     list-style none
 a 
-    text-decoration: none
-
+    text-decoration none
 
 .reportBtns
 	display flex
@@ -223,7 +222,7 @@ a
 	margin 10px auto 20px auto
 
 .el-loading-mask
-    background-color rgba(0,0,0,0) !important
+    background-color rgba(0,0,0,0.5) !important
 	.el-loading-spinner
 		width 80px
 		height 80px
