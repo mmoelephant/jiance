@@ -142,7 +142,6 @@ export default {
         if(userid && user && user.username) {
 			this.$store.commit('login/SET_USER_ID', userid)
 			this.$store.commit('login/SET_USER_INFO', user)
-			console.log(localStorage.getItem('user'))
         } else {
             this.$store.commit('login/SET_USER_ID', '')
 			this.$store.commit('login/SET_USER_INFO', '')

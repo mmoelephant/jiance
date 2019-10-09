@@ -3,14 +3,9 @@
   "short_name": "监测平台",
   "icons": [
     {
-      "src": "./img/icons/jc.jpg",
-      "sizes": "192x192",
-      "type": "image/jpg"
-    },
-    {
-      "src": "./img/icons/jc.jpg",
-      "sizes": "512x512",
-      "type": "image/jpg"
+      "src": "./favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
     }
   ],
   "start_url": "./index.html",
