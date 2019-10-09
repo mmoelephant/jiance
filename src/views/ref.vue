@@ -36,7 +36,7 @@
                     <div class='btnClass'>
                         <span class="dotClass"></span>
                         <span class="firstNav">{{t==0?'各地材料数据 > ':'各地材料对比 > '}}</span>
-                        <span class="secondNav"> &nbsp数据详情</span>
+                        <span class="navigiOn"> &nbsp数据详情</span>
                     </div>
                 </div>
                 <div class='tooltip'>
@@ -1272,7 +1272,6 @@ export default {
             background #6064FD
             border-radius 4px 4px 0px 0px
             color #fff
-            border 1px green solid
             box-sizing border-box
             >div
                 display flex
@@ -1287,12 +1286,14 @@ export default {
                     cursor pointer
             ul
                 display flex
+                align-items center
                 font-size 14px
                 color #BDBEF8
-                align-items center
                 li
                     margin-left 20px
                     cursor pointer
+                li:nth-child(1)
+                    margin-left 100px
                 .ac 
                     font-size 18px
                     color #fff
@@ -1312,9 +1313,9 @@ export default {
         padding 0
         box-shadow none
         margin-bottom 20px
-        span.secondNav
+        span.navigiOn
             color #2C2D33
-    .tooltip 
+    .tooltip
         display flex
         justify-content space-between
         align-items center
@@ -1357,10 +1358,14 @@ export default {
             p+p+p
                 border-radius 0px 4px 4px 0px
                 border-left 0
+            p:hover
+                background #eee
             .active 
                 background #7F94FF
                 border 1px solid #7F94FF
                 color #fff
+            .active:hover
+                background #7f94ff !important
 .timer
     align-items center
     span 
@@ -1368,8 +1373,7 @@ export default {
         color #fff
         margin-right 10px
     .el-input__inner
-        height 38px
-    
+        height 34px
 .ch 
     display flex
     flex-direction column
@@ -1467,4 +1471,11 @@ export default {
         width 12px
         height 12px
         margin-left 5px
+</style>
+<style lang="stylus">
+.timer
+    .el-input__inner
+        height 34px
+    .el-input__inne
+        line-height 34px
 </style>
