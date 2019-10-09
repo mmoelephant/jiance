@@ -22,7 +22,7 @@
 					<!-- {{token&&token.length>0?'设置中心':'登录'}} -->
                     <p class='blue' @mouseenter="show=true" @mouseleave="show=false">{{userid?'设置中心':'登录'}}</p>
 					<div class='set' v-show='show' @mouseenter="show=true" @mouseleave="show=false">
-						<p @click='goset'>账户设置</p>
+						<p @click='goset'>账户信息</p>
 						<p @click='logout'>退出登录</p>
 					</div>
                 </div>
@@ -35,25 +35,31 @@
 				</el-footer>
             </el-container>
         </el-container>
-		<el-dialog
-			title="账户设置"
-			:visible.sync="dialogVisible"
-			width="30%">
-			<el-form :model="formInline" style='width:50%;padding-top:50px;margin:0 auto' label-width="40px">
+		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="30%">
+			<el-form :model="formInline" style='width:80%;padding-top:50px;margin:0 auto' label-width="40px">
+				<el-form-item label="账号">
+					<el-input v-model="formInline.username"></el-input>
+				</el-form-item>
 				<el-form-item label="姓名">
 					<el-input v-model="formInline.name"></el-input>
 				</el-form-item>
-				<el-form-item label="地区">
-					<el-input v-model="formInline.location"></el-input>
-				</el-form-item>
 				<el-form-item label="单位">
 					<el-input v-model="formInline.unit"></el-input>
+				</el-form-item>
+				<el-form-item label="手机">
+					<el-input v-model="formInline.phone"></el-input>
+				</el-form-item>
+				<el-form-item label="邮箱">
+					<el-input v-model="formInline.email"></el-input>
+				</el-form-item>
+				<el-form-item label="地区">
+					<el-input v-model="formInline.location"></el-input>
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
 				<!-- @click="save" -->
 				<el-button type="primary">保存修改</el-button>
-				<el-button @click="dialogVisible= false">取消</el-button>
+				<!-- <el-button @click="dialogVisible= false">取消</el-button> -->
 			</span>
 		</el-dialog>
 	</div>
@@ -135,7 +141,8 @@ export default {
 		// 先查看是否有用户信息存在（userid为0时，表示用户没有没有登录），如果存在就存储用户信息，如果不存在就将存储的值设置为空
         if(userid && user && user.username) {
 			this.$store.commit('login/SET_USER_ID', userid)
-            this.$store.commit('login/SET_USER_INFO', user)
+			this.$store.commit('login/SET_USER_INFO', user)
+			console.log(localStorage.getItem('user'))
         } else {
             this.$store.commit('login/SET_USER_ID', '')
 			this.$store.commit('login/SET_USER_INFO', '')
@@ -154,10 +161,10 @@ export default {
 		this.ip_addre = returnCitySN["cip"]
 		// 获取16位的随机数(nonce_str)
 		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-		// 获取15位的随机数(unique_code)
+		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
 		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
 		// 将客户端唯一身份码存储在本地
-		localStorage.setItem('uniquecode',this.random15)
+		localStorage.getItem('uniquecode',this.random15)
 		this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
@@ -263,19 +270,22 @@ export default {
 		},
 		goset() {
 			this.formInline = {
-				name: this.$store.state.login.userInfo.name,
-				location: this.$store.state.login.userInfo.location,
-				unit: this.$store.state.login.userInfo.unit
+				username:this.$store.state.login.userInfo.username,
+				name: this.$store.state.login.userInfo.realname,
+				unit: this.$store.state.login.userInfo.company,
+				phone: this.$store.state.login.userInfo.mobile,
+				email:this.$store.state.login.userInfo.email,
+				location: this.$store.state.login.userInfo.area_name,
 			}
 			this.dialogVisible = true
 		},
 		// async save() {
-		// 	this.formInline.token = this.token
+		// 	this.formInline.userid = this.userid
 		// 	const res = await this.$api.updata_user(this.formInline)
 		// 	console.log(res)
 		// 	if(res.data.data) {
         //         this.$store.commit('login/SET_USER_INFO', res.data.data)
-        //         sessionStorage.setItem('user', JSON.stringify(res.data.data))
+        //         localStorage.setItem('user', JSON.stringify(res.data.data))
         //         this.$message({
         //             message: '修改成功',
         //             type: 'success'

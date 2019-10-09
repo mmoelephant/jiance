@@ -3,9 +3,10 @@
 <div >
 	<div class="intellReport">
 		<div class="inteLeft">
-			<a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a>
-			<a href="javascript:void(0)"><div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1)">月度智能报告</div></a>
-			<a href="javascript:void(0)"><div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2)">自定义报告</div></a>
+			<!-- <a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a> -->
+			<div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div>
+			<div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1)">月度智能报告</div>
+			<div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2)">自定义报告</div>
 		</div>
 		<div class="inteRight">
 			<div class="reportBtns">
@@ -1264,7 +1265,7 @@ export default {
 	top 78px
 	left 0
 
-.all
+.all,.month,.custom
 	width 100%
 	height 58px
 	background url(../../../public/img/report/all_grey.png) no-repeat 15px 15px
@@ -1274,66 +1275,49 @@ export default {
 	font-size 16px
 	color #8E9099
 	line-height 58px
-
-.allOn
-	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
-	color white
+	cursor pointer
 
 .all:hover
-	background #F5F6FE url(../../../public/img/report/all_black.png) no-repeat 15px 15px
+	background #F5F6FE url(../../../public/img/report/all_black.png) no-repeat 15px 15px !important
 	color #2C2D33
 
+.allOn
+	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
+	color white
+
 .allOn:hover
-	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
+	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .month
-	width 100%
-	height 58px
-	background url(../../../public/img/report/month_grey.png) no-repeat 15px 15px
-	padding-left 46px
-	box-sizing border-box
-	margin-bottom 10px
-	font-size 16px
-	color #8E9099
-	line-height 58px
+	background url(../../../public/img/report/month_grey.png) no-repeat 15px 15px !important
 
 .month:hover
-	background #F5F6FE url(../../../public/img/report/month_black.png) no-repeat 15px 15px
+	background #F5F6FE url(../../../public/img/report/month_black.png) no-repeat 15px 15px !important
 	color #2C2D33
 
 .monthOn
-	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
+	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .monthOn:hover
-	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
+	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .custom
-	width 100%
-	height 58px
-	background url(../../../public/img/report/custom_grey.png) no-repeat 15px 15px
-	padding-left 46px
-	box-sizing border-box
-	margin-bottom 10px
-	font-size 16px
-	color #8E9099
-	line-height 58px
+	background url(../../../public/img/report/custom_grey.png) no-repeat 15px 15px !important
 
 .custom:hover
-	background #F5F6FE url(../../../public/img/report/custom_black.png) no-repeat 15px 15px
+	background #F5F6FE url(../../../public/img/report/custom_black.png) no-repeat 15px 15px !important
 	color #2C2D33
 
 .customOn
-	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
+	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
-
 
 .customOn:hover
-	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) 
+	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
-	
 
 .inteRight
 	width calc(100% - 200px)
@@ -1354,6 +1338,8 @@ export default {
 .goback:hover
 	margin-left 20px
 	color #676efe
+.view1,.view2
+	cursor pointer
 
 .search
 	width 460px

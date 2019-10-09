@@ -42,7 +42,7 @@
                     <p class='error'>{{error2}}</p>
                 </div>
                 <el-button @click='login' 
-                    :class='!username || username.length ==0 || !password || password.length==0?"loginbtn disabled":"loginbtn abled"'>登录</el-button>
+                    :class='!username || username.length ==0 || !password || password.length==0?"loginbtn disabled":"loginbtn abled"'>登 录</el-button>
                 <div class='tool'>
                     <p @click='$router.replace("/")'>&lt;返回首页</p>
                     <!--p>帮助中心</p-->
@@ -57,6 +57,7 @@ import $ from 'jquery'
 import {datawork} from '../plugins/datawork.js'
 import {getCilentId} from '../plugins/getclientidagain'
 import {getToken} from '../plugins/gettoken.js'
+import { deflate } from 'zlib'
 export default {
     data() {
         return {
@@ -163,7 +164,6 @@ export default {
             this.requestaData.password = this.password
             finaldata = datawork(this.requestaData)
             this.$api.login(finaldata).then(v => {
-                console.log(v)
                 if(v.data.data && v.data.errcode == 0 && v.data.errmsg == 'ok') {
                     this.loading = false
                     this.$store.commit('login/SET_USER_ID', v.data.data.id)
@@ -173,11 +173,11 @@ export default {
                     this.$message({
                         message: '恭喜你，登录成功',
                         type: 'success',
-                        duration:1500
+                        duration:1000
                     });
                     setTimeout(function(){
                         me.$router.push({name:'ref'})
-                    },1500)
+                    },1000)
                 } else {
                     if(v.data.errcode == 2901) {
                         this.loading = false
@@ -186,38 +186,68 @@ export default {
                         this.loading = false
                         this.error2 = '密码错误'
                     }else if(v.data.errcode == 1103){
-                        getClientFinal = getCilentId(this.requestaData)
-                        this.$api.get_client(getClientFinal).then(v => {
-                            if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-                                localStorage.setItem('clientid',v.data.data.client_id)
-                                this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
-                                localStorage.setItem('accesstoken',v.data.data.access_token)
-                                this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
-                                this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                                this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                                this.requestaData.client_id = v.data.data.client_id
-                                this.requestaData.access_token = v.data.data.access_token
-                                this.requestaData.unique_code = localStorage.getItem('uniquecode')
-                                this.login()
+                        let that = this
+                        getCilentId(that.requestaData)
+                        setTimeout(function(){
+                            if(localStorage.getItem('done')){
+                               that.loading = false
+                                that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                                that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                                that.requestaData.client_id = localStorage.getItem('clientid')
+                                that.requestaData.access_token = localStorage.getItem('accesstoken')
+                                that.requestaData.unique_code = localStorage.getItem('uniquecode')
+                                that.login()
                             }else{
-                            }
-                        }) 
+                            }  
+                        },1000)
                     }else if(v.data.errcode == 1104){
-                        getTokenFinal = getToken(this.requestaData)
-                        this.$api.get_token(getTokenFinal).then(v => {
-                            if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-                                localStorage.setItem('accesstoken',v.data.data.access_token)
+                        let that = this
+                        getToken(this.requestaData)
+                        setTimeout(function(){
+                            if(localStorage.getItem('tokenDone')){
+                               that.loading = false
                                 this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
                                 this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                                this.requestaData.access_token = v.data.data.access_token
-                                this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
-                                this.login()
-                            }
-                        })
+                                this.requestaData.access_token = localStorage.getItem('accesstoken')
+                                that.login()
+                            }else{
+                            }  
+                        },1000)
+
                     }
                 }
             })
             // const v = await this.$api.login(data1)
+        },
+        copy(){
+                        // getClientFinal = getCilentId(this.requestaData)
+                        // this.$api.get_client(getClientFinal).then(v => {
+                        //     if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                        //         this.loading = false
+                        //         localStorage.setItem('clientid',v.data.data.client_id)
+                        //         this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
+                        //         localStorage.setItem('accesstoken',v.data.data.access_token)
+                        //         this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+                        //         this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                        //         this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                        //         this.requestaData.client_id = v.data.data.client_id
+                        //         this.requestaData.access_token = v.data.data.access_token
+                        //         this.requestaData.unique_code = localStorage.getItem('uniquecode')
+                        //         this.login()
+                        //     }else{
+                        //     }
+                        // })
+                        // getTokenFinal = getToken(this.requestaData)
+                        // this.$api.get_token(getTokenFinal).then(v => {
+                        //     if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                        //         localStorage.setItem('accesstoken',v.data.data.access_token)
+                        //         this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                        //         this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                        //         this.requestaData.access_token = v.data.data.access_token
+                        //         this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+                        //         this.login()
+                        //     }
+                        // })
         },
         check() {
             if(!this.username || this.username.length==0) {
@@ -272,45 +302,47 @@ export default {
             img 
                 width 116px
                 margin-bottom 24px
-            p 
-                color #fff
+            p
                 font-size 16px
+                color #fff
                 font-weight 600
+                line-height 28px
             .cp
-                color #A6A6A6
                 font-size 12px
+                color #A6A6A6
                 font-weight 400
+                line-height 20px
             .mt 
-                margin-top 132px
+                margin-top 128px
         .right 
             width 480px 
             height 480px
             box-shadow 0px 13px 29px 0px rgba(5,16,65,0.5)
-            background rgba(255,255,255,1)
-            opacity 0.85
+            background rgba(255,255,255,0.85)
+            // opacity 0.85
             border-radius 8px
-            padding 90px 103px 0
+            padding 90px 90px 0 90px
             box-sizing border-box
             h1 
-                text-align center
-                font-size 24px
                 margin-bottom 50px
-                color font-color-black
-            .input 
+                font-size 24px
+                color #2C2D33
+                text-align center
+            .input
+                width 100%
                 font-size 14px
                 color rgba(153,153,153,1)
-                width 100%
-                margin-bottom 14px
-                position relative              
+                margin-bottom 20px
+                position relative      
                 div
                     display flex
                     align-items center
-                    border-bottom 2px solid font-color-light-g
+                    border-bottom 1px solid #C6C9D6
                 i
                     font-weight 600
                 .onfocus
                     border-bottom 2px solid #454EFF
-                    i  
+                    i
                         color #454EFF
                 .onerror
                     border-bottom 2px solid font-color-red
@@ -318,11 +350,12 @@ export default {
                         color font-color-red
                 input 
                     width 100%
-                    border none
-                    margin-left 14px
-                    outline none
-                    line-height 32px
                     height 32px
+                    background rgba(255,255,255,0)
+                    border none
+                    outline none
+                    margin-left 14px
+                    line-height 32px
                     display block
                 span 
                     position absolute
@@ -331,37 +364,39 @@ export default {
                     left 40px
                 .blue
                     border-color #3577EC
-                .red 
-                    border-color #D82B0E
-                .error 
-                    color #D82B0E
-                    font-size 12px
+                .red
+                    border-color #FF1A25
+                .error
                     height 16px
+                    font-size 12px
+                    color #FF1A25
                     line-height 16px
-        .loginbtn 
-            width 100%
-            margin-bottom 20px
-            color #fff
-            font-weight bold
-            font-size 16px
-            border-radius 4px
-        
-        .abled
-            background linear-gradient(90deg,rgba(41,105,219,1) 0%,rgba(28,92,208,1) 100%)
-            box-shadow 0px 10px 14px 0px rgba(36,133,250,0.14)
-        .abled:hover 
-            background linear-gradient(90deg,rgba(74,135,243,1) 0%,rgba(37,104,226,1) 100%)
-            box-shadow 0px 10px 14px 0px rgba(36,133,250,0.14)
-        .disabled 
-            background font-color-grey 
-
-        .tool 
-            display flex
-            justify-content space-between
-            font-size 14px
-            p 
-                color #454EFF
-                cursor pointer
-            p+p 
-                color font-color-black
+            .loginbtn 
+                width 100%
+                height 42px
+                margin-bottom 20px
+                color #fff
+                font-size 16px
+                font-weight bold
+                border-radius 4px
+            .abled
+                // background #454EFF linear-gradient(90deg,rgba(41,105,219,1) 0%,rgba(28,92,208,1) 100%)
+                background #454EFF
+                box-shadow 0px 8px 12px 0px rgba(59,110,255,0.3)
+            .abled:hover 
+                // background #7f94ff linear-gradient(90deg,rgba(74,135,243,1) 0%,rgba(37,104,226,1) 100%)
+                background #637cfb
+                box-shadow 0px 10px 14px 0px rgba(36,133,250,0.14)
+            .disabled 
+                background #8E9099
+                box-shadow 0px 8px 12px 0px rgba(142,144,153,0.3)
+            .tool 
+                display flex
+                justify-content space-between
+                font-size 14px
+                p
+                    color #454EFF
+                    cursor pointer
+                p+p
+                    color font-color-black
 </style>

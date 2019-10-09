@@ -88,6 +88,7 @@ service.interceptors.response.use(
 // 		// return Promise.reject(error)
 // 	}
 // )
+// export default service
 const api = {
 		get_client(data){
 			if(data) data = qs.stringify(data, { allowDots: true })
@@ -120,6 +121,7 @@ const api = {
 		},
 		// Api/Passport/checkUsername
 		updata_user(data) {
+			if(data) data = qs.stringify(data, { allowDots: true })
 			return service.post('/PageUserController/updateUserInfo',data)
 		},
 		// 数据查询
