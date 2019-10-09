@@ -293,10 +293,11 @@ export default {
             align-items center
             width 360px
             height 480px
+            background-color rgba(255,255,255,0)
             padding 102px 30px 49px 30px
             box-sizing border-box
             margin-right 10px
-            background url('../../public/img/loginq.jpg') no-repeat
+            background url('../../public/img/loginq1.png') no-repeat
             background-size 100% 100%
             box-shadow 0px 13px 29px 0px rgba(5,16,65,0.5) 
             img 
@@ -314,6 +315,8 @@ export default {
                 line-height 20px
             .mt 
                 margin-top 128px
+                white-space nowrap
+                // text-align center
         .right 
             width 480px 
             height 480px

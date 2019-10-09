@@ -15,27 +15,24 @@ a
 
 .reportBtns
 	display flex
-	flex-direction row
-	flex-wrap nowrap
-	justify-content flex-start
-	padding-top 30px
+	// padding-top 30px
 	// position absolute
 
 .btnClass 
-	width 240px
+	width 238px
 	height 38px
 	background-color #ffffff
-	padding-left 30px
-	border-radius 8px
+	padding 0 0 0 30px
 	box-sizing border-box
+	border-radius 8px
 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
-	margin-left 20px
-	font-size 16px
-	color rgba(44,45,51,1)
+	font-size 14px
+	color #8E9099
 	line-height 38px
-	position relative
 	cursor pointer
 	transition background-color 0.1s
+	display flex
+	align-items center
 
 .btnClass:hover 
 	background-color rgba(226,230,255,1)
@@ -43,14 +40,12 @@ a
 .dotClass 
 	width 6px
 	height 6px
-	border-radius 8px
 	background-color #7F94FF
-	position: absolute
-	left 18px
-	top 16px
+	border-radius 8px
+	margin-right 8px
 
 .navigiOn
-	color #454EFF !important
+	color #2C2D33 !important
 
 .viewToggle
 	padding-top 3px

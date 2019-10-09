@@ -1,6 +1,6 @@
 <template>
 <!-- v-loading.fullscreen="loading" style="height:100%" -->
-<div >
+<div style="height:100%">
 	<div class="intellReport">
 		<div class="inteLeft">
 			<!-- <a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a> -->
@@ -10,7 +10,7 @@
 		</div>
 		<div class="inteRight">
 			<div class="reportBtns">
-				<div class="btnClass"><span class="dotClass"></span>智能报告  > <span class="navigiOn">{{navigiOn}}</span></div>
+				<div class="btnClass"><span class="dotClass"></span>智能报告  >&nbsp<span class="navigiOn">{{ navigiOn}}</span></div>
 				<div class="viewToggle">
 					<span :class="type == 0?'view1 viewActive':'view1'" @click="choose(0)">网格显示</span>
 					<span :class="type == 1?'view2 viewActive':'view2'" @click="choose(1)">列表显示</span>
@@ -1253,17 +1253,11 @@ export default {
 	height 100%
 	overflow auto
 	display flex
-	flex-direction row
-	flex-wrap wrap
-	justify-content flex-start
-
 .inteLeft
 	width 200px
 	height 100%
+	min-height 100%
 	background-color #fff
-	position fixed
-	top 78px
-	left 0
 
 .all,.month,.custom
 	width 100%
@@ -1272,7 +1266,7 @@ export default {
 	padding-left 46px
 	box-sizing border-box
 	margin-bottom 10px
-	font-size 16px
+	font-size 14px
 	color #8E9099
 	line-height 58px
 	cursor pointer
@@ -1284,6 +1278,7 @@ export default {
 .allOn
 	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
+	font-weight bold
 
 .allOn:hover
 	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
@@ -1299,6 +1294,7 @@ export default {
 .monthOn
 	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
+	font-weight bold
 
 .monthOn:hover
 	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
@@ -1314,14 +1310,17 @@ export default {
 .customOn
 	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
+	font-weight bold
 
 .customOn:hover
 	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .inteRight
-	width calc(100% - 200px)
-	margin-left 200px
+	width calc(100% - 220px)
+	padding-top 30px
+	box-sizing border-box
+	margin-left 20px
 
 .searchTip
 	margin-bottom 30px

@@ -35,8 +35,8 @@
 				</el-footer>
             </el-container>
         </el-container>
-		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="30%">
-			<el-form :model="formInline" style='width:80%;padding-top:50px;margin:0 auto' label-width="40px">
+		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="480px">
+			<el-form :model="formInline" style='width:86%;padding:30px 0 0 40px;box-sizing:border-box' label-width="40px">
 				<el-form-item label="账号">
 					<el-input v-model="formInline.username"></el-input>
 				</el-form-item>
@@ -58,7 +58,7 @@
 			</el-form>
 			<span slot="footer" class="dialog-footer">
 				<!-- @click="save" -->
-				<el-button type="primary">保存修改</el-button>
+				<el-button type="primary">保存</el-button>
 				<!-- <el-button @click="dialogVisible= false">取消</el-button> -->
 			</span>
 		</el-dialog>
@@ -164,7 +164,7 @@ export default {
 		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
 		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
 		// 将客户端唯一身份码存储在本地
-		localStorage.getItem('uniquecode',this.random15)
+		localStorage.setItem('uniquecode',this.random15)
 		this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
@@ -309,7 +309,7 @@ export default {
 		display flex
 		justify-content space-between
 		align-items center
-		padding 0 30px !important
+		padding 0 77px 0 30px !important
 		background #fff
 		height 78px !important
 		box-shadow 0px 8px 14px 0px rgba(33,58,233,0.1)
@@ -388,7 +388,7 @@ export default {
 			p 
 				font-size 14px
 				font-weight 400
-				color font-color-grey
+				color #8E9099
 				cursor pointer
 			i 
 				display block
@@ -400,7 +400,7 @@ export default {
 				color #7F94FF
 			.set
 				position absolute
-				top 20px
+				top 22px
 				left 55px
 				width 120px
 				background #fff
@@ -414,7 +414,15 @@ export default {
 				p:hover
 					background #EFF2FC
 					color #637CFB
-
-
-
+</style>
+<style lang="stylus">
+// .accoutInfo
+#app .el-dialog__footer .el-button.el-button--primary
+	width 56px
+	height 32px
+	background #66b1ff
+	padding 0
+	border none
+	text-align center
+	
 </style>

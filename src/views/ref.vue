@@ -1,15 +1,13 @@
 <template>
     <div style='height:100%' v-loading.fullscreen.lock="loading">        
-        <el-container style='height:100%;background:#F6F7FE;padding:0 20px 0 0;box-sizing:border-box'>
-            <el-aside width="320px" style='border-radius:4px;background:#fff;' class='cate'>
+        <el-container class="refContainer">
+            <el-aside class='cate'>
                 <div :class='t==0?"title acttitle":"title"'  @click='t=0'>
                     <div>
                         <p class='c'></p>
-                        <span>按材料查询</span>
+                        <span>各地材料数据</span>
                     </div>
-                    
                     <i class='iconfont icon-shang-copy'></i>
-                    
                 </div>
                 <el-tree 
                     :data="cateList" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
@@ -18,7 +16,7 @@
                 <div :class='t==1?"title acttitle":"title"' @click='t =1'>
                     <div>
                         <p class='a'></p>                   
-                        <span>按地区查询</span>
+                        <span>各地材料对比</span>
                     </div>
                     <i class='iconfont icon-shang-copy'></i>
                 </div>
@@ -37,8 +35,8 @@
                 <div class="reportBtns">
                     <div class='btnClass'>
                         <span class="dotClass"></span>
-                        数据查询>
-                        <span>{{t==0?'按材料查询':'按地区查询'}}</span>
+                        <span class="firstNav">{{t==0?'各地材料数据 > ':'各地材料对比 > '}}</span>
+                        <span class="secondNav"> &nbsp数据详情</span>
                     </div>
                 </div>
                 <div class='tooltip'>
@@ -122,8 +120,7 @@
                             </div>
                         </div> 
                     </div>
-                    <div style='width:100%;height:100%;padding-top:56px;overflow:hidden;display:flex'
-                        v-show='loading'>
+                    <div style='width:100%;height:100%;padding-top:56px;overflow:hidden;display:flex' v-show='loading'>
                         <img src="../../public/img/table.png" alt="" style='width:100%;min-height: 577px;max-height:577px'>
                     </div>
                     <reftable 
@@ -135,7 +132,8 @@
                         :t_type='chosed_type'
                         @checkList='checkList' 
                         @get_next='get_next'
-                        :isnext='isnext'></reftable>
+                        :isnext='isnext'>
+                    </reftable>
                     <page-btn :disablepage="disablepage" @pagechange='pagechange' style='padding-top:20px;float:right'></page-btn>
                 </div>
             </el-container>
@@ -1133,51 +1131,59 @@ export default {
 </script>
 <style lang="stylus" scoped>
 @import '../style/color.stylus'
-.title 
+.el-container.refContainer
+    height 100%
+    background #F6F7FE
+    padding 0 20px 0 0
+    box-sizing border-box
     display flex
-    font-size 16px
-    color font-color-light-b
-    margin-bottom 10px
+
+.title
+    display flex
     align-items center
     justify-content space-between
     height 58px
+    padding 0 20px 0 13px
+    box-sizing border-box
+    margin-bottom 10px
+    font-size 14px
+    color font-color-light-b
     cursor pointer
-    padding 0 20px
     div
         display flex
         align-items center
-    p 
+    p
         width 30px
         height 30px
         flex-shrink 0
-        margin-right 10px
-        
+        margin-right 3px  
     .c
-        background url('../../public/img/1g.png') no-repeat
+        background url('../../public/img/1g.png') no-repeat center
         background-size 100% 100%
     .a
-        background url('../../public/img/2g.png') no-repeat
+        background url('../../public/img/2g.png') no-repeat center
         background-size 100% 100%
     i 
         color font-color-light-b
         font-size 12px
 .title:hover
     background #F5F6FE
-    color #000
+    color #2D2E33
     .c
-        background url('../../public/img/1b.png') no-repeat
+        background url('../../public/img/1b.png') no-repeat center
         background-size 100% 100%
     .a
-        background url('../../public/img/2b.png') no-repeat
+        background url('../../public/img/2b.png') no-repeat center
         background-size 100% 100%
     i 
-        color #000    
+        color #2D2E33   
 .acttitle,.acttitle:hover
     background -webkit-linear-gradient(right,#61e0ff,#6439f8) !important/* Safari 5.1-6.0 */
     background -o-linear-gradient(left,#61e0ff,#6439f8)!important /* Opera 11.1-12.0 */ 
     background -moz-linear-gradient(left,#61e0ff,#6439f8)!important /* Firefox 3.6-15 */
     background linear-gradient(to left,#61e0ff,#6439f8)!important /* 标准语法 */
     color #fff
+    font-weight bold
     .c
         background url('../../public/img/1w.png') no-repeat
         background-size 100% 100%
@@ -1186,17 +1192,18 @@ export default {
         background-size 100% 100%
     i
         color #fff
+        font-weight normal
     .iconfont:before
         display inline-block
         transform rotate(90deg)
-.cate
+.el-aside.cate
+    width 200px !important
+    height 100%
+    min-height 100%
+    background #fff
     box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
     border-radius 0 !important
-    position fixed
-    z-index 99
-    height 100%
     overflow-y auto
-    // padding 0 20px
     .cate-list 
         height auto
         .active
@@ -1234,41 +1241,38 @@ export default {
             color font-color-light-b
             p
                 margin-left 50px
-.charts-main
-    min-height 100%
+.el-container.charts-main
     width 100%
-    // margin-left 20px
     height 100%
-    border-radius 8px       
+    min-height 100%
     flex-direction column
-    padding-top 78px
+    padding-top 30px
     box-sizing border-box
-    position relative
-    padding-left 330px
-    box-sizing border-box
+    margin-left 20px
     .table-box
-        overflow-y scroll
         width 100%
+        overflow-y scroll
         margin-top 20px
         position relative
-        .t-box 
-            padding 20px
-            position absolute
+        .t-box
             width 100%
+            padding 20px
             box-sizing border-box
+            position absolute
             top 0
             left 0
             z-index 99
         .t
+            width 100%
             display flex
-            justify-content space-between 
+            justify-content space-between
             align-items center
             height 56px
             padding 0 40px
             background #6064FD
             border-radius 4px 4px 0px 0px
             color #fff
-            width 100%
+            border 1px green solid
             box-sizing border-box
             >div
                 display flex
@@ -1292,80 +1296,67 @@ export default {
                 .ac 
                     font-size 18px
                     color #fff
-                
-                    
     >div
         width 100%
-        background #fff
-        box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
-        padding 20px
-        box-sizing border-box 
-        // min-height 100%
         max-height auto
         height auto
-        // margin-bottom 20px
+        background #fff
+        padding 20px
         border-radius 8px
-        
+        box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
+        box-sizing border-box
+
     .reportBtns
-        position absolute
-        top 20px
-        background rgba(0,0,0,0)
-        box-shadow none
-        padding 0
         width auto
-    .btnClass
-        width 280px
-        padding-left 30px
-        display flex
-        align-items center
-        padding-right 37px
-        margin-left 0
-        .dotClass
-            display block
-            position static
-            margin-right 6px
-        span
-            color #454EFF
+        background rgba(0,0,0,0)
+        padding 0
+        box-shadow none
+        margin-bottom 20px
+        span.secondNav
+            color #2C2D33
     .tooltip 
         display flex
         justify-content space-between
         align-items center
+        padding 18px 30px
         h1 
             font-size 20px
             font-weight bold
             color rgba(96,100,253,1)
             margin-right 50px
-        .left , .tab
+        .left,.tab
             display flex
             align-items center
         .switch
             width 180px
-            line-height 32px
+            background #6064FD
             border-radius 16px
+            font-size 14px
             text-align center
             color #fff
-            background #6064FD
-            font-size 14px
+            line-height 32px            
             cursor pointer
         .switch:hover 
             background rgba(127,148,255,1)
         .tab
-            margin-right 48px
+            margin-right 60px
             p
                 width 80px
                 height 32px
                 background #fff
+                border 1px solid #D6D9E2
                 border-radius 4px 0px 0px 4px
+                font-size 12px
+                color #8E9099
                 line-height 32px
                 text-align center
-                color font-color-grey
-                font-size 12px
-                border 1px solid #D6D9E2
                 cursor pointer
             p+p
                 border-radius 0
+                border-left 0
             p+p+p
                 border-radius 0px 4px 4px 0px
+                border-left 0
             .active 
                 background #7F94FF
                 border 1px solid #7F94FF
