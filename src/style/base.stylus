@@ -15,6 +15,7 @@ a
 
 .reportBtns
 	display flex
+	align-items center
 	// padding-top 30px
 	// position absolute
 
@@ -48,30 +49,24 @@ a
 	color #2C2D33 !important
 
 .viewToggle
-	padding-top 3px
+	// padding-top 3px
+	display flex
+	align-items center
 	margin-left 40px
 	font-size 12px
 	color #8E9099
 	line-height 32px
 	text-align center
 
-.view1
+.view1,.view2
 	display inline-block
 	width 80px
 	height 32px
 	border 1px #D6D9E2 solid
 	border-radius 4px 0px 0px 4px
-.view1:hover
-	background-color #eee
-
 .view2
-	display inline-block
-	width 80px
-	height 32px
-	border 1px #D6D9E2 solid
-	border-radius 0px 4px 4px 0px
-
-.view2:hover
+	border-radius 0px 4px 4px 0 !important
+.view1:hover,.view2:hover
 	background-color #f1f1f1
 
 .viewActive

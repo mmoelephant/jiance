@@ -47,11 +47,11 @@ module.exports = {
     },
     pwa:{
         iconPaths:{
-         favicon32: 'favicon.ico',
-         favicon16: 'favicon.ico',
-         appleTouchIcon: 'favicon.ico',
-         maskIcon: 'favicon.ico',
-         msTileImage: 'favicon.ico'
+         favicon32: './public/img/icons/favicon.ico',
+         favicon16: './public/img/icons/favicon.ico',
+         appleTouchIcon: './public/img/icons/favicon.ico',
+         maskIcon: './public/img/icons/favicon.ico',
+         msTileImage: './public/img/icons/favicon.ico'
         }
        },
 }

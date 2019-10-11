@@ -27,7 +27,7 @@
 					</div>
                 </div>
             </el-header>
-            <el-container style='height:100%;flex-direction:column;overflow:auto'>
+            <el-container style='height:100%;flex-direction:column;overflow:auto;'>
 				<router-view></router-view>
 				<el-footer>				
 					<p class='ba'>主办：云南省住建厅科技与标准定额处&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;承办：云南省工程建设技术经济室&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;数据及技术支持：昆明行列科技有限公司&nbsp;&nbsp;几价信息技术有限公司&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;联系电话：0871-6818404</p>
@@ -67,6 +67,7 @@
 
 <script>
 import {datawork} from './plugins/datawork.js'
+import { getToken } from './plugins/gettoken';
 export default {
 	name: 'app',
 	data() {
@@ -111,7 +112,9 @@ export default {
 			ip_addre:'',
 			random16:'',
 			random15:'',
+			unicode:'',
 			tt:'',
+			commonData:{}
         };
 	},
 	computed:{
@@ -135,7 +138,7 @@ export default {
 		}
 	},
 	created() {
-		let finaldata;
+		let data,finaldata;
 		let userid = localStorage.getItem('userid')
 		const user = JSON.parse(localStorage.getItem('user'))
 		// 先查看是否有用户信息存在（userid为0时，表示用户没有没有登录），如果存在就存储用户信息，如果不存在就将存储的值设置为空
@@ -160,31 +163,45 @@ export default {
 		this.ip_addre = returnCitySN["cip"]
 		// 获取16位的随机数(nonce_str)
 		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+		console.log(this.random16)
 		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
-		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+		if(localStorage.getItem('uniquecode') && localStorage.getItem(uniquecode).length > 0){
+			localStorage.setItem('uniquecode',localStorage.getItem('uniquecode'))
+			this.$store.commit('login/SET_UNIQUE_CODE',localStorage.getItem('uniquecode'))
+			this.unicode = localStorage.getItem('uniquecode')
+		}else{
+			this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+			localStorage.setItem('uniquecode',this.random15)
+			this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
+			this.unicode = this.random15
+		}
+		console.log(this.unicode)
+		
 		// 将客户端唯一身份码存储在本地
-		localStorage.setItem('uniquecode',this.random15)
-		this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
+		// localStorage.setItem('uniquecode',this.random15)
+		
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
 		// 定义并存储公共参数
-		var data = {
+		this.commonData = {
 			agent:this.navi,
 			appid:'hlwpfc86b1f482c5f9',
 			charset:'utf-8',
 			format:'JSON',
 			ip:this.ip_addre,
 			sign_type:'md5',
-			unique_code:this.random15,
+			unique_code:this.unicode,
 			version:'2.0',
 		}
-		this.$store.commit('login/SET_COMMON_PARAM', data)
+		data = this.commonData
+		this.$store.commit('login/SET_COMMON_PARAM', this.commonData)
 		data.nonce_str = this.random16
 		data.user_id = userid
 		data.timestamp = this.tt
 		finaldata = datawork(data)
-		this.$api.get_client(finaldata).then(v =>{
+		this.$api.get_client(finaldata).then(v => {
 			if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+				console.log(v.data.data.client_id)
 				localStorage.setItem('clientid',v.data.data.client_id)
 				this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
 				localStorage.setItem('accesstoken',v.data.data.access_token)
@@ -235,19 +252,41 @@ export default {
 		// '\n\n浏览器名称='+NV.name+    
 		// '\n\n浏览器版本='+parseInt(NV.version)+    
 		// '\n\n浏览器外壳='+NV.shell)   
+
 	},
 	methods:{
 		logout() {
+			let data = this.commonData
+			let data1
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+				data.user_id = localStorage.getItem('userid')
+			}else{
+				data.user_id = 0
+			}
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			data.client_id = localStorage.getItem('clientid')
+			data.access_token = localStorage.getItem('accesstoken')
+			data1 = datawork(data)
 			this.$confirm('确定要退出登录吗?', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				this.$store.commit('login/SET_USER_ID', '')
-				this.$store.commit('login/SET_USER_INFO', '')
-				localStorage.removeItem('userid')
-				localStorage.removeItem('user')
-				this.$router.push('login')
+				this.$api.user_logout(data1).then(v => {
+					if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+						this.$store.commit('login/SET_USER_ID', '')
+						this.$store.commit('login/SET_USER_INFO', '')
+						localStorage.removeItem('userid')
+						localStorage.removeItem('user')
+						this.$router.push('login')
+					}else{
+						this.$message({
+							type:'error',
+							message:'退出失败，请稍后重试！'
+						})
+					}
+				})
 			}).catch(() => {
 				this.$message({
 					type: 'info',
@@ -268,15 +307,53 @@ export default {
 			}
 		},
 		goset() {
-			this.formInline = {
-				username:this.$store.state.login.userInfo.username,
-				name: this.$store.state.login.userInfo.realname,
-				unit: this.$store.state.login.userInfo.company,
-				phone: this.$store.state.login.userInfo.mobile,
-				email:this.$store.state.login.userInfo.email,
-				location: this.$store.state.login.userInfo.area_name,
+			let data = this.commonData
+			console.log(this.commonData)
+			let data1
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+				data.user_id = localStorage.getItem('userid')
+			}else{
+				data.user_id = 0
 			}
-			this.dialogVisible = true
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			if(localStorage.getItem('clientid') && localStorage.getItem('clientid').length > 0 
+			&& localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+				data.client_id = localStorage.getItem('clientid')
+				data.access_token = localStorage.getItem('accesstoken')
+			}
+			data1 = datawork(data)
+			this.$api.check_user(data1).then(v => {
+				console.log(v)
+				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+					this.formInline = {
+						username:v.data.data.username,
+						name:v.data.data.realname,
+						unit:v.data.data.company,
+						phone:v.data.data.mobile,
+						email:v.data.data.email,
+						location:v.data.data.area_name
+					}
+					this.dialogVisible = true
+				}else if(v.data.errcode == 1104){
+					// token失效
+					this.dialogVisible = true
+					let that = this
+					getToken(data)
+					setTimeout(function(){
+						if(localStorage.getItem('tokenDone')){
+							// data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+							// data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+							// data.access_token = localStorage.getItem('accesstoken')
+							that.goset()
+						}else{
+
+						}  
+					},1000)
+				}else{
+					this.dialogVisible = true
+				}
+			})
 		},
 		// async save() {
 		// 	this.formInline.userid = this.userid

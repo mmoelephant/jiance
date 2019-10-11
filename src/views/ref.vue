@@ -178,6 +178,9 @@ import $ from 'jquery'
 import reftable from '../components/ref-table'
 import pageBtn from '../components/page-btn'
 import areajson from '../../public/json/yn.json'
+import {datawork} from '../plugins/datawork.js'
+import {getToken} from '../plugins/gettoken.js'
+// import { readlink } from 'fs'
 export default {
     data() {
         return {
@@ -383,7 +386,23 @@ export default {
             return [exyear+'-'+exmonth,y+'-'+month]
         },
         async get_cate() { //获取分类列表 左侧树渲染
-            const res = await this.$api.get_cate({})
+            let data = this.$store.state.login.commonParam
+            console.log(this.$store.state.login.commonParam)
+            let data1
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+				data.user_id = localStorage.getItem('userid')
+			}else{
+                data.user_id = 0
+                
+			}
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			data.client_id = localStorage.getItem('clientid')
+			data.access_token = localStorage.getItem('accesstoken')
+            data1 = datawork(data)
+            const res = await this.$api.get_cate(data1)
+            console.log(res)
+
             this.cateList = res.data
             this.chosed_cate = this.cateList[0]
             console.log(this.chosed_cate)
@@ -623,7 +642,7 @@ export default {
                         const defaultcate = this.tabledata[0]
                         if(x.length<defaultcate.data.length) {
                             x=[]
-                            defaultcate.data.map(t => {                       
+                            defaultcate.data.map(t => {                    
                                 x.push(t.mdate?t.mdate.substr(0,7):t.asmdate.substr(0,7))
                             })
                             

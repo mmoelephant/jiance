@@ -1,12 +1,13 @@
 <template>
+<router-view v-if='$route.name == "reportDetail"'></router-view>
 <!-- v-loading.fullscreen="loading" style="height:100%" -->
-<div style="height:100%">
+<div style="height:auto;" v-else>
 	<div class="intellReport">
 		<div class="inteLeft">
 			<!-- <a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a> -->
-			<div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div>
-			<div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1)">月度智能报告</div>
-			<div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2)">自定义报告</div>
+			<div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0,'全部报告')">全部报告</div>
+			<div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1,'月度智能报告')">月度智能报告</div>
+			<div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2,'自定义报告')">自定义报告</div>
 		</div>
 		<div class="inteRight">
 			<div class="reportBtns">
@@ -17,18 +18,21 @@
 				</div>
 				<div class="search">
 					<input class="searchBox" placeholder="请输入需要检索的报告标题" v-model="searContent">
-					<a href="javascript:void(0)" @click="goSearch"><div class="searchIcon"></div></a>
+					<!-- <a href="javascript:void(0)" @click="goSearch"><div class="searchIcon"></div></a> -->
+					<div class="searchIcon" @click="goSearch"></div>
 				</div>
 			</div>
 			<div class="reportContent">
-				<div class="searchTip" :style="searchTip">搜索
+				<div class="searchTip" v-show="searchTip">搜索
 					<span class="keyWord">{{'“' + searContent + '”'}}</span>结果如下：<a href="javascript:void(0)" class="goback" @click="goback">返回</a>
 				</div>
-				<div class="gridView" :style="viewToggle">
+				<div class="gridView" v-show="type == 0">
+					<!-- :style="viewToggle" -->
 					<!-- 月度智能报告(网格视图) -->
-					<div :class="bigType == 2?'systemVis':''" :style="allVis">
+					<div v-show="bigType != 2">
+						<!-- :style="allVis" -->
 						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">月度智能报告</p></el-badge>
-						<ul class="gridUl">
+						<ul class="gridUl" v-show="!lazyUlVis">
 							<li class="gridListClass" v-for="item in systemReport" :key="item.id" @click="toDetail_system(item.id)">
 								<img src="../../../public/img/report/more.png" class="reportImg" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1">
 								<img src="../../../public/img/report/single.png" class="reportImg" v-else>
@@ -43,13 +47,12 @@
 								</p>
 							</li>
 						</ul>
-						<ul class="lazyUl" :style="lazyUlVis">
-							<li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li>
-							<li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li>
-							<li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li><li class="lazyLi"></li>
-							<li class="lazyLi"></li><li class="lazyLi"></li>
+						<ul class="lazyUl" v-show="lazyUlVis">
+							<!-- :style="lazyUlVis"  -->
+							<li class="lazyLi"></li>
 						</ul>
-						<div class="noData" :style="noImg">
+						<div class="noData" v-show="noImg">
+							<!-- :style="noImg"  -->
 							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 							<p class="noDatap1">暂时没有报告</p>
 							<p class="noDatap2">不要着急，要不再试试~</p>
@@ -59,37 +62,60 @@
 						</el-pagination>
 					</div>
 					<!-- 自定义报告(网格视图) -->
-					<div :class="bigType == 1?'customVis':''" :style="allVis">
+					<div v-show="bigType != 1">
+						<!-- :style="allVis" -->
 						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">自定义报告</p></el-badge>
-						<div :class="bigType == 2?'newRe':'newRe1'" @click="openDialog"><a href="javascript:void(0)">新建自定义报告</a></div>
-						<ul class="gridUl">
+						<div style="height:0">
+							<div class="newRe" v-show="bigType == 2" @click="openDialog">
+								<img src="../../../public/img/report/add.png">
+								<span>新建自定义报告</span>
+							</div>
+						</div>
+						<ul class="gridUl" v-show="!lazyUlVis" style="border:1px red solid">
+							<!-- <li class="gridListClass">
+								<div class="typedd">
+									<div class="reporType" @click="toDetail(item.id)">月报</div>
+									<img src="../../../public/img/report/delete.png" class="deleteIcon" @click="deleteRe(item.id)">
+								</div>
+								<img src="../../../public/img/report/more1.png" class="reportIcon" @click="toDetail(item.id)">
+								<div class="reportMateri" @click="toDetail(item.id)">
+									<span>单材料-钢材</span>
+								</div>
+								<p class="reporTitle1" @click="toDetail(item.id)">某某同报告</p>
+								<div class="timeArea">
+									<p class="reporTime" @click="toDetail(item.id)">2019-06-24</p>
+									<p class="reportarea" @click="toDetail(item.id)">昆明</p>
+								</div>
+							</li> -->
 							<li class="gridListClass" v-for="item in customReport" :key="item.id">
-								<a href="javascript:void(0)" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1" @click="toDetail(item.id)">
-									<img src="../../../public/img/report/more1.png" class="reportIcon">
-								</a>
-								<a href="javascript:void(0)" v-else @click="toDetail(item.id)">
-									<img src="../../../public/img/report/single1.png" class="reportIcon">
-								</a>
+								<img src="../../../public/img/report/more1.png" class="reportIcon" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1" 
+								@click="toDetail(item.id)">
+								<img src="../../../public/img/report/single1.png" class="reportIcon" v-else @click="toDetail(item.id)">
+								<!-- <a href="javascript:void(0)" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1" @click="toDetail(item.id)"> -->
+								<!-- <a href="javascript:void(0)" v-else @click="toDetail(item.id)"> -->
+								<!-- </a> -->
 								<div :class="item.materialClassID&&item.materialClassID.indexOf(',') != -1?'reportMateri':'reportMateri reportMateri1'" 
 								@click="toDetail(item.id)">
+
 									{{item.materialClassID&&item.materialClassID.indexOf(',') != -1?item.materialName:'单材料-' + item.materialName}}
 								</div>
 								<div class="reporType" v-if="item.dataType == 1" @click="toDetail(item.id)">月报</div>
 								<div class="reporType1" v-else-if="item.dataType == 2" @click="toDetail(item.id)">季报</div>
 								<div class="reporType2" v-else @click="toDetail(item.id)">年报</div>
-								<a href="javascript:void(0)" @click="deleteRe(item.id)"><img src="../../../public/img/report/delete.png" class="deleteIcon"></a>
+								<img src="../../../public/img/report/delete.png" class="deleteIcon" @click="deleteRe(item.id)">
+								<!-- <a href="javascript:void(0)">
+									
+								</a> -->
 								<p class="reportarea" @click="toDetail(item.id)">{{item.areaName}}</p>
 								<p class="reporTitle1" @click="toDetail(item.id)">{{item.title}}</p>
 								<p class="reporTime" @click="toDetail(item.id)">{{item.createTimeStr?item.createTimeStr:'-'}}</p>
 							</li>
 						</ul>
-						<ul class="lazyUl" :style="lazyUlVis1">
-							<li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li>
-							<li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li>
-							<li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li><li class="lazyLi1"></li>
-							<li class="lazyLi1"></li><li class="lazyLi1"></li>
+						<ul class="lazyUl" v-show="lazyUlVis">
+							<li class="lazyLi1"></li>
 						</ul>
-						<div class="noData" :style="noImgCustom">
+						<div class="noData" v-show="noImgCustom">
+							<!-- :style="noImgCustom"  -->
 							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 							<p class="noDatap1">暂时没有报告</p>
 							<p class="noDatap2">不要着急，要不再试试~</p>
@@ -99,9 +125,11 @@
 						</el-pagination>
 					</div>
 				</div>
-				<div class="listView" :style="viewToggle1">
+				<div class="listView" v-show="type == 1">
+					<!-- :style="viewToggle1" -->
 					<!-- 月度智能报告(列表视图) -->
-					<div :class="bigType == 2?'systemVis':''" :style="allVis">
+					<div v-show="bigType != 2">
+						<!-- :style="allVis" -->
 						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">月度智能报告</p></el-badge>
 						<ul class="listUl">
 							<li class="lisTitle">
@@ -127,7 +155,8 @@
 								<span class="listItem listDo"><a href="javascript:void(0)" @click="toDetail_system(item.id)">查看报告></a></span>	
 							</li>
 						</ul>
-						<div class="noData" :style="noImg">
+						<div class="noData" v-show="noImg">
+							<!-- :style="noImg"  -->
 							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 							<p class="noDatap1">暂时没有报告</p>
 							<p class="noDatap2">不要着急，要不再试试~</p>
@@ -137,9 +166,13 @@
 						</el-pagination>
 					</div>
 					<!-- 自定义报告(列表视图) -->
-					<div :class="bigType == 1?'customVis':''" :style="allVis">
+					<div v-show="bigType != 1">
+						<!-- :style="allVis" -->
 						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">自定义报告</p></el-badge>
-						<div :class="bigType == 2?'newRe':'newRe1'" @click="openDialog"><a href="javascript:void(0)">新建自定义报告</a></div>
+						<div class="newRe" v-show="bigType == 2" @click="openDialog">
+							<img src="../../../public/img/report/add.png">
+							<span>新建自定义报告</span>
+						</div>
 						<ul class="listUl">
 							<li class="lisTitle">
 								<span class="titleItem titleNum_custom">序号</span>
@@ -175,7 +208,8 @@
 								</span>	
 							</li>
 						</ul>
-						<div class="noData" :style="noImgCustom">
+						<div class="noData" v-show="noImgCustom">
+							<!-- :style="noImgCustom"  -->
 							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 							<p class="noDatap1">暂时没有报告</p>
 							<p class="noDatap2">不要着急，要不再试试~</p>
@@ -184,7 +218,8 @@
 						layout="prev, pager, next" class="reportPage" @current-change="get_data2">
 						</el-pagination>
 					</div>
-					<div :style="resultVis">
+					<div v-show="resultVis">
+						<!-- :style="resultVis"  -->
 						<ul class="listUl">
 							<li class="lisTitle">
 								<span class="titleItem titleNum">编号</span>
@@ -217,7 +252,8 @@
 								<span class="listItem listDo" v-if="item.type == 2"><a href="javascript:void(0)" @click="toDetail(item.id)">查看报告></a></span>	
 							</li>
 						</ul>
-						<div class="noData" :style="noImgResult">
+						<div class="noData" v-show="noImgResult">
+							<!-- :style="noImgResult"  -->
 							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 							<p class="noDatap1">暂时没有报告</p>
 							<p class="noDatap2">不要着急，要不再试试~</p>
@@ -405,28 +441,10 @@ export default {
 			type:1,
 			token:this.$store.state.login.token,
 			searContent:'',
-			state2:'',
-			viewToggle:{
-				display:'none'
-			},
-			viewToggle1:{
-				display:'block'
-			},
-			allVis:{
-				display:''
-			},
-			resultVis:{
-				display:'none'
-			},
-			searchTip:{
-				display:'none'
-			},
-			lazyUlVis:{
-				display:''
-			},
-			lazyUlVis1:{
-				display:''
-			},
+			// state2:'',
+			resultVis:false,
+			searchTip:false,
+			lazyUlVis:true,
 			resultReport:[],
 			systemReport:[],
 			customReport:[],
@@ -441,15 +459,9 @@ export default {
 			pageNum3:1,
 			pageSize3:14,
 			totalPage3:14,
-			noImg:{
-				display:'none'
-			},
-			noImgCustom:{
-				display:'none'
-			},
-			noImgResult:{
-				display:'none'
-			},
+			noImg:false,
+			noImgCustom:false,
+			noImgResult:false,
 			dialogFormVisible: false,
 			reType:[
 				{id:1,name:'月度数据报告'},
@@ -543,13 +555,13 @@ export default {
 		// 获取平台报告
 		this.$api.get_reports(data1).then(v => {
 			if(v.data.count != null){
-				this.lazyUlVis.display = 'none'
-				this.noImg.display = 'none'
+				this.lazyUlVis = false
+				this.noImg = false
 				this.systemReport = v.data.list
 				this.totalPage1 = v.data.count
 			}else{
-				this.noImg.display = 'block'
-				this.lazyUlVis.display = 'none'
+				this.noImg = true
+				this.lazyUlVis = false
 				this.systemReport = []
 				this.totalPage1 = 0
 			}
@@ -559,13 +571,11 @@ export default {
 		})
 		this.$api.get_reports(data2).then(v => {
 			if(v.data.count != null){
-				this.noImgCustom.display = 'none'
-				this.lazyUlVis1.display = 'none'
+				this.noImgCustom = false
 				this.customReport = v.data.list
 				this.totalPage2 = v.data.count
 			}else{
-				this.noImgCustom.display = 'block'
-				this.lazyUlVis1.display = 'none'
+				this.noImgCustom = true
 				this.customReport = []
 				this.totalPage2 = 0
 			}
@@ -584,39 +594,22 @@ export default {
 	mounted() {
     },
 	methods:{
-		toggleBig:function(aa){
+		toggleBig:function(aa,bb){
+			this.bigType = aa
+			this.navigiOn = bb
 			if(aa == 0){
-				this.bigType = 0
-				this.navigiOn = '全部报告'
 				this.newHidden = false
-			}else if(aa == 1){
-				this.bigType = 1
-				this.navigiOn = '月度智能报告'
-				this.newHidden = true
 			}else{
-				this.bigType = 2
-				this.navigiOn = '自定义报告'
 				this.newHidden = true
 			}
 		},
 		choose:function(status){
-			if(status == 0){
-				this.type = 0
-				this.viewToggle.display = 'block'
-				this.viewToggle1.display = 'none'
-			}else{
-				this.type = 1
-				this.viewToggle.display = 'none'
-				this.viewToggle1.display = 'block'
-			}
+			this.type = status
 		},
 		goSearch(){
 			this.resultReport = []
-			this.allVis.display = 'none'
-			this.resultVis.display = 'block'
 			this.type = 1
-			this.viewToggle.display = 'none'
-			this.viewToggle1.display = 'block'
+			this.resultVis = true
 			this.loading = true
 			var data17 = {
 				pageNum:this.pageNum3,
@@ -627,13 +620,13 @@ export default {
 			this.$api.get_reports(data17).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.searchTip.display = 'block'
-					this.noImgResult.display = 'none'
+					this.searchTip = true
+					this.noImgResult = false
 					this.resultReport = v.data.list
 					this.totalPage3 = v.data.count
 				}else{
-					this.searchTip.display = 'block'
-					this.noImgResult.display = 'block'
+					this.searchTip = true
+					this.noImgResult = true
 					this.resultReport = []
 					this.totalPage3 = 0
 				}
@@ -642,13 +635,10 @@ export default {
 		goback(){
 			this.loading = true
 			this.type = 0
-			this.viewToggle.display = 'block'
-			this.viewToggle1.display = 'none'
-			this.allVis.display = ''
-			this.resultVis.display = 'none'
 			this.resultReport = []
-			this.searchTip.display = 'none'
-			this.noImgResult.display = 'none'
+			this.resultVis = false
+			this.searchTip = false
+			this.noImgResult = false
 			this.searContent = ''
 			this.loading = false
 		},
@@ -665,11 +655,11 @@ export default {
 			this.$api.get_reports(data5).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.noImg.display = 'none'
+					this.noImg = false
 					this.systemReport = v.data.list
 					this.totalPage1 = v.data.count
 				}else{
-					this.noImg.display = 'block'
+					this.noImg = true
 					this.systemReport = []
 					this.totalPage1 = 0
 				}
@@ -687,11 +677,12 @@ export default {
 			this.$api.get_reports(data6).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.noImgCustom.display = 'none'
+					this.noImgCustom = false
 					this.customReport = v.data.list
 					this.totalPage2 = v.data.count
 				}else{
-					this.noImgCustom.display = 'block'
+					// this.noImgCustom.display = 'block'
+					this.noImgCustom = true
 					this.customReport= []
 					this.totalPage2 = 0
 				}
@@ -708,11 +699,12 @@ export default {
 			this.$api.get_reports(data18).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.noImgResult.display = 'none'
+					this.noImgResult = false
 					this.resultReport = v.data.list
 					this.totalPage3 = v.data.count
 				}else{
 					this.noImgResult.display = 'block'
+					this.noImgResult = true
 					this.resultReport= []
 					this.totalPage3 = 0
 				}
@@ -742,7 +734,7 @@ export default {
 					if(v.data.msg == 'success'){
 						this.$api.get_reports(data10).then(v => {
 							if(v.data.count != null){
-								this.noImgCustom.display = 'none'
+								this.noImgCustom = false
 								this.customReport = v.data.list
 								this.totalPage2 = v.data.count
 								this.$message({
@@ -752,7 +744,7 @@ export default {
 							}else{
 								this.$api.get_reports(data12).then(v => {
 									if(v.data.count != null){
-										this.noImgCustom.display = 'none'
+										this.noImgCustom = false
 										this.customReport = v.data.list
 										this.totalPage2 = v.data.count
 										this.$message({
@@ -760,7 +752,7 @@ export default {
 											message:'删除成功！'
 										})
 									}else{
-										this.noImgCustom.display = 'block'
+										this.noImgCustom = true
 										this.customReport = []
 										this.totalPage2 = 0
 										this.$message({
@@ -1054,7 +1046,8 @@ export default {
 			this.$api.get_reports(data22).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.noImgCustom.display = 'none'
+					// this.noImgCustom.display = 'none'
+					this.noImgCustom = false
 					this.customReport = v.data.list
 					this.totalPage2 = v.data.count
 					this.$message({
@@ -1062,7 +1055,8 @@ export default {
 						message:'排序成功'
 					})
 				}else{
-					this.noImgCustom.display = 'block'
+					// this.noImgCustom.display = 'block'
+					this.noImgCustom = true
 					this.customReport = []
 					this.totalPage2 = 0	
 					this.$message({
@@ -1085,7 +1079,8 @@ export default {
 			this.$api.get_reports(data22).then(v => {
 				this.loading = false
 				if(v.data.count != null){
-					this.noImgCustom.display = 'none'
+					// this.noImgCustom.display = 'none'
+					this.noImgCustom = false
 					this.customReport = v.data.list
 					this.totalPage2 = v.data.count
 					this.$message({
@@ -1093,7 +1088,8 @@ export default {
 						message:'排序成功'
 					})
 				}else{
-					this.noImgCustom.display = 'block'
+					// this.noImgCustom.display = 'block'
+					this.noImgCustom = true
 					this.customReport = []
 					this.totalPage2 = 0	
 					this.$message({
@@ -1206,7 +1202,8 @@ export default {
 							this.$refs[formName].resetFields()
 							this.$api.get_reports(data11).then(v => {
 								if(v.data.count != null){
-									this.noImgCustom.display = 'none'
+									// this.noImgCustom.display = 'none'
+									this.noImgCustom = false
 									this.customReport = v.data.list
 									this.totalPage2 = v.data.count
 									this.$message({
@@ -1214,7 +1211,8 @@ export default {
 										message: '创建成功!'
 									})
 								}else{
-									this.noImgCustom.display = 'block'
+									// this.noImgCustom.display = 'block'
+									this.noImgCustom = true
 									this.customReport= []
 									this.totalPage2 = 0
 									this.$message({
@@ -1250,15 +1248,18 @@ export default {
 	padding 20px !important
 .intellReport
 	width 100%
-	height 100%
+	height auto
+	min-height 100%
 	overflow auto
-	display flex
+	// display flex
 .inteLeft
 	width 200px
-	height 100%
-	min-height 100%
+	height calc(100% - 78px)
+	max-height calc(100% - 78px)
 	background-color #fff
-
+	position fixed
+	top 78px
+	left 0
 .all,.month,.custom
 	width 100%
 	height 58px
@@ -1320,7 +1321,7 @@ export default {
 	width calc(100% - 220px)
 	padding-top 30px
 	box-sizing border-box
-	margin-left 20px
+	margin-left 220px
 
 .searchTip
 	margin-bottom 30px
@@ -1345,67 +1346,74 @@ export default {
 	height 38px
 	background-color #fff
 	border-radius 8px
-	margin-left 10%
+	margin-left 156px
 	display flex
-	flex-direction row
-	flex-wrap nowrap
-	justify-content flex-start
-	position relative
+	// position relative
 
 .searchBox
 	width calc(100% - 58px)
 	height 38px
-	padding-left 15px
-	box-sizing border-box
 	border none
 	border-radius 8px 0 0 8px
+	text-indent 15px
+::-webkit-input-placeholder /*Webkit browsers*/
+	color #CBCED8
+:-moz-placeholder /*Mozilla Firefox 4 to 8*/
+	color #CBCED8
+::moz-placeholder/*Mozilla Firefox 19+*/
+	color #CBCED8
+:-ms-input-placeholder/*Internet Explorer 10+*/
+	color #CBCED8
 
 .searchIcon
 	width 58px
 	height 38px
 	border-radius 0px 8px 8px 0px
 	background #FF7437 url(../../../public/img/report/search.png) no-repeat center
+	cursor pointer
+.searchIcon:hover
+	background-color #fe9b78
 
 .reportContent
 	width 100%
-	padding 40px 20px
+	padding 40px 0
 	box-sizing border-box
 	font-size 14px
-	color rgba(51,51,51,1)
+	color #333
 	line-height 14px
 
 .reporTypeTitle
 	font-size 20px
+	color #000
 	line-height 20px
 
 .newRe
 	width 154px
 	height 24px
-	background #8B78FE url(../../../public/img/report/add.png) no-repeat 10px 
+	background #8B78FE
+	padding-left 12px
 	border 1px solid #6C56F5
-	border-radius 24px
-	font-size 14px
+	box-sizing border-box
+	border-radius 14px
 	color #fff
-	line-height 24px
-	text-align center
 	position relative
 	top -20px
-	left 180px
-	a
-		color #fff
-
+	left 118px
+	display flex
+	align-items center
+	cursor pointer
+	span
+		margin-left 6px
 .newRe:hover
 	background-color #9f8ffe
-.newRe1
-	display none
+// .newRe1
+// 	display none
 
 .gridUl
 	padding 20px 10px
 	box-sizing border-box
 	display flex
-	flex-direction row
 	flex-wrap wrap
-	justify-content flex-start
 
 .lazyUl
 	padding 20px 10px
@@ -1450,149 +1458,126 @@ export default {
 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
 	margin-right 20px
 	margin-bottom 20px
-	position relative
-	transition margin-top 0.2s
-	font-size 12px
-	color #fff
-	line-height 12px
+	cursor pointer
+	display flex
+	flex-direction column
+	transition all .2s
 
 .gridListClass:hover
 	background-color #E8EBF9
 	margin-top -10px
 
+.gridListClass:nth-child(6n)
+	margin-right 0
+
 .gridListClass:hover .deleteIcon
 	display block
-.reportImg
-	width 100px
-	height 100px
-	display block
-	position absolute
-	top 30px
-	left 50%
-	margin-left -50px
 
+.reportImg
+	width 116px
+	height 116px
+	margin 30px auto 8px auto
 .reportIcon
-	width 100px
-	height 100px
-	display block
-	position absolute
-	top 40px
-	left 50%
-	margin-left -50px
+	width 116px
+	height 116px
+	margin 13px auto 2px auto
 
 .deleteIcon
-	position absolute
-	right 10px
-	top 10px
 	width 20px
 	height 20px
 	display none
-
 .reportMateri
-	position absolute
-	left 10px
-	bottom 65px
-	max-width 170px
-	background-color #2B94FE
-	padding 0 6px
-	border-radius 4px
-	box-sizing border-box
-	line-height 18px
-	white-space nowrap
-	text-overflow ellipsis
-	overflow hidden
+	display flex
+	span
+		max-width 170px
+		background-color #2B94FE
+		padding 0 6px
+		border-radius 4px
+		box-sizing border-box
+		margin 0 10px
+		color #fff
+		line-height 18px
+		white-space nowrap
+		text-overflow ellipsis
+		overflow hidden
 
 .reportMateri1
 	background-color #FEAC2B!important
 
+.typedd
+	display flex
+	align-items center
+	justify-content space-between
+	padding 0 10px
+	box-sizing border-box
+	margin-top 10px
 .reporType
-	position absolute 
-	left 10px
-	top 10px
 	width 46px
 	height 18px
 	background #F83B5F
 	border 1px solid #D9193D
+	box-sizing border-box
 	border-radius 9px
-	line-height 18px
+	color #fff
+	line-height 17px
 	text-align center
-
 .reporType1
-	position absolute 
-	left 10px
-	top 10px
 	width 46px
 	height 18px
 	background #643BF8
 	border 1px solid #4B22E0
+	box-sizing border-box
 	border-radius 9px
 	line-height 18px
 	text-align center
-	
 .reporType2
-	position absolute 
-	left 10px
-	top 10px
 	width 46px
 	height 18px
 	background #52B4FF
 	border 1px solid #1184DC
+	box-sizing border-box
 	border-radius 9px
 	line-height 18px
 	text-align center
-
 .reportarea
-	position absolute
-	right 10px
-	bottom 16px
 	width 70px
 	height 12px
 	color #8E9099
+	line-height 12px
 	text-align right
 	overflow hidden
-	text-overflow: ellipsis
+	text-overflow ellipsis
 	white-space nowrap
 
 .reporTitle
-	position absolute
-	left 0
-	bottom 47px
-	width 100%
-	height 40px
-	padding 0 14px 0 10px
+	max-height 40px
+	padding 0 16px 0 10px
 	box-sizing border-box
-	font-size 14px
-	color #333
 	line-height 20px
 	overflow hidden
-	text-overflow: ellipsis
+	text-overflow ellipsis
 
 .reporTitle1
-	position absolute
-	left 0
-	bottom 40px
-	width 100%
-	height 14px
 	padding 0 14px 0 10px
 	box-sizing border-box
-	font-size 14px
-	color #333
+	margin 10px 0
 	line-height 14px
 	overflow hidden
-	text-overflow: ellipsis
+	text-overflow ellipsis
 	white-space nowrap
 
-.reporTime
-	position absolute
-	left 0
-	bottom 16px
-	width 100%
-	height 14px
-	padding 0 14px 0 10px
+.timeArea
+	display flex
+	align-items center
+	justify-content space-between
+	padding 0 10px
 	box-sizing border-box
+
+.reporTime
+	font-size 12px
 	color #999999
 	overflow hidden
-	text-overflow: ellipsis
+	text-overflow ellipsis
 	white-space nowrap
 
 .reportPage
@@ -1604,12 +1589,11 @@ export default {
 
 .listUl
 	padding 20px 10px
+	border 1px red solid
 	box-sizing border-box
 	display flex
 	flex-direction column
 	flex-wrap wrap
-	justify-content flex-start
-	font-size 14px
 	text-align center
 
 .lisTitle
@@ -1622,9 +1606,6 @@ export default {
 	color #5C5D62
 	line-height 36px
 	display flex
-	flex-direction row
-	flex-wrap nowrap
-	justify-content flex-start
 
 .titleItem
 	display inline-block
@@ -1768,17 +1749,14 @@ export default {
 	color #fc9d74
 
 .noData
-	margin-left -160px
 	margin-bottom 50px
 	font-size 20px
-	line-height 20px
 	text-align center
 
 .noDatap2
 	margin-top 10px
 	font-size 14px
-	color #ccc
-	line-height 14px
+	color #8E9099
 
 .noDataImg
 	width 200px

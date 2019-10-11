@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import reportIndex from '../views/intellReport/reportIndex.vue'
-// import reportDetail from '../views/intellReport/reportDetail.vue'
+import reportDetail from '../views/intellReport/reportDetail.vue'
 // import dataIndex from '../views/dataSubscribe/index.vue'
 // import dataDetail from '../views/dataSubscribe/subDetail.vue'
 import rout from './routerstt'
@@ -28,13 +28,13 @@ let routes = [
     path:'/reportIndex',
     name:'reportIndex',
     component:reportIndex,
-    // children:[
-    //   {
-    //     path:'reportDetail',
-    //     name:'reportDetail',
-    //     component:reportDetail
-    //   },
-    // ]
+    children:[
+      {
+        path:'reportDetail',
+        name:'reportDetail',
+        component:reportDetail
+      },
+    ]
   },
 //   {
 //     path:'/reportDetail',

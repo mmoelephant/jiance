@@ -57,7 +57,7 @@ import $ from 'jquery'
 import {datawork} from '../plugins/datawork.js'
 import {getCilentId} from '../plugins/getclientidagain'
 import {getToken} from '../plugins/gettoken.js'
-import { deflate } from 'zlib'
+// import { deflate } from 'zlib'
 export default {
     data() {
         return {
@@ -96,7 +96,7 @@ export default {
         this.tt = Math.round(new Date().getTime() / 1000).toString()
         // 获取公共请求参数
         this.requestaData = this.$store.state.login.commonParam
-
+        console.log(this.$store.state.login.commonParam)
         this.requestaData.nonce_str = this.random16
         this.requestaData.timestamp = this.tt
         this.requestaData.unique_code = this.random15
@@ -156,12 +156,14 @@ export default {
             this.focusIndex = 0
         },
         async login() {
-            let finaldata,getClientFinal,getTokenFinal
+            let finaldata
+            // ,getClientFinal,getTokenFinal
             let me = this
             if(!this.check()) return
             this.loading = true
             this.requestaData.username = this.username
             this.requestaData.password = this.password
+            console.log(this.requestaData.unique_code)
             finaldata = datawork(this.requestaData)
             this.$api.login(finaldata).then(v => {
                 if(v.data.data && v.data.errcode == 0 && v.data.errmsg == 'ok') {

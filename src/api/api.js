@@ -120,9 +120,18 @@ const api = {
 			return service.post('/Api/Passport/login',data)
 		},
 		// Api/Passport/checkUsername
+		check_user(data){
+			if(data) data = qs.stringify(data, { allowDots: true })
+			return service.post('/Api/User/info',data)
+		},
 		updata_user(data) {
 			if(data) data = qs.stringify(data, { allowDots: true })
 			return service.post('/PageUserController/updateUserInfo',data)
+		},
+		// 退出登录
+		user_logout(data){
+			if(data) data = qs.stringify(data, { allowDots: true })
+			return service.post('/Api/User/logout',data)
 		},
 		// 数据查询
 		get_area_time_list(data,type) {
@@ -156,7 +165,9 @@ const api = {
 		return service.post('/PageAreaController/getAreaList', data)
     },
     get_cate(data) {
-		return service.post('/PageMaterialController/getMaterialsClass', {})
+			if(data) data = qs.stringify(data, { allowDots: true })
+			return service.post('/Api/Datas/index', {})
+		// return service.post('/PageMaterialController/getMaterialsClass', {})
 		},
 		//帮助
 		get_help(data) {
