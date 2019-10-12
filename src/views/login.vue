@@ -78,6 +78,8 @@ export default {
         }
     },
     created() {
+        let commonParam = this.$store.state.login.commonParam
+        console.log(commonParam)
         // 获取16位的随机数(nonce_str)
         this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 		// 获取15位的随机数(unique_code)
@@ -95,8 +97,10 @@ export default {
         // 获取10位时间戳(秒级,timestamp)
         this.tt = Math.round(new Date().getTime() / 1000).toString()
         // 获取公共请求参数
-        this.requestaData = this.$store.state.login.commonParam
-        console.log(this.$store.state.login.commonParam)
+        for(var i in commonParam){
+            this.requestaData[i] = commonParam[i]
+        }
+        console.log(this.requestaData)
         this.requestaData.nonce_str = this.random16
         this.requestaData.timestamp = this.tt
         this.requestaData.unique_code = this.random15
@@ -157,7 +161,6 @@ export default {
         },
         async login() {
             let finaldata
-            // ,getClientFinal,getTokenFinal
             let me = this
             if(!this.check()) return
             this.loading = true

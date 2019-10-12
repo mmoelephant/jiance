@@ -4,11 +4,11 @@
 			<div class='left'>
 				<p class='head'>{{type==0?'地区':'材料'}}</p>
 				<el-checkbox-group v-model="checked">
-					<div class='info' v-for="(i,index) in newdata" :key="index">
+					<div class='info' v-for="(i,index) in newdata" :key="index" style="border:1px red solid">
 						<div :class='type==0&&index==0?"nb n":"n"'>
 							<div>							
-								<el-checkbox v-show='type==0' class='label' :label='i'>1</el-checkbox>
-								<el-checkbox v-show='type==1' class='label' :label='i'>1</el-checkbox>
+								<el-checkbox v-show='type==0' class='label' :label='i.name'>1</el-checkbox>
+								<el-checkbox v-show='type==1' class='label' :label='i.name'>1</el-checkbox>
 								<p :style='(i.data&&i.data[0].area ==user.area||user.area=="53")&&!isnext&&index!=0?"color:#6C7DFF":""'
 									v-show='type==0' @click='i.expand = !i.expand'>{{i.data&&i.data[0].area_name?i.data[0].area_name.substr(0,2)+''+i.data[0].area_name.substr(-1,1):''}}</p>
 								<p v-show='type==1' @click='i.expand = !i.expand' style='cursor:pointer'>{{i.data&&i.data[0].name?i.data[0].name:''}}</p>
@@ -20,7 +20,7 @@
 							</div>
 							<i :class="i.expand?'iconfont icon-shang-copy rotate':'iconfont icon-shang-copy'" @click="chose_area(i)"  v-show='type==1'></i>
 						</div>
-						<div :class='i.expand?"info":"hide"' v-for="(c,ci) in i.children" :key="ci">
+						<div :class='i.expand?"info":"hide"' v-for="(c,ci) in i.dateData" :key="ci">
 							<div class='n'>
 								<div>
 									<el-checkbox v-show='type==0' class='label' :label='c'>1</el-checkbox>
@@ -34,9 +34,9 @@
 					</div>
 				</el-checkbox-group>
 			</div>
-			<div class='right'>
+			<!-- <div class='right'>
 				<div class='head'>
-					<p v-for="(i,index) in time" :key="index">{{i}}</p>
+					<p v-for="i in time" :key="i.id">{{i.name}}</p>
 				</div>
 				<div class='info' v-for="(i,index) in newdata" :key="index">
 					<div :class='type==0&&index==0?"nb n":"n"'>
@@ -44,7 +44,7 @@
 							<span v-show='t_type=="price"'>{{num.price?Number(num.price).toFixed(2):'-'}}</span>  
 							<span v-show='t_type=="zs"'>{{num.price ==0?"-":num.exponent+'' !='undefined'?Number(num.exponent).toFixed(2):'-'}}</span>  
 							<span v-show='t_type=="tb"'>{{num.price==0?"-":num.tongbi+''!='undefined'?(Number(num.tongbi)*100).toFixed(2)+'%':'-'}}</span>  
-							<span v-show='t_type=="hb"'>{{num.price==0?"-":num.huanbi+''!='undefined'?(Number(num.huanbi)*100).toFixed(2)+'%':'-'}}</span>  
+							<span v-show='t_type=="hb"'>{{num.price==0?"-":num.huanbi+''!='undefined'?(Number(num.huanbi)*100).toFixed(2)+'%':'-'}}</span>   -->
 							<!--img src="../../public/img/ru.png" alt="" 
 								v-show='num.price !=0 &&a!=0&&(t_type=="price"&&i.data[a-1]&&Number(i.data[a-1].price).toFixed(2)<Number(num.price).toFixed(2))||
 									(t_type=="hb"&&i.data[a-1]&&Number(i.data[a-1].huanbi).toFixed(2)<Number(num.huanbi).toFixed(2))||
@@ -60,7 +60,7 @@
 									(t_type=="hb"&&i.data[a-1]&&Number(i.data[a-1].huanbi).toFixed(2)==Number(num.huanbi).toFixed(2))||
 									(t_type=="tb"&&i.data[a-1]&&Number(i.data[a-1].tongbi).toFixed(2)==Number(num.tongbi).toFixed(2))||
 									(t_type=="zs"&&i.data[a-1]&&Number(i.data[a-1].exponent).toFixed(2)==Number(num.exponent).toFixed(2))'-->							
-							<img src="../../public/img/ru.png" alt="" v-show='num.price !=0 &&((t_type=="price"||t_type=="hb")&&num.huanbi>0 || t_type=="tb"&&num.tongbi>0)'>
+							<!-- <img src="../../public/img/ru.png" alt="" v-show='num.price !=0 &&((t_type=="price"||t_type=="hb")&&num.huanbi>0 || t_type=="tb"&&num.tongbi>0)'>
 							<img src="../../public/img/gd.png" alt="" v-show='num.price !=0 &&((t_type=="price"||t_type=="hb")&&num.huanbi<0 || t_type=="tb"&&num.tongbi<0)'>
 							<img src="../../public/img/bp.png" alt="" v-show='num.price !=0 &&((t_type=="price"||t_type=="hb")&&num.huanbi==0|| t_type=="tb"&&num.tongbi==0)'>
 						</p>
@@ -81,7 +81,7 @@
 						
 					</div>
 				</div>
-			</div>
+			</div> -->
 			<div style='margin:0 auto;text-align:center;padding-top:20px' v-show='newdata.length ==0'>
 				<img  src='../../public/img/noMessage.png' />
 				<p>暂无数据</p>
@@ -103,7 +103,7 @@ export default {
     },
     props:{
         tabledata:{
-          type:Array
+          type:Object
         },
         type:{
           type:Number
@@ -120,16 +120,16 @@ export default {
 		},
 		computed:{
 			user() {
-					return this.$store.state.login.userInfo
+				return this.$store.state.login.userInfo
 			}
 		},
     watch:{
-			user:{
-				handler(val) {
-					console.log(val)
-				},
-				deep:true
+		user:{
+			handler(val) {
+				console.log(val)
 			},
+			deep:true
+		},
       checked:{
         handler(val) {
           this.$emit('checkList',val)          
@@ -139,39 +139,49 @@ export default {
         handler(val) {
           this.newdata = []
           this.time = []
-          if(val.length >0) {
-            val[0].data.map(item => {
-              if(this.timeType ==0) {
-                const d = item.mdate?item.mdate.toString().substr(0,7):item.asmdate.toString().substr(0,7)
-                this.time.push(d)
-              } else if(this.timeType == 1) {
-                const m = item.mdate?Number(item.mdate.substr(5,2)):Number(item.asmdate.substr(5,2))
-                const y = item.mdate?item.mdate.substr(0,4):item.asmdate.substr(0,4)
-                if(m ==1) {
-                  this.time.push(y+'年第1季度')
-                } else if( m ==4) {
-                  this.time.push(y+'年第2季度')
-                } else if( m ==7) {
-                  this.time.push(y+'年第3季度')
-                } else {
-                  this.time.push(y+'年第4季度')
-                }
-              } else {
-                const y = item.mdate?item.mdate.substr(0,4):item.asmdate.substr(0,4)
-                this.time.push(y+'年')
-              }
+          if(val && val.dateData) {
+            val.dateData.map(item => {
+				const d = item
+				// const d = item.mdate?item.mdate.toString().substr(0,7):item.asmdate.toString().substr(0,7)
+				this.time.push(d)
+				console.log(this.time)
+            //   if(this.timeType == 3) {
+			// 	const d = item
+            //     // const d = item.mdate?item.mdate.toString().substr(0,7):item.asmdate.toString().substr(0,7)
+			// 	this.time.push(d)
+			// 	console.log(this.time)
+            //   } else if(this.timeType == 2) {
+            //     const m = item.mdate?Number(item.mdate.substr(5,2)):Number(item.asmdate.substr(5,2))
+            //     const y = item.mdate?item.mdate.substr(0,4):item.asmdate.substr(0,4)
+            //     if(m ==1) {
+            //       this.time.push(y+'年第1季度')
+            //     } else if( m ==4) {
+            //       this.time.push(y+'年第2季度')
+            //     } else if( m ==7) {
+            //       this.time.push(y+'年第3季度')
+            //     } else {
+            //       this.time.push(y+'年第4季度')
+            //     }
+            //   } else {
+            //     const y = item.mdate?item.mdate.substr(0,4):item.asmdate.substr(0,4)
+            //     this.time.push(y+'年')
+            //   }
             })
-          }
-					var objDeepCopy = function (source) {// 深度拷贝数组对象
+          }else{
+			  console.log('1')
+		  }
+		  var objDeepCopy = function (source) {// 深度拷贝数组对象
               var sourceCopy = source instanceof Array ? [] : {};
               for (var item in source) {
-									sourceCopy[item] = typeof source[item] === 'object' ? objDeepCopy(source[item]) : source[item];
-									// console.log(source,2222)
-              }
-              return sourceCopy;
-					}
-					this.newdata=objDeepCopy(val)
-					this.checked = [this.newdata[0]]
+				//   sourceCopy[item] = typeof source[item] === 'object' ? objDeepCopy(source[item]) : source[item];
+				  sourceCopy[item] = source[item];
+				  // console.log(source,2222)
+			  }
+			  return sourceCopy;
+			  }
+			  this.newdata = objDeepCopy(val.data)
+			  console.log(this.newdata)
+			  this.checked = [this.newdata[0]]
         },
         deep:true
       }

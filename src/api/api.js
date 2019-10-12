@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
- const test = 'http://test.dlzjzy.com'
+const test = 'http://test.dlzjzy.com'
 // const baseURL = '/api'
 // const baseURL = '/'
 // console.log(process.env.NODE_ENV === 'development' )
@@ -39,10 +39,10 @@ service.interceptors.response.use(
     response => {
       return response
     },
-    // (error) => {
-		// 	alert('网络错误，请稍后重试')
-		// 	return Promise.reject(error)
-    // }
+    (error) => {
+			alert('网络错误，请稍后重试')
+			return Promise.reject(error)
+    }
 )
 // service1.interceptors.response.use(
 // 	response => {
@@ -122,35 +122,47 @@ const api = {
 		// Api/Passport/checkUsername
 		check_user(data){
 			if(data) data = qs.stringify(data, { allowDots: true })
+			// return service.post('/Api/Datas/index',data)
 			return service.post('/Api/User/info',data)
 		},
-		updata_user(data) {
-			if(data) data = qs.stringify(data, { allowDots: true })
-			return service.post('/PageUserController/updateUserInfo',data)
-		},
+		// updata_user(data) {
+		// 	if(data) data = qs.stringify(data, { allowDots: true })
+		// 	return service.post('/PageUserController/updateUserInfo',data)
+		// },
 		// 退出登录
 		user_logout(data){
 			if(data) data = qs.stringify(data, { allowDots: true })
 			return service.post('/Api/User/logout',data)
 		},
 		// 数据查询
-		get_area_time_list(data,type) {
-			if(type == 0) {
-				return service.post('/PageMaterialController/getMaterialsInfoByAreaEncapsulation',data)
-			} else if(type==1) {
-				return service.post('/PageMaterialController/getMaterialsInfoByAreaQuarter',data)
-			} else {
-				return service.post('/PageMaterialController/getMaterialsInfoByAreaYear',data)
-			}
+    get_cate(data) {
+			if(data) data = qs.stringify(data, {allowDots:true})
+			return service.post('/Api/Datas/index', data)
+		// return service.post('/PageMaterialController/getMaterialsClass', {})
 		},
-		get_cate_time_list(data,type) {
-			if(type == 0) {
-				return service.post('/PageMaterialController/getMaterialsInfoEncapsulation',data)
-			} else if(type==1) {
-				return service.post('/PageMaterialController/getMaterialsInfoByQuarter',data)
-			} else {
-				return service.post('/PageMaterialController/getMaterialsInfoByYear',data)
-			}
+		// get_area_time_list(data,type) {
+		get_area_time_list(data) {
+			if(data) data = qs.stringify(data, { allowDots:true})
+			return service.post('/Api/Datas/searchCategory',data)
+			// if(type == 0) {
+			// 	return service.post('/Api/Datas/searchCategory',data)
+			// } else if(type==1) {
+			// 	return service.post('/PageMaterialController/getMaterialsInfoByAreaQuarter',data)
+			// } else {
+			// 	return service.post('/PageMaterialController/getMaterialsInfoByAreaYear',data)
+			// }
+		},
+		// get_cate_time_list(data,type) {
+		get_cate_time_list(data) {
+			if(data) data = qs.stringify(data, { allowDots:true})
+			return service.post('/Api/Datas/searchCategory',data)
+			// if(type == 0) {
+			// 	return service.post('/PageMaterialController/getMaterialsInfoEncapsulation',data)
+			// } else if(type==1) {
+			// 	return service.post('/PageMaterialController/getMaterialsInfoByQuarter',data)
+			// } else {
+			// 	return service.post('/PageMaterialController/getMaterialsInfoByYear',data)
+			// }
 		},
 		get_yn_time_list(data,type) {
 			if(type == 0) {
@@ -164,11 +176,11 @@ const api = {
     get_area(data={pid:53}) {
 		return service.post('/PageAreaController/getAreaList', data)
     },
-    get_cate(data) {
-			if(data) data = qs.stringify(data, { allowDots: true })
-			return service.post('/Api/Datas/index', {})
-		// return service.post('/PageMaterialController/getMaterialsClass', {})
-		},
+    // get_cate(data) {
+		// 	if(data) data = qs.stringify(data, { allowDots: true })
+		// 	return service.post('/Api/Datas/index', {})
+		// // return service.post('/PageMaterialController/getMaterialsClass', {})
+		// },
 		//帮助
 		get_help(data) {
 			if(data) data = qs.stringify(data, { allowDots: true })

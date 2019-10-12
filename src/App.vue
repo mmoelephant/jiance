@@ -1,5 +1,5 @@
 <template>
-	<div id="app" v-title data-title="云南省建设工程材料及设备价格监测系统">
+	<div id="app" v-title data-title="云南省建设工程材料及设备价格监测系统" v-loading="loading">
 		<el-container class="el-container">
             <el-header class='header'>
                 <div class='left'>
@@ -112,9 +112,11 @@ export default {
 			ip_addre:'',
 			random16:'',
 			random15:'',
-			unicode:'',
+			// unicode:'',
+			userid1:0,
 			tt:'',
-			commonData:{}
+			commonData:{},
+			loading:false,
         };
 	},
 	computed:{
@@ -138,17 +140,19 @@ export default {
 		}
 	},
 	created() {
-		let data,finaldata;
-		let userid = localStorage.getItem('userid')
+		let data = {}
+		let finaldata
+		let uniquecode = localStorage.getItem('uniquecode')
+		this.userid1 = localStorage.getItem('userid')
 		const user = JSON.parse(localStorage.getItem('user'))
 		// 先查看是否有用户信息存在（userid为0时，表示用户没有没有登录），如果存在就存储用户信息，如果不存在就将存储的值设置为空
-        if(userid && user && user.username) {
-			this.$store.commit('login/SET_USER_ID', userid)
+        if(this.userid1 && user && user.username) {
+			this.$store.commit('login/SET_USER_ID', this.userid1)
 			this.$store.commit('login/SET_USER_INFO', user)
         } else {
             this.$store.commit('login/SET_USER_ID', '')
 			this.$store.commit('login/SET_USER_INFO', '')
-			userid = 0
+			this.userid1 = 0
             localStorage.removeItem('userid')
 			localStorage.removeItem('user')
 			//在没有登录的情况下，去往除首页以外的其他页面都会先跳转到登录页面。
@@ -165,21 +169,16 @@ export default {
 		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 		console.log(this.random16)
 		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
-		if(localStorage.getItem('uniquecode') && localStorage.getItem(uniquecode).length > 0){
-			localStorage.setItem('uniquecode',localStorage.getItem('uniquecode'))
-			this.$store.commit('login/SET_UNIQUE_CODE',localStorage.getItem('uniquecode'))
-			this.unicode = localStorage.getItem('uniquecode')
+		// 将客户端唯一身份码存储在本地
+		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+		console.log(localStorage.getItem('uniquecode'))
+		if(uniquecode && uniquecode.length > 0){
+			this.$store.commit('login/SET_UNIQUE_CODE',uniquecode)
+			localStorage.setItem('uniquecode',uniquecode)
 		}else{
-			this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
 			localStorage.setItem('uniquecode',this.random15)
 			this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
-			this.unicode = this.random15
 		}
-		console.log(this.unicode)
-		
-		// 将客户端唯一身份码存储在本地
-		// localStorage.setItem('uniquecode',this.random15)
-		
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
 		// 定义并存储公共参数
@@ -190,26 +189,37 @@ export default {
 			format:'JSON',
 			ip:this.ip_addre,
 			sign_type:'md5',
-			unique_code:this.unicode,
+			unique_code:uniquecode,
 			version:'2.0',
 		}
-		data = this.commonData
 		this.$store.commit('login/SET_COMMON_PARAM', this.commonData)
+		localStorage.setItem('commonParam',this.commonData)
+		for(var i in this.commonData){
+			data[i] = this.commonData[i]
+		}
+		console.log(this.commonData)
+		console.log(data)
 		data.nonce_str = this.random16
-		data.user_id = userid
+		data.user_id = this.userid1
 		data.timestamp = this.tt
 		finaldata = datawork(data)
-		this.$api.get_client(finaldata).then(v => {
-			if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-				console.log(v.data.data.client_id)
-				localStorage.setItem('clientid',v.data.data.client_id)
-				this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
-				localStorage.setItem('accesstoken',v.data.data.access_token)
-				this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
-			}else{
+		console.log(finaldata)
+		if(localStorage.getItem('clientid') && localStorage.getItem('clientid').length > 0 && 
+		localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
 
-			}
-		})
+		}else{
+			this.$api.get_client(finaldata).then(v => {
+				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+					console.log(v.data.data.client_id)
+					localStorage.setItem('clientid',v.data.data.client_id)
+					this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
+					localStorage.setItem('accesstoken',v.data.data.access_token)
+					this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
+				}else{
+
+				}
+			})
+		}
 	},
 	mounted() {
 		// console.log(this.$store.state.login.commonParam)
@@ -256,34 +266,59 @@ export default {
 	},
 	methods:{
 		logout() {
-			let data = this.commonData
+			let data0 = {}
 			let data1
-			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
-				data.user_id = localStorage.getItem('userid')
+			let commonParam = {}
+			if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
+				commonparam = localStorage.getItem('commonParam')
 			}else{
-				data.user_id = 0
+				commonparam = this.commonData
 			}
-			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-			data.client_id = localStorage.getItem('clientid')
-			data.access_token = localStorage.getItem('accesstoken')
-			data1 = datawork(data)
+			for(var i in commonparam){
+				data0[i] = commonparam[i]
+			}
+			data0.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+				data0.user_id = localStorage.getItem('userid')
+			}else{
+				data0.user_id = 0
+			}
+			data0.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			data0.client_id = localStorage.getItem('clientid')
+			data0.access_token = localStorage.getItem('accesstoken')
+			data1 = datawork(data0)
 			this.$confirm('确定要退出登录吗?', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
+				this.loading = true
 				this.$api.user_logout(data1).then(v => {
 					if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+						this.loading = false
 						this.$store.commit('login/SET_USER_ID', '')
 						this.$store.commit('login/SET_USER_INFO', '')
 						localStorage.removeItem('userid')
 						localStorage.removeItem('user')
 						this.$router.push('login')
+					}else if(v.data.errcode == 1104){
+						let that = this
+						getToken(data0)
+						setTimeout(function(){
+							if(localStorage.getItem('tokenDone')){
+								that.loading = false
+								that.logout()
+							}else{
+								this.$message({
+									type:'error',
+									message:'异常，请稍候重试！'
+								})
+							}  
+						},1000)
 					}else{
 						this.$message({
 							type:'error',
-							message:'退出失败，请稍后重试！'
+							message:'退出失败，请刷新重试！'
 						})
 					}
 				})
@@ -307,23 +342,35 @@ export default {
 			}
 		},
 		goset() {
-			let data = this.commonData
-			console.log(this.commonData)
-			let data1
-			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
-				data.user_id = localStorage.getItem('userid')
+			let data2 = {}
+			let commonparam = {}
+			let data3
+			if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
+				commonparam = localStorage.getItem('commonParam')
 			}else{
-				data.user_id = 0
+				commonparam = this.commonData
 			}
-			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			for(var i in commonparam){
+				data2[i] = commonparam[i]
+			}
+			console.log(commonparam)
+			console.log(data2)
+			data2.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+				data2.user_id = localStorage.getItem('userid')
+			}else{
+				data2.user_id = 0
+			}
+			data2.timestamp = Math.round(new Date().getTime() / 1000).toString()
 			if(localStorage.getItem('clientid') && localStorage.getItem('clientid').length > 0 
 			&& localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
-				data.client_id = localStorage.getItem('clientid')
-				data.access_token = localStorage.getItem('accesstoken')
+				data2.client_id = localStorage.getItem('clientid')
+				data2.access_token = localStorage.getItem('accesstoken')
 			}
-			data1 = datawork(data)
-			this.$api.check_user(data1).then(v => {
+			data3 = datawork(data2)
+			console.log(data3)
+			console.log(JSON.stringify(data3))
+			this.$api.check_user(data3).then(v => {
 				console.log(v)
 				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
 					this.formInline = {
@@ -336,22 +383,24 @@ export default {
 					}
 					this.dialogVisible = true
 				}else if(v.data.errcode == 1104){
-					// token失效
-					this.dialogVisible = true
+					// token失效的情况下，重新获取token
 					let that = this
-					getToken(data)
+					getToken(data2)
 					setTimeout(function(){
 						if(localStorage.getItem('tokenDone')){
-							// data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-							// data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-							// data.access_token = localStorage.getItem('accesstoken')
 							that.goset()
 						}else{
-
+							this.$message({
+								type:'error',
+								message:'异常，请稍后重试！'
+							})
 						}  
 					},1000)
 				}else{
-					this.dialogVisible = true
+					this.$message({
+						type:'error',
+						message:'异常，请稍后重试！'
+					})
 				}
 			})
 		},

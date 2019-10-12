@@ -43,7 +43,10 @@
                     <div class='left'>
                         <h1>云南省各地区材料数据</h1>
                         <div class='tab'>
-                            <p :class='timetype ==0?"active":""' @click='timetype=0'>
+                            <p v-for="item in termstype" :key="item.id" :class="timetype == item.id?'active':''" @click="timetype = item.id">
+                                {{item.name}}
+                            </p>
+                            <!-- <p :class='timetype ==0?"active":""' @click='timetype=0'>
                                 月度数据
                             </p>
                             <p :class='timetype ==1?"active":""' @click='timetype=1'>
@@ -51,7 +54,7 @@
                             </p>
                             <p :class='timetype ==2?"active":""' @click='timetype=2'>
                                 年度数据
-                            </p>
+                            </p> -->
                         </div>
                         <div class='switch' @click='show_c(showcharts)' v-show='chosed_cate.level!=1'>
                             显示勾选{{t==0?'地区':'材料'}}对比图表
@@ -62,13 +65,13 @@
                     <div class='t-box'>
                         <div class='t'>
                             <div>
-                                <p v-if='t==0'>各地区<span>"{{chosed_cate.name}}"</span>{{timetype==0?"月度":timetype==1?"季度":timetype==2?"年度":""}}数据表
+                                <p v-if='t==0'>各地区<span>"{{chosed_cate.name}}"</span>{{timetype==3?"月度":timetype==2?"季度":timetype==1?"年度":""}}数据表
                                     <span v-show='isnext' @click='back' style='font-size:12px'>返回 ></span>
                                 </p>
-                                <p v-if='t==1'><span>"{{chosed_city.name}}"</span>各材料{{timetype==0?"月度":timetype==1?"季度":timetype==2?"年度":""}}数据
+                                <p v-if='t==1'><span>"{{chosed_city.name}}"</span>各材料{{timetype==3?"月度":timetype==2?"季度":timetype==1?"年度":""}}数据表
                                 </p>
                                 <ul>
-                                    <li :class='chosed_type=="price"? "ac" :""' @click='chosed_type="price"' v-show='t==0&&chosed_cate.level!=1'>价格</li>
+                                    <li :class='chosed_type=="price"? "ac" :""' @click='chosed_type="price"' v-show='t==0 && chosed_cate.level!=1'>价格</li>
                                     <li :class='chosed_type=="zs"? "ac" :""' @click='chosed_type="zs"'>指数</li>
                                     <li :class='chosed_type=="tb"? "ac" :""' @click='chosed_type="tb"'>同比</li>
                                     <li :class='chosed_type=="hb"? "ac" :""' @click='chosed_type="hb"'>环比</li>
@@ -93,28 +96,28 @@
                             </div>
                             <div class='timer'>
                                 <span>时间</span>
-                                <el-select v-model="time" placeholder="请选择查询时间" v-show='timetype==0'>
+                                <el-select v-model="time" placeholder="请选择查询时间" v-show='timetype==3'>
                                     <el-option
                                     v-for="item in monthoptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                    </el-option>
-                                </el-select>
-                                <el-select v-model="time" placeholder="请选择查询时间" v-show='timetype==1'>
-                                    <el-option
-                                    v-for="item in seasonoptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
                                     </el-option>
                                 </el-select>
                                 <el-select v-model="time" placeholder="请选择查询时间" v-show='timetype==2'>
                                     <el-option
+                                    v-for="item in seasonoptions"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
+                                    </el-option>
+                                </el-select>
+                                <el-select v-model="time" placeholder="请选择查询时间" v-show='timetype==1'>
+                                    <el-option
                                     v-for="item in yearoptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
                                     </el-option>
                                 </el-select>
                             </div>
@@ -180,13 +183,15 @@ import pageBtn from '../components/page-btn'
 import areajson from '../../public/json/yn.json'
 import {datawork} from '../plugins/datawork.js'
 import {getToken} from '../plugins/gettoken.js'
+import { get } from 'http'
 // import { readlink } from 'fs'
 export default {
     data() {
         return {
             t:0,//0 单材料多区域 1 多材料单区域
             cateList: [],//分类列表 左侧树状图
-            areaList:areajson,//区域列表，左侧树状图
+            // areaList:areajson,//区域列表，左侧树状图
+            areaList:[],//区域列表，左侧树状图
             defaultProps: {
                 children: 'childrenList',
                 label: 'name'
@@ -201,38 +206,14 @@ export default {
             },//选中的分类
             showcharts:false,//是否展示图
             t:0,//选择表格展示类型 0：区域比较 1：材料比区域比较
-            monthoptions:[{ //月度时间控件
-                value:3,
-                label: '近3个月'
-            },{ //月度时间控件
-                value:6,
-                label: '近6个月'
-            },{ //月度时间控件
-                value:9,
-                label: '近9个月'
-            },{ //月度时间控件
-                value:12,
-                label: '近12个月'
-            },{ //月度时间控件
-                value:15,
-                label: '近15个月'
-            }],
-            seasonoptions:[{//季度时间控件
-                value:4,
-                label: '近4个季度'
-            },
-            {
-                value:8,
-                label: '近8个季度'
-            }],
-            yearoptions:[{//年度时间控件
-                value:2,
-                label: '近2年'
-            }],
+            termstype:[],
+            monthoptions:[],//月度时间控件
+            seasonoptions:[], //季度时间控件
+            yearoptions:[],//年度时间控件
             time:'',//选取的时间
             chosed_type:'zs',//表格内容展示筛选 price:价格 zs：指数 tb：同比 hb：环比
-            timetype:0,//时间类型 0：月度 1：季度 2：年度
-            tabledata:[],//表格数据 
+            timetype:3,//时间类型 0：月度 1：季度 2：年度
+            tabledata:{},//表格数据 
             chosed_area:{
                 area:53
             }, // 选择的区域code 默认云南省 用于图展示
@@ -252,20 +233,20 @@ export default {
     },
     created() {       
         this.get_cate()
-        if(this.user) {
-            this.areaList.filter(item => {
-                if(this.user.area == '53') {
-                    return item
-                } else {
-                    if(item.id == this.user.area) {
-                        return item
-                    } else {
-                        delete item.childrenList
-                        return item
-                    }
-                } 
-            })
-        } 
+        // if(this.user) {
+        //     this.areaList.filter(item => {
+        //         if(this.user.area == '53') {
+        //             return item
+        //         } else {
+        //             if(item.id == this.user.area) {
+        //                 return item
+        //             } else {
+        //                 delete item.childrenList
+        //                 return item
+        //             }
+        //         } 
+        //     })
+        // }
     },
     computed:{
         user() {
@@ -275,25 +256,25 @@ export default {
     watch:{
         user:{
             handler(val) {
-                this.areaList.filter(item => {
-                    if(val.area == '53') {
-                        return item
-                    } else {
-                        if(item.id == val.area) {
-                            return item
-                        } else {
-                            delete item.childrenList
-                            return item
-                        }
-                    } 
-                })
-                console.log(val,1231)
+                // this.areaList.filter(item => {
+                //     if(val.area == '53') {
+                //         return item
+                //     } else {
+                //         if(item.id == val.area) {
+                //             return item
+                //         } else {
+                //             delete item.childrenList
+                //             return item
+                //         }
+                //     } 
+                // })
+                // console.log(val,1231)
             },
             deep:true
         }
     },
     mounted() {
-        
+        // this.get_cate()
     },
     components:{
         reftable,
@@ -301,16 +282,14 @@ export default {
     },
     watch:{
         timetype(type) {
-            if(type==0) {
-                this.time = this.monthoptions[1].value
-                
-            } else if(type==1) {
-                this.time = this.seasonoptions[0].value
-                
+            if(type==3) {
+                this.time = this.monthoptions[0].id
+            } else if(type==2) {
+                this.time = this.seasonoptions[0].id
             } else {
-                this.time = this.yearoptions[0].value
-                
+                this.time = this.yearoptions[0].id
             }
+            console.log(this.time)
         },
         time(val) {
             this.isnext = false
@@ -338,7 +317,7 @@ export default {
             this.chosed_cate=this.cateList[0]
             this.isnext = false
             console.log(this.chosed_cate)
-            if(val ==0) {
+            if(val == 0) {
                 this.get_area_data()
             } else {
                 if(this.chosed_type =='price') this.chosed_type = 'zs'
@@ -385,143 +364,229 @@ export default {
             month = month>9?month:'0'+month
             return [exyear+'-'+exmonth,y+'-'+month]
         },
+        // async 
         async get_cate() { //获取分类列表 左侧树渲染
-            let data = this.$store.state.login.commonParam
+            let commonparam = this.$store.state.login.commonParam
+            let data = {}
             console.log(this.$store.state.login.commonParam)
             let data1
-			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
-				data.user_id = localStorage.getItem('userid')
-			}else{
+            for(var i in commonparam){
+                data[i] = commonparam[i]
+            }
+            console.log(data)
+            data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data.user_id = localStorage.getItem('userid')
+            }else{
                 data.user_id = 0
-                
-			}
-			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-			data.client_id = localStorage.getItem('clientid')
-			data.access_token = localStorage.getItem('accesstoken')
+            }
+            data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data.client_id = localStorage.getItem('clientid')
+            data.access_token = localStorage.getItem('accesstoken')
             data1 = datawork(data)
-            const res = await this.$api.get_cate(data1)
-            console.log(res)
+            console.log(data1)
+            this.$api.get_cate(data1).then(v => {
+                console.log(v)
+                this.cateList = v.data.data.categorys
+                this.chosed_cate = v.data.data.categorys[0]
+                this.areaList = v.data.data.areas
+                this.termstype = v.data.data.terms_type
+                this.monthoptions = v.data.data.month
+                this.seasonoptions = v.data.data.quarter
+                this.yearoptions = v.data.data.years
+                this.time = this.monthoptions[0].id
+            })
+            // const res = await this.$api.get_cate(data1)
+            // console.log(res)
 
-            this.cateList = res.data
-            this.chosed_cate = this.cateList[0]
-            console.log(this.chosed_cate)
-            this.time = this.monthoptions[1].value
+            // this.cateList = res.data
+            // this.chosed_cate = this.cateList[0]
+            // console.log(this.chosed_cate)
+            // this.time = this.monthoptions[1].value
         },
         async get_area_data() {// 获取区域的数据
             this.loading = true
-            this.tabledata =[]
+            this.tabledata = {}
             this.checked = []
-            let data = {
-                id:this.chosed_cate.id,//选择的材料
-            } 
-            if(this.timetype == 0) {
-                const t_arr=this.formateTime()
-                data.startDate = t_arr[0]
-                data.endDate=t_arr[1]
-            } else if(this.timetype == 1) {
-                data.quarterNumber = this.time.toString()
-            } else {
-                data.yearNumber = this.time.toString()
+            let data4 = {}
+            let commondata = {}
+            let data5
+            console.log(this.$store.state.login.commonParam)
+            if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+                commondata = this.$store.state.login.commonParam
             }
-            const ap = await this.$api.get_yn_time_list(data, this.timetype)
-            let akeys = Object.keys(ap.data.data)
-            if(akeys.length>0) {
-                this.tabledata.push({data:ap.data.data[akeys[0]]})
-            }else {
-                this.tabledata = []
-                this.show_page()
-                this.loading = false
-            }   
-            data.area=this.chosed_area.area
-            const res = await this.$api.get_area_time_list(data,this.timetype)
-            if(Object.keys(res.data.data).length>0) {
-                let keys = Object.keys(res.data.data)
-                let sort = ['530100000000','530300000000','532500000000','530400000000','532900000000','532300000000','530600000000','532600000000',
-                            '530500000000','530800000000','530900000000','532800000000','533100000000','530700000000','533400000000','533300000000']
-                sort = sort.filter(item => {
-                    return keys.indexOf(item) !=-1
-                })
-                sort.forEach((key,i) => {
-                    this.tabledata.push({data:res.data.data[key]})
-                })
-                this.dw = this.tabledata[0].data[0].munit
-                if(this.showcharts) { //如果展示图表  渲染
-                    if(this.change_charts=='bar') {
-                        this.init()
-                    } else if(this.change_charts=='line') {
-                        this.init_line()
-                    } else {
-                        this.init_barline()
-                    }
+            for(var i in commondata){
+                data4[i] = commondata[i]
+            }
+            console.log(data4)
+            console.log(commondata)
+            data4.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data4.user_id = localStorage.getItem('userid')
+            }else{
+                data4.user_id = 0
+            }
+            data4.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data4.client_id = localStorage.getItem('clientid')
+            data4.access_token = localStorage.getItem('accesstoken')
+            data4.categorys = this.chosed_cate.id
+            data4.data_type = this.timetype
+            if(this.time){
+                data4.date_type = this.time
+                console.log(this.time)
+            }else{
+                console.log('meizhi')
+            }
+            console.log(data4)
+            data5 = datawork(data4)
+            this.$api.get_area_time_list(data5).then(v => {
+                console.log(v)
+                if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                    this.loading = false
+                    this.tabledata = v.data.data
+                }else{
+                    this.tabledata = {}
+                    this.show_page()
+                    this.loading = false
                 }
-            }          
-            this.$nextTick(() =>{
-                this.show_page()
-                this.loading = false
             })
+            // let data = {
+            //     id:this.chosed_cate.id,//选择的材料
+            // } 
+            // if(this.timetype == 0) {
+            //     const t_arr=this.formateTime()
+            //     data.startDate = t_arr[0]
+            //     data.endDate=t_arr[1]
+            // } else if(this.timetype == 1) {
+            //     data.quarterNumber = this.time.toString()
+            // } else {
+            //     data.yearNumber = this.time.toString()
+            // }
+            // const ap = await this.$api.get_yn_time_list(data, this.timetype)
+            // let akeys = Object.keys(ap.data.data)
+            // if(akeys.length>0) {
+            //     this.tabledata.push({data:ap.data.data[akeys[0]]})
+            // }else {
+            //     this.tabledata = []
+            //     this.show_page()
+            //     this.loading = false
+            // }   
+            // data.area=this.chosed_area.area
+            // const res = await this.$api.get_area_time_list(data,this.timetype)
+            // if(Object.keys(res.data.data).length>0) {
+            //     let keys = Object.keys(res.data.data)
+            //     let sort = ['530100000000','530300000000','532500000000','530400000000','532900000000','532300000000','530600000000','532600000000',
+            //                 '530500000000','530800000000','530900000000','532800000000','533100000000','530700000000','533400000000','533300000000']
+            //     sort = sort.filter(item => {
+            //         return keys.indexOf(item) !=-1
+            //     })
+            //     sort.forEach((key,i) => {
+            //         this.tabledata.push({data:res.data.data[key]})
+            //     })
+            //     this.dw = this.tabledata[0].data[0].munit
+            //     if(this.showcharts) { //如果展示图表  渲染
+            //         if(this.change_charts=='bar') {
+            //             this.init()
+            //         } else if(this.change_charts=='line') {
+            //             this.init_line()
+            //         } else {
+            //             this.init_barline()
+            //         }
+            //     }
+            // }          
+            // this.$nextTick(() =>{
+            //     this.show_page()
+            //     this.loading = false
+            // })
         },
         async get_cate_data() { //获取材料的数据 
             this.loading = true
             this.tabledata = []
             this.checked = []
-            
-            let data = {
-                area:this.chosed_city.id,//选择的地区,默认全省
-                pid:this.isnext?this.chosed_cate.mid:0,//选中的材料id               
+            // let commondata = localStorage.getItem('commonParam')
+            let data2 = {}
+            let commondata = {}
+            let data3
+
+            if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
+                commondata = localStorage.getItem('commonParam')
             }
-            if(this.timetype==0) {
-                const t_arr=this.formateTime()
-                data.startDate=t_arr[0]//时间区间
-                data.endDate=t_arr[1]
-            } else if(this.timetype ==1) {
-                data.quarterNumber = this.time
-            } else {
-                data.yearNumber = this.time
+            for(var i in commondata){
+                data2[i] = commondata[i]
             }
-            const res = await this.$api.get_cate_time_list(data,this.timetype)
-            let keys = Object.keys(res.data.data)
-            keys.forEach(key => {
-                let par = {
-                    pid:key,//选择的材料
-                    area:this.chosed_city.id
-                } 
-                if(this.timetype == 0) {
-                    const t_arr=this.formateTime()
-                    par.startDate = t_arr[0]
-                    par.endDate=t_arr[1]
-                } else if(this.timetype == 1) {
-                    par.quarterNumber = this.time.toString()
-                } else {
-                    par.yearNumber = this.time.toString()
-                }
-                let children=[]
-                this.$api.get_cate_time_list(par,this.timetype).then(r => {
-                    let sonkeys = Object.keys(r.data.data)
-                    if(sonkeys.length==0) {
-                        this.show_page()
-                        this.loading = false
-                    } 
-                    sonkeys.map(sk => {
-                        children.push({data:r.data.data[sk]})
-                    })
-                })
-                this.tabledata.push({data:res.data.data[key],children:children,expand:false})
+            console.log(data2)
+            console.log(commondata)
+            data2.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data2.user_id = localStorage.getItem('userid')
+            }else{
+                data2.user_id = 0
+            }
+            data2.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data2.client_id = localStorage.getItem('clientid')
+            data2.access_token = localStorage.getItem('accesstoken')
+            data2.categorys = 1
+            data3 = datawork(data2)
+            this.$api.get_cate_time_list(data3).then(v => {
+                console.log(v)
             })
-            this.dw = this.tabledata[0].data[0].munit
-            if(this.showcharts) {
-                if(this.change_charts=='bar') {
-                    this.init()
-                } else if(this.change_charts=='line') {
-                    this.init_line()
-                } else {
-                    this.init_barline()
-                }
-            }
-            this.$nextTick(() =>{
-                this.show_page()
-                this.loading = false
-            })
+
+            // let data = {
+            //     area:this.chosed_city.id,//选择的地区,默认全省
+            //     pid:this.isnext?this.chosed_cate.mid:0,//选中的材料id               
+            // }
+            // if(this.timetype==0) {
+            //     const t_arr=this.formateTime()
+            //     data.startDate=t_arr[0]//时间区间
+            //     data.endDate=t_arr[1]
+            // } else if(this.timetype ==1) {
+            //     data.quarterNumber = this.time
+            // } else {
+            //     data.yearNumber = this.time
+            // }
+            // const res = await this.$api.get_cate_time_list(data,this.timetype)
+            // let keys = Object.keys(res.data.data)
+            // keys.forEach(key => {
+            //     let par = {
+            //         pid:key,//选择的材料
+            //         area:this.chosed_city.id
+            //     } 
+            //     if(this.timetype == 0) {
+            //         const t_arr=this.formateTime()
+            //         par.startDate = t_arr[0]
+            //         par.endDate=t_arr[1]
+            //     } else if(this.timetype == 1) {
+            //         par.quarterNumber = this.time.toString()
+            //     } else {
+            //         par.yearNumber = this.time.toString()
+            //     }
+            //     let children=[]
+            //     this.$api.get_cate_time_list(par,this.timetype).then(r => {
+            //         let sonkeys = Object.keys(r.data.data)
+            //         if(sonkeys.length==0) {
+            //             this.show_page()
+            //             this.loading = false
+            //         } 
+            //         sonkeys.map(sk => {
+            //             children.push({data:r.data.data[sk]})
+            //         })
+            //     })
+            //     this.tabledata.push({data:res.data.data[key],children:children,expand:false})
+            // })
+            // this.dw = this.tabledata[0].data[0].munit
+            // if(this.showcharts) {
+            //     if(this.change_charts=='bar') {
+            //         this.init()
+            //     } else if(this.change_charts=='line') {
+            //         this.init_line()
+            //     } else {
+            //         this.init_barline()
+            //     }
+            // }
+            // this.$nextTick(() =>{
+            //     this.show_page()
+            //     this.loading = false
+            // })
         },
         async get_next(i) {
             this.loading = true
@@ -567,17 +632,18 @@ export default {
         handleNodeClick(data) { //选择材料
             this.checked = []
             this.isnext = false
-            if(this.t ==0) { //获取区域
+            if(this.t == 0) { //获取区域
                 this.chosed_cate = data
                 console.log(this.chosed_cate)
-                if(this.chosed_cate.level==1) {
+                if(this.chosed_cate.level == 1) {
                     this.chosed_type='zs'
                 }
                 this.chosed_name = data.name
+                // this.get_cate_data()
                 this.get_area_data()
             } else {
                 this.chosed_city = data
-                this.get_cate_data()
+                // this.get_cate_data()
             }
         },
         async init() {
