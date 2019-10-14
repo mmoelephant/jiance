@@ -29,7 +29,8 @@
             </el-header>
             <el-container style='height:100%;flex-direction:column;overflow:auto;'>
 				<router-view></router-view>
-				<el-footer>				
+				<el-footer :style="route == '/ref'?'margin-top:72px':''">
+					<!-- :style="route.name == 'ref'?'margin-top:72px;border:1px green solid':''"	 -->
 					<p class='ba'>主办：云南省住建厅科技与标准定额处&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;承办：云南省工程建设技术经济室&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;数据及技术支持：昆明行列科技有限公司&nbsp;&nbsp;几价信息技术有限公司&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;联系电话：0871-6818404</p>
 					<p class='ba'>滇公网安备 5301110011230  备案编号：滇ICP备16100321号  Copyright 2018-2019 版权所有 昆明行列科技有限公司</p>
 				</el-footer>
@@ -167,17 +168,18 @@ export default {
 		this.ip_addre = returnCitySN["cip"]
 		// 获取16位的随机数(nonce_str)
 		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-		console.log(this.random16)
+		// console.log(this.random16)
 		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
 		// 将客户端唯一身份码存储在本地
 		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
-		console.log(localStorage.getItem('uniquecode'))
 		if(uniquecode && uniquecode.length > 0){
 			this.$store.commit('login/SET_UNIQUE_CODE',uniquecode)
 			localStorage.setItem('uniquecode',uniquecode)
 		}else{
+			uniquecode = this.random15
 			localStorage.setItem('uniquecode',this.random15)
 			this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
+			console.log(this.random15)
 		}
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
@@ -197,18 +199,19 @@ export default {
 		for(var i in this.commonData){
 			data[i] = this.commonData[i]
 		}
-		console.log(this.commonData)
-		console.log(data)
+		// console.log(this.commonData)
+		// console.log(data)
 		data.nonce_str = this.random16
 		data.user_id = this.userid1
 		data.timestamp = this.tt
 		finaldata = datawork(data)
-		console.log(finaldata)
+		// console.log(finaldata)
 		if(localStorage.getItem('clientid') && localStorage.getItem('clientid').length > 0 && 
 		localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
 
 		}else{
 			this.$api.get_client(finaldata).then(v => {
+				// console.log(v)
 				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
 					console.log(v.data.data.client_id)
 					localStorage.setItem('clientid',v.data.data.client_id)
@@ -216,7 +219,7 @@ export default {
 					localStorage.setItem('accesstoken',v.data.data.access_token)
 					this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
 				}else{
-
+					console.log('未成功')
 				}
 			})
 		}
@@ -353,8 +356,8 @@ export default {
 			for(var i in commonparam){
 				data2[i] = commonparam[i]
 			}
-			console.log(commonparam)
-			console.log(data2)
+			// console.log(commonparam)
+			// console.log(data2)
 			data2.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
 				data2.user_id = localStorage.getItem('userid')
@@ -368,10 +371,9 @@ export default {
 				data2.access_token = localStorage.getItem('accesstoken')
 			}
 			data3 = datawork(data2)
-			console.log(data3)
-			console.log(JSON.stringify(data3))
+			// console.log(data3)
 			this.$api.check_user(data3).then(v => {
-				console.log(v)
+				// console.log(v)
 				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
 					this.formInline = {
 						username:v.data.data.username,
