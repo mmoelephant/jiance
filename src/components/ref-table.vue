@@ -193,6 +193,8 @@ export default {
 		},
 		tabledata:{
 			handler(val,oldVal) {
+				console.log(val)
+				console.log(typeof val)
 				this.newdata = []
 				this.time = []
 				var objDeepCopy = function (source) {// 深度拷贝数组对象
@@ -208,10 +210,10 @@ export default {
 					val.dateData.map(item => {
 						const d = item
 						this.time.push(d)
-						console.log(this.time)
+						// console.log(this.time)
 					})
 					this.newdata = objDeepCopy(val.data)
-					console.log(this.newdata[0])
+					// console.log(this.newdata[0])
 					this.checked = [this.newdata[0]]
 				}else{
 					console.log('1')

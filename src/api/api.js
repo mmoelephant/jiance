@@ -155,7 +155,7 @@ const api = {
 		// get_cate_time_list(data,type) {
 		get_cate_time_list(data) {
 			if(data) data = qs.stringify(data, { allowDots:true})
-			return service.post('/Api/Datas/searchCategory',data)
+			return service.post('/Api/Datas/searchArea',data)
 			// if(type == 0) {
 			// 	return service.post('/PageMaterialController/getMaterialsInfoEncapsulation',data)
 			// } else if(type==1) {
