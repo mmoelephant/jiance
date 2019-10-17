@@ -39,10 +39,10 @@ service.interceptors.response.use(
     response => {
       return response
     },
-    (error) => {
-			alert('网络错误，请稍后重试')
-			return Promise.reject(error)
-    }
+    // (error) => {
+		// 	alert('网络错误，请稍后重试')
+		// 	return Promise.reject(error)
+    // }
 )
 // service1.interceptors.response.use(
 // 	response => {
@@ -99,8 +99,10 @@ const api = {
 			return service.post('/Api/Access/token',data)
 		},
 		//大屏接口
+		// Api/Index/index
 		get_cate_level1(data={}) {
-			return service.post('/PageMaterialController/getMaterialsInfoByRecent',data)
+			if(data) data = qs.stringify(data, { allowDots: true })
+			return service.post('/Api/Index/index',data)
 		},
 		get_bg_line(data) {
 			return service.post('/PageMaterialController/getMaterialsInfoByAllCities',data)

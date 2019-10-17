@@ -5,7 +5,7 @@
                 <div :class='t==0?"title acttitle":"title"'  @click='t=0'>
                     <div>
                         <p class='c'></p>
-                        <span>各地材料数据</span>
+                        <span>按材料查询</span>
                     </div>
                     <i class='iconfont icon-shang-copy'></i>
                 </div>
@@ -16,7 +16,7 @@
                 <div :class='t==1?"title acttitle":"title"' @click='t =1'>
                     <div>
                         <p class='a'></p>                   
-                        <span>各地材料对比</span>
+                        <span>按地区查询</span>
                     </div>
                     <i class='iconfont icon-shang-copy'></i>
                 </div>
@@ -35,8 +35,8 @@
                 <div class="reportBtns">
                     <div class='btnClass'>
                         <span class="dotClass"></span>
-                        <span class="firstNav">{{t==0?'各地材料数据 > ':'各地材料对比 > '}}</span>
-                        <span class="navigiOn"> &nbsp数据详情</span>
+                        <span class="firstNav">数据查询 >&nbsp</span>
+                        <span class="navigiOn">{{t==0?' 各地材料数据':' 各地材料对比'}}</span>
                     </div>
                 </div>
                 <div class='tooltip'>
@@ -118,13 +118,13 @@
                             </div>
                         </div> 
                     </div>
-                    <div style='width:100%;height:100%;padding-top:56px;overflow:hidden;display:flex' v-show='loading'>
+                    <div style='width:100%;height:100%;padding-top:56px;overflow:hidden;display:flex;' v-show='loading'>
                         <img src="../../public/img/table.png" alt="" style='width:100%;min-height: 577px;max-height:577px'>
                     </div>
                     <reftable 
                         v-show='!loading'
-                        style='padding-top:56px'
-                        :tabledata='tabledata' 
+                        style='padding-top:56px;'
+                        :tabledata='tabledata'
                         :type='t' 
                         :timeType='timetype'
                         :t_type='chosed_type'
@@ -136,9 +136,9 @@
                 </div>
             </el-container>
         </el-container>
-        <el-dialog :visible.sync="showcharts" width="60%">
+        <el-dialog :visible.sync="showcharts" width="60%" class="chartDialog">
             <div class='ch' v-show ='showcharts'>
-                <h1 v-show='t==0'>云南省{{chosed_cate.name}}价格对比柱状图</h1>
+                <h1 v-show='t==0'>云南省{{areaname}}{{chosed_cate.name}}价格对比柱状图</h1>
                 <h1 v-show='t==1'>{{chosed_city.name}}材料价格对比柱状图</h1>
                 <div class='tool'>
                     <ul>   
@@ -222,7 +222,8 @@ export default {
             tablewidth:0,
             loading:false,
             dw:'',//材料单位
-            areaid:0
+            areaid:0,
+            areaname:''
         }
     },
     created() {       
@@ -284,7 +285,7 @@ export default {
                 this.time = this.yearoptions[0].id
             }
             console.log(this.time)
-            // this.isnext = false
+            this.isnext = false
             if(this.t == 0){
                 this.get_area_data()
             }else{
@@ -292,7 +293,7 @@ export default {
             }
         },
         time(val) {
-            // this.isnext = false
+            this.isnext = false
             if(this.t == 0) {
                 this.get_area_data()
             } else {
@@ -455,11 +456,11 @@ export default {
             }else{
                 data4.date_type = 1
             }
-            if(this.areaid){
-                data4.areas = this.areaid
-            }else{
-                data4.areas = 53
-            }
+            // if(this.areaid){
+            //     data4.areas = this.areaid
+            // }else{
+            //     data4.areas = 53
+            // }
             data4.field = this.chosed_type
             // console.log(data4)
             data5 = datawork(data4)
@@ -481,9 +482,9 @@ export default {
                         }else{}
                     },1000)
                 }else{
-                    this.tabledata = {}
-                    this.show_page()
-                    this.loading = false
+                    // this.tabledata = {}
+                    // this.show_page()
+                    // this.loading = false
                 }
             })
             if(this.showcharts) { //如果展示图表  渲染
@@ -502,7 +503,7 @@ export default {
         },
         async get_cate_data() { //获取材料的数据 
             this.loading = true
-            this.tabledata = []
+            this.tabledata = {}
             this.checked = []
             let data2 = {}
             let commondata = {}
@@ -510,9 +511,6 @@ export default {
             if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
                 commondata = this.$store.state.login.commonParam
             }
-            // if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
-            //     commondata = localStorage.getItem('commonParam')
-            // }
             for(var i in commondata){
                 data2[i] = commondata[i]
             }
@@ -549,74 +547,39 @@ export default {
                     console.log(this.tabledata)
                     this.filtConditions = v.data.data.fieldData
                 }else if(v.data.errcode == 1104){
-
+                    //token失效的时候，再度获取token
+                    let that = this
+                    getToken(data4)
+                    setTimeout(function(){
+                        if(localStorage.getItem('tokenDone')){
+                            that.get_area_data()
+                        }else{}
+                    },1000)   
                 }else{
 
                 }
             })
-
-            // let data = {
-            //     area:this.chosed_city.id,//选择的地区,默认全省
-            //     pid:this.isnext?this.chosed_cate.mid:0,//选中的材料id               
-            // }
-            // if(this.timetype==0) {
-            //     const t_arr=this.formateTime()
-            //     data.startDate=t_arr[0]//时间区间
-            //     data.endDate=t_arr[1]
-            // } else if(this.timetype ==1) {
-            //     data.quarterNumber = this.time
-            // } else {
-            //     data.yearNumber = this.time
-            // }
-            // const res = await this.$api.get_cate_time_list(data,this.timetype)
-            // let keys = Object.keys(res.data.data)
-            // keys.forEach(key => {
-            //     let par = {
-            //         pid:key,//选择的材料
-            //         area:this.chosed_city.id
-            //     } 
-            //     if(this.timetype == 0) {
-            //         const t_arr=this.formateTime()
-            //         par.startDate = t_arr[0]
-            //         par.endDate=t_arr[1]
-            //     } else if(this.timetype == 1) {
-            //         par.quarterNumber = this.time.toString()
-            //     } else {
-            //         par.yearNumber = this.time.toString()
-            //     }
-            //     let children=[]
-            //     this.$api.get_cate_time_list(par,this.timetype).then(r => {
-            //         let sonkeys = Object.keys(r.data.data)
-            //         if(sonkeys.length==0) {
-            //             this.show_page()
-            //             this.loading = false
-            //         } 
-            //         sonkeys.map(sk => {
-            //             children.push({data:r.data.data[sk]})
-            //         })
-            //     })
-            //     this.tabledata.push({data:res.data.data[key],children:children,expand:false})
-            // })
-            // this.dw = this.tabledata[0].data[0].munit
-            // if(this.showcharts) {
-            //     if(this.change_charts=='bar') {
-            //         this.init()
-            //     } else if(this.change_charts=='line') {
-            //         this.init_line()
-            //     } else {
-            //         this.init_barline()
-            //     }
-            // }
-            // this.$nextTick(() =>{
-            //     this.show_page()
-            //     this.loading = false
-            // })
+            if(this.showcharts) {
+                if(this.change_charts=='bar') {
+                    this.init()
+                } else if(this.change_charts=='line') {
+                    this.init_line()
+                } else {
+                    this.init_barline()
+                }
+            }
+            this.$nextTick(() =>{
+                this.show_page()
+                this.loading = false
+            })
         },
         async get_next(aa) {
             this.loading = true
             this.tabledata = {}
             this.checked = []
-            this.areaid = aa
+            this.areaid = aa.id
+            this.areaname = aa.name
+            // console.log(aa)
             // this.tabledata.push(i)
             let data6 = {}
             let commondata = {}
@@ -682,7 +645,7 @@ export default {
         },
         handleNodeClick(data) { //选择材料
             this.checked = []
-            // this.isnext = false
+            this.isnext = false
             if(this.t == 0) { //获取材料多地区对比
                 this.chosed_cate = data
                 console.log(this.chosed_cate)
@@ -696,6 +659,8 @@ export default {
                 this.get_area_data()
             } else {
                 this.chosed_city = data
+                console.log(data)
+                this.areaid = data.id
                 this.get_cate_data()
             }
         },
@@ -1286,18 +1251,21 @@ export default {
         },
         show_page() {
             this.boxwidth = $('.t-box').width()
-            this.tablewidth = 220+($('.right .head p').length)*130
             let scroll = $('.ul').scrollLeft()
-            let left = this.tablewidth-this.boxwidth-scroll
-            if(scroll == 0 && left > 0) {
-                this.disablepage = -1
-            } else if(this.boxwidth >= this.tablewidth || left < 0){
-                this.disablepage = 2
-            } else if(left == 0){
-                this.disablepage = 1
-            } else {
-                this.disablepage = 0
-            }
+            let that = this
+            setTimeout(function(){
+                that.tablewidth = 300 + ($('.right .head p').length) * 130
+                let left = that.tablewidth - that.boxwidth - scroll
+                if(scroll == 0 && left > 0) {
+                    that.disablepage = -1
+                } else if(that.boxwidth >= that.tablewidth || left < 0){
+                    that.disablepage = 2
+                } else if(left == 0){
+                    that.disablepage = 1
+                } else {
+                    that.disablepage = 0
+                }
+            },500)
         },
         pagechange(type) {
             let scroll = $('.ul').scrollLeft()
@@ -1462,6 +1430,9 @@ export default {
     margin-left 220px
     .table-box
         width 100%
+        // height 100%
+        // min-height calc(100% - 180px)
+        // min-height 100%
         // overflow-y scroll
         margin-top 20px
         position relative
@@ -1585,7 +1556,8 @@ export default {
         margin-right 10px
     .el-input__inner
         height 34px
-.ch 
+.ch
+    width 100%
     display flex
     flex-direction column
     h1 
@@ -1595,7 +1567,6 @@ export default {
         line-height 48px
         margin 0 auto
         font-size 20px
-        font-family MicrosoftYaHei-Bold
         font-weight bold
         color #fff  
         background main-color
@@ -1609,7 +1580,6 @@ export default {
         div,canvas
             // width 100%
             height 400px
-        
     .tool
         display flex
         justify-content space-between
@@ -1685,6 +1655,9 @@ export default {
         margin-left 5px
 </style>
 <style lang="stylus">
+.chartDialog
+    .el-dialog__body
+        padding 20px !important
 .timer
     .el-input__inner
         height 34px

@@ -21,6 +21,7 @@
                     <i></i>
 					<!-- {{token&&token.length>0?'设置中心':'登录'}} -->
                     <p class='blue' @mouseenter="show=true" @mouseleave="show=false">{{userid?'设置中心':'登录'}}</p>
+					<!-- @mouseleave="show=false" -->
 					<div class='set' v-show='show' @mouseenter="show=true" @mouseleave="show=false">
 						<p @click='goset'>账户信息</p>
 						<p @click='logout'>退出登录</p>
@@ -39,27 +40,27 @@
 		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="480px">
 			<el-form :model="formInline" style='width:86%;padding:30px 0 0 40px;box-sizing:border-box' label-width="42px">
 				<el-form-item label="账号">
-					<el-input v-model="formInline.username"></el-input>
+					<el-input v-model="formInline.username" :disabled="true"></el-input>
 				</el-form-item>
 				<el-form-item label="姓名">
-					<el-input v-model="formInline.name"></el-input>
+					<el-input v-model="formInline.name" :disabled="true"></el-input>
 				</el-form-item>
 				<el-form-item label="单位">
-					<el-input v-model="formInline.unit"></el-input>
+					<el-input v-model="formInline.unit" :disabled="true"></el-input>
 				</el-form-item>
 				<el-form-item label="手机">
-					<el-input v-model="formInline.phone"></el-input>
+					<el-input v-model="formInline.phone" :disabled="true"></el-input>
 				</el-form-item>
 				<el-form-item label="邮箱">
-					<el-input v-model="formInline.email"></el-input>
+					<el-input v-model="formInline.email" :disabled="true"></el-input>
 				</el-form-item>
 				<el-form-item label="地区">
-					<el-input v-model="formInline.location"></el-input>
+					<el-input v-model="formInline.location" :disabled="true"></el-input>
 				</el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
 				<!-- @click="save" -->
-				<el-button type="primary">保存</el-button>
+				<el-button type="primary" @click="save">确定</el-button>
 				<!-- <el-button @click="dialogVisible= false">取消</el-button> -->
 			</span>
 		</el-dialog>
@@ -271,14 +272,14 @@ export default {
 		logout() {
 			let data0 = {}
 			let data1
-			let commonParam = {}
-			if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
-				commonparam = localStorage.getItem('commonParam')
+			let commondata = {}
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commondata = this.$store.state.login.commonParam
 			}else{
-				commonparam = this.commonData
+				commondata = this.commonData
 			}
-			for(var i in commonparam){
-				data0[i] = commonparam[i]
+			for(var i in commondata){
+				data0[i] = commondata[i]
 			}
 			data0.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
@@ -309,7 +310,6 @@ export default {
 						getToken(data0)
 						setTimeout(function(){
 							if(localStorage.getItem('tokenDone')){
-								that.loading = false
 								that.logout()
 							}else{
 								this.$message({
@@ -406,6 +406,9 @@ export default {
 				}
 			})
 		},
+		save(){
+			this.dialogVisible =  false
+		}
 		// async save() {
 		// 	this.formInline.userid = this.userid
 		// 	const res = await this.$api.updata_user(this.formInline)
@@ -525,6 +528,7 @@ export default {
 				margin 0 16px
 			.blue 
 				color #7F94FF
+				line-height 28px
 			.set
 				position absolute
 				top 22px

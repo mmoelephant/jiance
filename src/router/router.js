@@ -75,6 +75,11 @@ let routes = [
     component: () => import('../views/ref.vue')
   },
   {
+    path:'/copy',
+    name:'copy',
+    component:() => import('../views/copy.vue')
+  },
+  {
     path: '/help',
     name: 'help',
     component: () => import('../views/help/help.vue')

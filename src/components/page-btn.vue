@@ -43,8 +43,8 @@ export default {
             line-height 32px
             text-align center
             font-size 18px
-            // color #7F94FF
-            color red
+            color #7F94FF
+            // color red
             cursor pointer
         div:hover
             background #7F94FF

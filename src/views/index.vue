@@ -4,7 +4,8 @@
 			<div class='bt-content'>
 				<div>
 					<img src='../../public/img/logob.png'/>
-					<p>云南省建设工程材料及设备价格监测系统</p>
+					<!-- <p>云南省建设工程材料及设备价格监测系统</p> -->
+					<p>{{sysTitle}}</p>
 				</div>
 				<p class='s' @click='$router.push("/ref")'>进入工作台 ENTER</p>
 			</div>
@@ -28,7 +29,49 @@
 import left from '../components/big-left'
 import center from '../components/center'
 import rigth from '../components/big-right'
+import {datawork} from '../plugins/datawork.js'
+import {getToken} from '../plugins/gettoken.js'
 export default {
+	data(){
+		return {
+			sysTitle:''
+		}
+	},
+	created(){
+		// console.log(this.$store.state.login.commonParam)
+		// let data = {}
+        // let commondata = {}
+        // let data2 = {}
+        // if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+        //     commondata = this.$store.state.login.commonParam
+        // }
+        // for(var i in commondata){
+        //     data[i] = commondata[i]
+        // }
+        // data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+        // if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+        //     data.user_id = localStorage.getItem('userid')
+        // }else{
+        //     data.user_id = 0
+        // }
+        // data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+        // data.client_id = localStorage.getItem('clientid')
+        // data.access_token = localStorage.getItem('accesstoken')
+        // if(this.areaid){
+        //     data.areas = this.areaid
+        // }else{
+        //     data.areas = 53
+		// }
+		// data2 = datawork(data)
+		// console.log(data)
+		// console.log(data2)
+        // this.$api.get_cate_level1(data2).then(v => {
+		// 	console.log(v)
+		// 	if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+		// 		this.sysTitle = v.data.data.title
+		// 	}
+        // })
+	},
 	components: {
 		left,
 		center,

@@ -166,7 +166,7 @@ export default {
             this.loading = true
             this.requestaData.username = this.username
             this.requestaData.password = this.password
-            console.log(this.requestaData.unique_code)
+            // console.log(this.requestaData.unique_code)
             finaldata = datawork(this.requestaData)
             this.$api.login(finaldata).then(v => {
                 if(v.data.data && v.data.errcode == 0 && v.data.errmsg == 'ok') {

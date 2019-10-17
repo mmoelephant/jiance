@@ -5,7 +5,7 @@
                 <p>监测市级</p>
                 <div class='num-box'>
                     <i class='l'></i>
-                    <p class='fontb'>16</p>
+                    <p class='fontb'>{{cityNum}}</p>
                     <i class='r'></i>
                 </div>
             </div>
@@ -13,29 +13,35 @@
                 <p>监测区、县级</p>
                 <div class='num-box'>
                     <i class='l'></i>
-                    <p class='fontb'>137</p>
+                    <p class='fontb'>{{countyNum}}</p>
                     <i class='r'></i>
                 </div>
             </div>
         </div>
         
         <p>材料价格指数及环比涨跌<!--span style='font-size:12px'>(当前最新)</span--></p>
-        <p style='color:#0DFDA0;font-size:12px'>时间：2019-05<!--span>{{list[0].asmdate?list[0].asmdate.substr(0,10):0}}</span--></p>
+        <p style='color:#0DFDA0;font-size:12px'>时间：{{nowT}}<!--span>{{list[0].asmdate?list[0].asmdate.substr(0,10):0}}</span--></p>
         <div class='cate'>
             <i class='k'></i>
             <ul :class="animate==true?'cate-list anim':'cate-list'">
                 <li v-for='(item,index) in list' :key='index'>
                     <div style='justify-content:space-between'>
-                        <p>{{item.name}}</p>
-                        <p>{{item.exponent?Number(item.exponent).toFixed(2):''}}</p>
+                        <p>{{item.name?item.name:''}}</p>
+                        <p>{{item.data && item.data != {} && item.data.base_index_b && item.data.base_index_b != {}?item.data.base_index_b:'-'}}</p>
                     </div>
-                    <el-progress :percentage="item.huanbi?Math.abs(item.huanbi*100):0" :color="Number(item.huanbi)>0?'#FD3A0D':'#0DFDA0'" :text-inside="true" :stroke-width="4"
-                        style='margin:10px auto'></el-progress>
+                    <el-progress :percentage="item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {}?Math.abs(item.data.chain_rate):0" 
+                    :color="item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && Number(item.data.chain_rate)>0?'#FD3A0D':'#0DFDA0'" 
+                    :text-inside="true" 
+                    :stroke-width="4"
+                    style='margin:10px auto;'>
+                    </el-progress>
                     <div>
-                        <p class='p'>{{(item.huanbi*100).toFixed(2)}}%</p>
-                        <img src='../../public/img/上.png' v-show='(item.huanbi*100).toFixed(2)>0'/>
-                        <img src='../../public/img/下.png' v-show='(item.huanbi*100).toFixed(2)<0'/>
-                        <p v-show='(item.huanbi*100).toFixed(2)==0'>-</p>
+                        <p class='p'>
+                            {{item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {}?item.data.chain_rate:'-'}}
+                        </p>
+                        <img src='../../public/img/上.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate > 0'/>
+                        <img src='../../public/img/下.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate < 0'/>
+                        <p v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate == 0'>-</p>
                     </div>
                 </li>
             </ul>
@@ -45,6 +51,8 @@
 <script>
 import { setInterval, clearInterval } from 'timers';
 import $ from 'jquery';
+import {datawork} from '../plugins/datawork.js'
+import {getToken} from '../plugins/gettoken.js'
 export default {
     data() {
         return {
@@ -120,8 +128,12 @@ export default {
                     zs:-12
                 },
             ],
+            cityNum:16,
+            countyNum:129,
+            nowT:'2019年9月',
             timer:null,
             animate:false,
+            areaid:0,
         }
     },
     computed:{
@@ -153,21 +165,67 @@ export default {
         },
         async get_cate() {
             let res
-            if(this.$store.state.login.map.id==53) {
-                res = await this.$api.get_cate_level1()
-            } else {
-                res = await this.$api.get_cate_level1({area:this.$store.state.login.map.id})
+            let data = {}
+            let commondata = {}
+            let data2 = {}
+            if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+                commondata = this.$store.state.login.commonParam
             }
-            this.list = res.data
-            this.$store.commit('bigscreen/SET_CATE_ON', this.list[0])
-            this.$store.commit('bigscreen/SET_CATE_LIST', this.list)
+            for(var i in commondata){
+                data[i] = commondata[i]
+            }
+            data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data.user_id = localStorage.getItem('userid')
+            }else{
+                data.user_id = 0
+            }
+            data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data.client_id = localStorage.getItem('clientid')
+            data.access_token = localStorage.getItem('accesstoken')
+            if(this.areaid){
+                data.areas = this.areaid
+            }else{
+                data.areas = 53
+            }
+            data2 = datawork(data)
+            this.$api.get_cate_level1(data2).then(v => {
+                console.log(v)
+                if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                    this.cityNum = v.data.data.areas_city
+                    this.countyNum = v.data.data.areas_area
+                    this.list = v.data.data.data
+                    this.nowT = v.data.data.terms_name
+                    this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])
+                    this.$store.commit('bigscreen/SET_CATE_LIST',this.list)
+                }else if(v.data.errcode == 1104){
+                    console.log(v)
+                    let that = this
+                    getToken(data)
+                    setTimeout(function(){
+                        that.get_cate()
+                    },1000)
+                }else{
+
+                }
+            })
             this.$nextTick(() => {
                 this.timer = setInterval(this.t,10000)
             })
+            // if(this.$store.state.login.map.id == 53) {
+            //     res = await this.$api.get_cate_level1(data2)
+            // } else {
+            //     res = await this.$api.get_cate_level1({area:this.$store.state.login.map.id})
+            // }
+            // this.list = res.data
+            // this.$store.commit('bigscreen/SET_CATE_ON', this.list[0])
+            // this.$store.commit('bigscreen/SET_CATE_LIST', this.list)
+            // this.$nextTick(() => {
+            //     this.timer = setInterval(this.t,10000)
+            // })
         }
     },
     mounted() {
-        
     },
     beforeRouteLeave(to,from,next) {
         this.timer = null

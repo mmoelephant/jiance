@@ -34,6 +34,9 @@ import xsbn from '../../public/map/西双版纳傣族自治州.json'
 import yx from '../../public/map/玉溪市.json'
 import zt from '../../public/map/昭通市.json'
 import areajson from '../../public/json/yn.json'
+import {datawork} from '../plugins/datawork.js'
+import {getToken} from '../plugins/gettoken.js'
+
 export default {
     data() {
         return {
@@ -73,9 +76,14 @@ export default {
     watch:{
         cate:{
             handler(val) {
-                if(val.barData) {
-                    this.chart.dispose()
-                    this.init_map(val.barData)
+                console.log(val)
+                console.log(val.areasData)
+                if(val.areasData) {
+                    console.log('1')
+                    // this.chart.dispose()
+                    this.init_map(val.areasData)
+                    console.log(val)
+                    console.log(val.areasData)
                 } else {
                     this.get_bar_data()
                 }
@@ -90,13 +98,39 @@ export default {
     },
     methods:{
         async get_bar_data() {
-            let data = {
-                id:this.cate.cid,
-                monthNumber:1,
+            console.log('为获取到val')
+            let data = {}
+            let commondata = {}
+            let data2 = {}
+            if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+                commondata = this.$store.state.login.commonParam
             }
+            console.log(commondata)
+            for(var i in commondata){
+                data[i] = commondata[i]
+            }
+            data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data.user_id = localStorage.getItem('userid')
+            }else{
+                data.user_id = 0
+            }
+            data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data.client_id = localStorage.getItem('clientid')
+            data.access_token = localStorage.getItem('accesstoken')
+            if(this.areaid){
+                data.areas = this.areaid
+            }else{
+                data.areas = 53
+            }
+            data2 = datawork(data)
+            // let data = {
+            //     id:this.cate.cid,
+            //     monthNumber:1,
+            // }
             let res
-            if(this.area_map==yn) {
-                res = await this.$api.get_bg_line(data)
+            if(this.area_map == yn) {
+                res = await this.$api.get_cate_level1(data2)
                 this.chosed_area = this.area
             } else {
                 data.area= this.$store.state.login.map.id
@@ -125,19 +159,22 @@ export default {
             this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
         },
         init_map(data) {
+            console.log(data)
             const arr = this.area_map.features
             this.CoordMap = []
-            if(data.length>0) {
+            if(data.length > 0) {
                 arr.forEach(item => {
                     data.forEach(d => {
                         let symbol=''
-                        if(item.properties.name == d.city) {
-                            if(Number(d.huanbi)>0) {
-                                symbol = 'image://'+this.upsymbol
-                            } else if(Number(d.huanbi)<0) {
-                                symbol = 'image://'+this.downsymbol
-                            } else {
-                                symbol = 'image://'+this.cpsymbol
+                        if(item.properties.name == d.name) {
+                            if(d.data && d.data != {} && d.data.chain_rate && d.data.chain_rate != {}){
+                                if(Number(d.chain_rate)>0) {
+                                    symbol = 'image://'+this.upsymbol
+                                } else if(Number(d.chain_rate)<0) {
+                                    symbol = 'image://'+this.downsymbol
+                                } else {
+                                    symbol = 'image://'+this.cpsymbol
+                                }
                             }
                             this.CoordMap.push({
                                 name: item.properties.name, 
@@ -152,7 +189,7 @@ export default {
             this.chart =  this.$echarts.init(document.getElementsByClassName('map')[0]);
             // if(chart) chart.dispose()
             // const geoCoordMap = this.CoordMap
-            let op ={
+            let op = {
                 series: [{
                     type: 'map',
                     top:80,
