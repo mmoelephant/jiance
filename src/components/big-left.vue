@@ -39,9 +39,9 @@
                         <p class='p'>
                             {{item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {}?item.data.chain_rate:'-'}}
                         </p>
-                        <img src='../../public/img/上.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate > 0'/>
-                        <img src='../../public/img/下.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate < 0'/>
-                        <p v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.chain_rate == 0'>-</p>
+                        <img src='../../public/img/上.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && Number(item.data.chain_rate) > 0'/>
+                        <img src='../../public/img/下.png' v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && Number(item.data.chain_rate) < 0'/>
+                        <p v-show='item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && Number(item.data.chain_rate) == 0'>-</p>
                     </div>
                 </li>
             </ul>
@@ -52,6 +52,7 @@
 import { setInterval, clearInterval } from 'timers';
 import $ from 'jquery';
 import {datawork} from '../plugins/datawork.js'
+import {getCilentId} from '../plugins/getclientidagain'
 import {getToken} from '../plugins/gettoken.js'
 export default {
     data() {
@@ -134,6 +135,7 @@ export default {
             timer:null,
             animate:false,
             areaid:0,
+            sysTitle:''
         }
     },
     computed:{
@@ -144,6 +146,16 @@ export default {
     watch:{
         map:{
             handler(val) {
+                //对地图板块有所操作的时候，这里会发生变化，那么会重新请求各个材料对应的16个州市的数据，
+                // 下面的判断语句作用为：如果点击的是“返回”，那么请求参数的时候不传地区的对应代码
+                // 请求完数据以后，this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])，会随着变化。
+                // 这时候在center.vue模块会获取到变化
+                console.log(val)
+                if(val.id != '530000000000'){
+                    this.areaid = Number(val.id)
+                }else{
+                    this.areaid = 0
+                }
                 this.get_cate()
                 clearInterval(this.timer)
             },
@@ -151,6 +163,26 @@ export default {
         }
     },
     created() {       
+        // this.get_cate()
+        if(localStorage.getItem('user')){
+            let areanum = JSON.parse(localStorage.getItem('user')).area_code
+            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
+            if(arealen != 12){
+                for(var i = 0;i < 12-arealen;i++){
+                    areanum = areanum + '0'
+                }
+            }
+            if(areanum != '530000000000'){
+                this.areaid = Number(areanum)
+            }else{
+                this.areaid = 0
+            }
+            console.log(this.areaid)
+        }else{
+            console.log('用户还未登陆')
+            this.areaid = 0
+            
+        }
         this.get_cate()
     },
     methods:{
@@ -181,31 +213,55 @@ export default {
                 data.user_id = 0
             }
             data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-            data.client_id = localStorage.getItem('clientid')
-            data.access_token = localStorage.getItem('accesstoken')
+            if(localStorage.getItem('clientid') && localStorage.getItem('accesstoken')){
+                console.log('存在clientid')
+                console.log(localStorage.getItem('clientid'))
+                data.client_id = localStorage.getItem('clientid')
+                data.access_token = localStorage.getItem('accesstoken')
+            }else{
+                console.log('不存在client_id,要重新获取')
+            }
+            // data.areas = 530100000000
             if(this.areaid){
+                // data.areas = this.areaid
                 data.areas = this.areaid
             }else{
-                data.areas = 53
+                // data.areas = 53
             }
             data2 = datawork(data)
+            console.log(data)
+            console.log(data2)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
+                // console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+                    console.log(v)
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
                     this.list = v.data.data.data
                     this.nowT = v.data.data.terms_name
+                    this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
+                    this.sysTitle = v.data.data.title
+                    this.$store.commit('bigscreen/SET_SYSTEM_TITLE',v.data.data.title)
                     this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])
                     this.$store.commit('bigscreen/SET_CATE_LIST',this.list)
                 }else if(v.data.errcode == 1104){
-                    console.log(v)
+                    //token失效，重新获取·token
                     let that = this
                     getToken(data)
                     setTimeout(function(){
                         that.get_cate()
                     },1000)
                 }else{
+                    console.log(v)
+                    //重新获取client_id
+                    let that = this
+                    getCilentId(commondata)
+                    setTimeout(function(){
+                        if(localStorage.getItem('done')){
+                            console.log('重新获取了client_id')
+                            that.get_cate()
+                        }
+                    },1000)
 
                 }
             })

@@ -6,7 +6,7 @@
             style='width :100%;margin-top:15px;position:relative;height:30px;text-align:center' @click='backToYN'>
             <p style='cursor:pointer;color:#55c0fd;line-height:30px;
                 position:absolute;left:15px'
-                >{{this.$store.state.login.map.id!=53?"返回":""}}</p>
+                >{{areaid != 0 && areaid != 530000000000?"返回":""}}</p>
             <img src="../../public/img/tem.png" alt="" class='tem'>    
         </div>
         <div class='map'>
@@ -49,37 +49,41 @@ export default {
             chart:null,
             area_map:yn,
             map:{
-                '保山':bs,
-                '楚雄':cx,
-                '大理':dl,
-                '德宏':dh,
-                '迪庆':dq,
-                '红河':hh,
-                '昆明':km,
-                '丽江':lj,
-                '临沧':lc,
-                '怒江':nj,
-                '曲靖':qj,
-                '文山':ws,
-                '西双版纳':xsbn,
-                '玉溪':yx,
-                '昭通':zt,
-                '普洱':pe
-            }
+                '保山市':bs,
+                '楚雄彝族自治州':cx,
+                '大理白族自治州':dl,
+                '德宏傣族景颇族自治州':dh,
+                '迪庆藏族自治州':dq,
+                '红河哈尼族彝族自治州':hh,
+                '昆明市':km,
+                '丽江市':lj,
+                '临沧市':lc,
+                '怒江傈傈族自治州':nj,
+                '曲靖市':qj,
+                '文山壮族苗族自治州':ws,
+                '西双版纳傣族自治州':xsbn,
+                '玉溪市':yx,
+                '昭通市':zt,
+                '普洱市':pe,
+                '云南省':yn
+            },
+            areaid:0,
+            areaname:''
         }
     },
     computed:{
         cate() {
             return this.$store.state.bigscreen.cate_on
+        },
+        map1() {
+            return this.$store.state.login.map
         }
     },
     watch:{
         cate:{
             handler(val) {
-                console.log(val)
-                console.log(val.areasData)
+                //这里获取到的是左边部分的数据变化，（在big-left.vue部分有说明），然后对应的渲染地图
                 if(val.areasData) {
-                    console.log('1')
                     // this.chart.dispose()
                     this.init_map(val.areasData)
                     console.log(val)
@@ -89,16 +93,54 @@ export default {
                 }
             },
             deep: true
-		},
+        },
+        map1:{
+            handler(val) {
+                //点击某个市的地图板块，还有在区县的地图里面点击“返回”，这里的值会翻身变化，所以渲染地图要用的area_map也要随着变化。
+                //这里的作用主要是让this.area_map随着变化，然后渲染地图的时候，比较方便跟传init_map()方法的数据做匹配
+                console.log(val)
+                //areaid的作用就是判断“返回”字眼的显示与否，当点击返回以后，这里val.id的值将是530000000000（云南省对应的地区编码），
+                // 当点击某个地区板块之后，areaid将会是对应地区的地区编码
+                this.areaid = Number(val.id)
+                this.areaname = val.name
+                this.area_map = this.map[this.areaname]
+            },
+            deep:true
+        }
     },
     created() {
+        //判断有误账户信息
+        if(localStorage.getItem('user')){
+            let areanum = JSON.parse(localStorage.getItem('user')).area_code
+            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
+            if(arealen != 12){
+                for(var i = 0;i < 12-arealen;i++){
+                    areanum = areanum + '0'
+                }
+            }
+            this.areaid = Number(areanum)
+            console.log(this.areaid)
+            // 当有账户信息存在的时候，用户如果不是云南省的权限，那就将对应的渲染地图要使用的数据area_map切换成用户的权限地区
+            this.areaname = JSON.parse(localStorage.getItem('user')).area_name
+            if(this.areaname.indexOf('>') != -1){
+                this.areaname = JSON.parse(localStorage.getItem('user')).area_name.split('>')[1].replace(/\s+/g,'')
+            }else{
+                this.areaname = JSON.parse(localStorage.getItem('user')).area_name
+            }
+            this.area_map = this.map[this.areaname]
+
+        }else{
+            console.log('用户还未登陆')
+            this.areaid = 0
+            // this.areaid = 530100000000
+            // this.areaname = '保山市'
+        }
     },
     mounted() {
         
     },
     methods:{
         async get_bar_data() {
-            console.log('为获取到val')
             let data = {}
             let commondata = {}
             let data2 = {}
@@ -118,7 +160,7 @@ export default {
             data.timestamp = Math.round(new Date().getTime() / 1000).toString()
             data.client_id = localStorage.getItem('clientid')
             data.access_token = localStorage.getItem('accesstoken')
-            if(this.areaid){
+            if(this.areaid && this.areaid != 530000000000){
                 data.areas = this.areaid
             }else{
                 data.areas = 53
@@ -139,17 +181,18 @@ export default {
                         this.chosed_area = item.childrenList
                     }
                 })
+                data2 = datawork(data)
                 res = await this.$api.get_area_line(data)
             }
 			let cate_list = this.$store.state.bigscreen.cate_list
 			cate_list.forEach(item => {
-				if(item.cid == this.cate.cid) {
-					item.barData = res.data.data
+				if(item.id == this.cate.id) {
+					item.areasData = res.data.data.data
 				}
             })
-            res.data.data.filter(d => {
+            res.data.data.data.filter(d => {
                 this.chosed_area.forEach(a => {
-                    if(a.id == d.area) {
+                    if(a.id == d.name) {
                         d.city = a.name
                     }
                 })
@@ -160,6 +203,7 @@ export default {
         },
         init_map(data) {
             console.log(data)
+            console.log(this.area_map)
             const arr = this.area_map.features
             this.CoordMap = []
             if(data.length > 0) {
@@ -168,13 +212,15 @@ export default {
                         let symbol=''
                         if(item.properties.name == d.name) {
                             if(d.data && d.data != {} && d.data.chain_rate && d.data.chain_rate != {}){
-                                if(Number(d.chain_rate)>0) {
+                                if(Number(d.data.chain_rate)>0) {
                                     symbol = 'image://'+this.upsymbol
-                                } else if(Number(d.chain_rate)<0) {
+                                } else if(Number(d.data.chain_rate)<0) {
                                     symbol = 'image://'+this.downsymbol
                                 } else {
                                     symbol = 'image://'+this.cpsymbol
                                 }
+                            }else{
+                                symbol = 'image://'
                             }
                             this.CoordMap.push({
                                 name: item.properties.name, 
@@ -242,9 +288,11 @@ export default {
             this.chart.setOption(op);
             const _this= this
             this.chart.on('click', function(params){
+                console.log(params)
                 const area_name = params.name
                 _this.area.map(item => {
                     if(item.name == area_name) {
+                        console.log(item)
                         _this.$emit('click_map',item)
                         _this.area_map = _this.map[area_name]
                         _this.$store.commit('login/SET_MAP', item)
@@ -254,8 +302,9 @@ export default {
             });
         },
         backToYN() {
-            this.area_map=yn
-            this.$store.commit('login/SET_MAP', {id:'53'})
+            this.area_map = yn
+            this.areaid = 0
+            this.$store.commit('login/SET_MAP', {id:'530000000000',name:'云南省'})
         }
     }
 }

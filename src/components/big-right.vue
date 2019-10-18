@@ -14,7 +14,7 @@
         <div class='box'>
             <div class='tt'>
                 <i></i>
-                <p>{{cate.name}}价格环比/同比</p>
+                <p>{{this.$store.state.bigscreen.what_time}}{{cate.name}}环比/同比</p>
             </div>
             <div id='line'>
 
@@ -23,7 +23,7 @@
         <div class='box'>
             <div class='tt'>
                 <i></i>
-                <p>{{cate.name}}价格指数对比</p>
+                <p>{{areaname}}{{cate.name}}价格指数对比</p>
             </div>
             <div id='bar'>
 
@@ -34,13 +34,37 @@
 <script>
 import $ from 'jquery'
 import areajson from '../../public/json/yn.json'
-
+import {datawork} from '../plugins/datawork.js'
+import {getCilentId} from '../plugins/getclientidagain'
+import {getToken} from '../plugins/gettoken.js'
 export default {
     data() {
         return {
             all_area:areajson,
             area:areajson,
-            all:0
+            all:0,
+            areaid:0,
+            areaname:'云南省',
+        }
+    },
+    created(){
+        if(localStorage.getItem('user')){
+            let areanum = JSON.parse(localStorage.getItem('user')).area_code
+            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
+            if(arealen != 12){
+                for(var i = 0;i < 12-arealen;i++){
+                    areanum = areanum + '0'
+                }
+            }
+            if(areanum != '530000000000'){
+                this.areaid = Number(areanum)
+            }else{
+                this.areaid = 0
+            }
+            console.log(this.areaid)
+        }else{
+            console.log('用户还未登陆')
+            this.areaid = 0
         }
     },
     computed:{
@@ -54,36 +78,66 @@ export default {
     watch:{
         cate:{
             handler(val) {
-                if(val.lineData) {
-                    this.init_line(val.lineData)
-                } else {
-                    this.get_line_data()
+                console.log(val)
+                if(val.areasData){
+                    this.init_line(val.areasData)
+                    // this.init_pie(val.areasData)
+                }else{
+
+                }
+                if(val.all_count){
+                    this.init_pie(val)
+                }else{
+                    this.get_pie_data() 
+                }
+                if(val.termsData){
+                    this.init_bar(val.termsData)
+                }
+                // if(val.areasData) {
+                //     this.init_line(val.areasData)
+                // } else {
+                //     this.get_line_data()
                     
-                }
-                if(val.barData) {
-                    this.init_bar(val.barData)
-                } else {
-                    this.get_bar_data()
-                }
-                if(val.pieData) {
-                    this.init_pie(val.pieData)
-                }else {
-                    this.get_pie_data()
-                }
+                // }
+                // if(val.barData) {
+                //     this.init_bar(val.barData)
+                // } else {
+                //     this.get_bar_data()
+                // }
+                // if(val.pieData) {
+                //     this.init_pie(val.pieData)
+                // }else {
+                //     this.get_pie_data()
+                // }
             },
             deep: true
         },
         map:{
             handler(val) {
-                if(val.id=='53') {
-                    this.area = this.all_area
-                } else { 
+                //这里只会随着对中间大屏的操作而改变，有两种情况：
+                // 1.点击摸个市的地区板块，会有一个变化
+                // 2.点击返回的时候，返回时的val.id的值固定是'530000000000'
+                console.log(val)
+                if(val.id != '530000000000'){
+                    this.areaid = Number(val.id)
                     this.all_area.map(item => {
-                        if(item.id == val.id) {
+                        if(item.id == val.id){
                             this.area = item.childrenList
                         }
                     })
+                }else{
+                    this.areaid = 0
+                    this.area = this.all_area
                 }
+                // if(val.id=='53') {
+                //     this.area = this.all_area
+                // } else { 
+                //     this.all_area.map(item => {
+                //         if(item.id == val.id) {
+                //             this.area = item.childrenList
+                //         }
+                //     })
+                // }
             },
             deep:true
         }
@@ -132,38 +186,74 @@ export default {
 			this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
         },
         async get_pie_data() {
-            let data = {
-                mid:this.cate.cid,
+            let data = {}
+            let commondata = {}
+            let data2 = {}
+            if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+                commondata = this.$store.state.login.commonParam
             }
-            if(this.$store.state.login.map.id!='53') {
-                data.area = this.$store.state.login.map.id
+            console.log(commondata)
+            for(var i in commondata){
+                data[i] = commondata[i]
             }
-            const res = await this.$api.get_bg_pie(data)
-            let cate_list = this.$store.state.bigscreen.cate_list
-			cate_list.forEach(item => {
-				if(item.cid == this.cate.cid) {
-					item.pieData = res.data.data
-				}
+            data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
+                data.user_id = localStorage.getItem('userid')
+            }else{
+                data.user_id = 0
+            }
+            data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+            data.client_id = localStorage.getItem('clientid')
+            data.access_token = localStorage.getItem('accesstoken')
+            if(this.areaid){
+                data.areas = this.areaid
+            }else{
+
+            }
+            data2 = datawork(data)
+            this.$api.get_cate_level1(data2).then(v => {
+                console.log(v)
+                if(v.data.errcode == 0){
+                    this.all = v.data.data.all_count
+                    this.init_pie(v.data.data)
+                    this.areaname = v.data.data.areas_name
+                }
             })
-            if(!this.all||this.all==0) {
-                this.all = res.data.data.all.count
-            }
-            this.init_pie(res.data.data)
-			this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
+            // let data = {
+            //     mid:this.cate.cid,
+            // }
+            // if(this.$store.state.login.map.id!='53') {
+            //     data.area = this.$store.state.login.map.id
+            // }
+            // const res = await this.$api.get_bg_pie(data)
+            // let cate_list = this.$store.state.bigscreen.cate_list
+			// cate_list.forEach(item => {
+			// 	if(item.cid == this.cate.cid) {
+			// 		item.pieData = res.data.data
+			// 	}
+            // })
+            // if(!this.all||this.all==0) {
+            //     this.all = res.data.data.all.count
+            // }
+            // this.init_pie(res.data.data)
+			// this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
         },
         init_pie(data) {
-            let name=''
+            let name = '云南省'
+            console.log(data)
             this.all_area.map(item => {
-                if(item.id == data.km.area) {
+                if(item.name == data.areas_name) {
                     name = item.name
                 }
             })
+
             // const all = data.other.count + data.km.count
             // console.log(all,'123132132')
             const chart = this.$echarts.init(document.getElementById('pie'))
             const op = {
                 color:['#ffaf25', '#215973'],
-                series: [{
+                series: [
+                    {
                     // 设置成相对的百分比
                     center: ['25%', '50%'],
                     name:name,
@@ -189,7 +279,7 @@ export default {
                         }
                     },
                     data:[{ 
-                        value:data.km.count,
+                        value:data.area_count,
                         name:name,
                         itemStyle: {
                             normal: {
@@ -201,7 +291,7 @@ export default {
                         label:{
                             formatter: [
                                 '{a|'+name+'}',
-                                '{b|'+data.km.count+'}'
+                                '{b|'+data.area_count+'}'
                             ].join('\n'),
 
                             rich: {
@@ -217,9 +307,10 @@ export default {
                             }
                         }
                     },{
-                        value:data.other.count, name:'',itemStyle: { color: '#215973' }
+                        value:data.area_count, name:'',itemStyle: { color: '#215973' }
                     }]
-                    },{
+                    },
+                    {
                     center: ['75%', '50%'],
                     name:this.cate.name,
                     type:'pie',
@@ -243,7 +334,7 @@ export default {
                             show: false
                         }
                     },
-                    data:[{ value:data.other.count,
+                    data:[{ value:this.cate.count,
                         name:this.cate.name,
                         itemStyle: {
                             normal: {
@@ -255,7 +346,7 @@ export default {
                         label:{
                             formatter: [
                                 '{a|'+this.cate.name+'}',
-                                '{b|'+data.other.count+'}'
+                                '{b|'+this.cate.count+'}'
                             ].join('\n'),
                             rich: {
                                 a: {
@@ -270,7 +361,7 @@ export default {
                             }
                         }
                     },{
-                        value:data.km.count, name:'',itemStyle: { color: '#215973' }
+                        value:this.cate.count, name:'',itemStyle: { color: '#215973' }
                     }]
                 }]
             }
@@ -279,15 +370,17 @@ export default {
         init_line(data) {
             let x=[],tb=[],hb=[]
             if(data) {
-                data.map(item =>{
-                    x.push(item.asmdate.substr(0,7))
-                    tb.push(item.tongbi*100)
-                    hb.push(item.huanbi*100)
+                data.map(item => {
+                    if(item.name && item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.years_rate && item.data.years_rate != {}){
+                        x.push(item.name)
+                        tb.push(item.data.years_rate)
+                        hb.push(item.data.chain_rate)
+                    }
                 })
             } else {
 
             }
-            
+            console.log(x)
             const chart = this.$echarts.init(document.getElementById('line'))
             const op = {
                 tooltip : {
@@ -317,7 +410,7 @@ export default {
                 },
                 xAxis : [{
                     type : 'category',
-                    data : x,//['2017.01','2018.01','2018.01','2018.01','2018.01','2018.01','2018.01','2018.01'],
+                    data : x,
                     /*echarts 隐藏x轴横线*/
                     axisLine: {
                     show: false
@@ -327,7 +420,10 @@ export default {
                         show:false
                     },
                     axisLabel:{
-                        color: '#fff', fontSize:10
+                        color: '#fff',
+                        fontSize:10,
+                        interval:0,
+                        rotate:60
                     },
                 }],
                 yAxis : [{
@@ -352,7 +448,7 @@ export default {
                     },
                     axisLabel:{
                         show: true,
-                        formatter: '{value} %',
+                        formatter: '{value}',
                         color: '#55D7FD', fontSize:10
                     },
                 }],
@@ -401,16 +497,21 @@ export default {
             let x = [],y=[]
             if(data) {
                 data.filter(item => {
-                    this.area.forEach(a => {
-                        if(a.id==item.area) {
-                            item.city = a.name
-                        }
-                    })
-                    if(item.city&&item.city.length>4) {
-                        item.city= item.city.substr(0,4)
+                    // this.area.forEach(a => {
+                    //     if(a.id==item.area) {
+                    //         item.city = a.name
+                    //     }
+                    // })
+                    // if(item.city&&item.city.length>4) {
+                    //     item.city= item.city.substr(0,4)
+                    // }
+                    x.push(item.name)
+                    if(item.data && item.data != {} && item.data.base_index_b && item.data.base_index_b != {}){
+                        y.push(item.data.base_index_b)
+                    }else{
+                        y.push(0)
                     }
-                    x.push(item.city)
-                    y.push(item.exponent)
+
                 })
             } else {
 
@@ -434,7 +535,7 @@ export default {
                 xAxis : [
                 {
                     type : 'category',
-                    data : x,//['昆明市','曲靖市','昭通市','玉溪市','丽江市','保山市','红河州','昆明市','曲靖市','昭通市','玉溪市','丽江市','保山市','红河州','保山市','红河州'],
+                    data : x,
                     /*echarts 隐藏x轴横线*/
                     axisLine: {
                     show: false
@@ -455,7 +556,7 @@ export default {
                 {
                     type : 'value',
                     min: function(value) {
-                        return Math.floor(value.min)-100;
+                        return Math.floor(value.min);
                     },
                     minInterval: 0,
                     /*显示y轴段数*/

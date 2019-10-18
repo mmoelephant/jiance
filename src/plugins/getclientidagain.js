@@ -2,6 +2,7 @@ import {datawork} from './datawork.js'
 import api from '../api/api'
 import $store from '../store/store'
 export function getCilentId(data){
+    console.log(data)
     let getClientData,getClientData2,uniquecode
     getClientData = data
     for(var i in getClientData){
@@ -22,7 +23,17 @@ export function getCilentId(data){
         }
     }
     getClientData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-    uniquecode = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+    if(localStorage.getItem('userid')){
+        getClientData.user_id = localStorage.getItem('userid')
+    }else{
+        getClientData.user_id = 0
+    }
+    if(localStorage.getItem('uniquecode')){
+        console.log(localStorage.getItem('uniquecode'))
+        uniquecode = localStorage.getItem('uniquecode')
+    }else{
+        uniquecode = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+    }
     getClientData.unique_code = uniquecode
     localStorage.setItem('uniquecode',uniquecode)
     $store.commit('login/SET_UNIQUE_CODE',uniquecode)
@@ -30,6 +41,8 @@ export function getCilentId(data){
     getClientData2 = datawork(getClientData)
     api.get_client(getClientData2).then(v => {
         if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
+            console.log(v.data.data.client_id)
+            console.log('在插件里面重新获取了client_id')
             localStorage.setItem('clientid',v.data.data.client_id)
             $store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
             localStorage.setItem('accesstoken',v.data.data.access_token)
