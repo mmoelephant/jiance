@@ -63,7 +63,8 @@
                                 <p v-if='t==1'><span>"{{chosed_city.name}}"</span>各材料{{timetype==3?"月度":timetype==2?"季度":timetype==1?"年度":""}}数据表
                                 </p>
                                 <ul>
-                                    <li v-for="item in filtConditions" v-bind:key="item.id" :class="chosed_type == item.id?'ac':''" @click="chosed_type = item.id">
+                                    <li v-for="item in filtConditions" v-bind:key="item.id" :class="chosed_type == item.id?'ac':''" @click="toggleChoseType(item.id)">
+                                        <!-- chosed_type = item.id -->
                                         {{item.name}}
                                     </li>
                                 </ul>
@@ -357,6 +358,10 @@ export default {
                 this.$refs.tree1.setCurrentKey(null)
                 this.defaultExpand = []
             }
+        },
+        toggleChoseType(bb){
+            this.chosed_type = bb
+            this.isnext = false
         },
         back() {
             this.isnext = false

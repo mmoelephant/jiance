@@ -2,7 +2,9 @@ import {datawork} from './datawork.js'
 import api from '../api/api'
 import $store from '../store/store'
 export function getCilentId(data){
-    let getClientData,getClientData2,uniquecode
+    let getClientData = {}
+    let getClientData2 = {}
+    let uniquecode
     for(var i in data){
         getClientData[i] = data[i]
     }

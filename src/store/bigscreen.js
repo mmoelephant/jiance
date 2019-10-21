@@ -4,7 +4,8 @@ export default {
         cate_on:{},
         cate_list:[],
         sys_title:'',
-        what_time:''
+        what_time:'',
+        what_name:''
     },
     mutations:{
         SET_CATE_ON(state, data) {
@@ -18,6 +19,9 @@ export default {
         },
         SET_DISPLAY_TIME(state,data){
             state.what_time = data
-        }
+        },
+        SET_DISPLAY_NAME(state,data){
+            state.what_name = data
+        },
     }
 }

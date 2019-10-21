@@ -23,7 +23,7 @@
         <div class='box'>
             <div class='tt'>
                 <i></i>
-                <p>{{areaname}}{{cate.name}}价格指数对比</p>
+                <p>{{this.$store.state.bigscreen.what_name}}{{cate.name}}价格指数对比</p>
             </div>
             <div id='bar'>
 
@@ -77,6 +77,7 @@ export default {
     watch:{
         cate:{
             handler(val) {
+                console.log(val)
                 if(val.areasData){
                     this.init_line(val.areasData)
                     // this.init_pie(val.areasData)
@@ -115,8 +116,8 @@ export default {
                 //这里只会随着对中间大屏的操作而改变，有两种情况：
                 // 1.点击摸个市的地区板块，会有一个变化
                 // 2.点击返回的时候，返回时的val.id的值固定是'530000000000'
+                this.areaid = Number(val.id)
                 if(val.id != '530000000000'){
-                    this.areaid = Number(val.id)
                     this.all_area.map(item => {
                         if(item.id == val.id){
                             this.area = item.childrenList

@@ -32,7 +32,7 @@
 				<router-view></router-view>
 				<el-footer :style="route == '/ref'?'margin-top:72px':''">
 					<!-- :style="route.name == 'ref'?'margin-top:72px;border:1px green solid':''"	 -->
-					<p class='ba'>主办：云南省住建厅科技与标准定额处&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;承办：云南省工程建设技术经济室&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;数据及技术支持：昆明行列科技有限公司&nbsp;&nbsp;几价信息技术有限公司&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;联系电话：0871-6818404</p>
+					<p class='ba'>主办：云南省住建厅科技与标准定额处&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;承办：云南省工程建设技术经济室&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;数据及技术支持：昆明行列科技有限公司&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;联系电话：0871-6818404</p>
 					<p class='ba'>滇公网安备 5301110011230  备案编号：滇ICP备16100321号  Copyright 2018-2019 版权所有 昆明行列科技有限公司</p>
 				</el-footer>
             </el-container>

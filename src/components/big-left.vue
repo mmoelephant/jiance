@@ -100,7 +100,7 @@ export default {
                     areanum = areanum + '0'
                 }
             }
-            if(areanum != '530000000000'){
+            if(areanum != '530000000000') {
                 this.areaid = Number(areanum)
             }else{
                 this.areaid = 0
@@ -154,8 +154,9 @@ export default {
                 data.areas = 53
             }
             data2 = datawork(data)
-
+            console.log(commondata)
             this.$api.get_cate_level1(data2).then(v => {
+                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
@@ -164,6 +165,7 @@ export default {
                     }
                     this.nowT = v.data.data.terms_name
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
+                    this.$store.commit('bigscreen/SET_DISPLAY_NAME',v.data.data.areas_name)
                     this.sysTitle = v.data.data.title
                     this.$store.commit('bigscreen/SET_SYSTEM_TITLE',v.data.data.title)
                     this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])
