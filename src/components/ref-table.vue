@@ -8,7 +8,7 @@
 						<div :class='type == 0 && index == 0?"nb n":"n"' style="">
 							<div>							
 								<el-checkbox v-show='type == 0' class='label' :label='i'>i</el-checkbox>
-								<el-checkbox v-show='type == 1' class='label' :label='i'>i</el-checkbox>
+								<!-- <el-checkbox v-show='type == 1' class='label' :label='i'>i</el-checkbox> -->
 								<p v-show='type == 0'>{{i.dateData&&i.name?i.name:''}}</p>
 								<p v-show='type == 1' style='cursor:pointer'>{{i.dateData&&i.name?i.name:''}}</p>
 							</div>
@@ -16,13 +16,13 @@
 								<p style='font-size:12px;color:#6C7DFF;cursor:pointer'>查看更多</p>
 								<i class='iconfont icon-shang-copy'></i>
 							</div>
-							<i :class="i.parent_id == '1'?'iconfont icon-shang-copy rotate':'iconfont icon-shang-copy'" @click="chose_area(i)"  v-show='type == 1'></i>
+							<i style="margin-right:10px" :class="i.parent_id == '1'?'iconfont icon-shang-copy rotate':'iconfont icon-shang-copy'" @click="chose_area(i)"  v-show='type == 1'></i>
 						</div>
 						<div :class='i.parent_id == "1"?"info":"hide"' v-for="(c,ci) in i.children" :key="ci">
 							<div class='n'>
 								<div>
 									<el-checkbox v-show='type==0' class='label' :label='c'>c</el-checkbox>
-									<el-checkbox v-show='type==1' class='label' :label='c'>c</el-checkbox>
+									<!-- <el-checkbox v-show='type==1' class='label' :label='c'>c</el-checkbox> -->
 									<p v-show='type==0'>{{c.dateData&&c.name}}</p>
 									<p v-show='type==1' @click='toggleParentId(i)' style='cursor:pointer'>{{c.dateData&&c.name?c.name:'-'}}</p>
 								</div>

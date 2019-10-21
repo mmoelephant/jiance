@@ -284,9 +284,10 @@ export default {
                     align-items center
                     p  
                         margin 0 
-                        font-size 16px
-                        font-family MicrosoftYaHei-Bold
-                        font-weight bold
+                        font-size 14px
+                        font-weight normal
+                        // font-family MicrosoftYaHei-Bold
+                        // font-weight bold
                         color #fff
                         text-overflow ellipsis
                         // width 50%
@@ -295,6 +296,10 @@ export default {
                         font-size 14px
                         width 50%
                         text-overflow ellipsis
+            li:nth-child(1)
+                p
+                    font-size 15px
+                    font-weight bold
             .el-progress-bar__outer
                 background-color #4D6084 !important
                 border-radius 0 !important
