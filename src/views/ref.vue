@@ -2,18 +2,18 @@
     <div style='height:100%' v-loading.fullscreen.lock="loading">        
         <el-container class="refContainer">
             <el-aside class='cate'>
-                <div :class='t==0?"title acttitle":"title"'  @click='t=0'>
+                <div :class='t==0?"title acttitle":"title"'  @click='check(0)'>
                     <div>
                         <p class='c'></p>
                         <span>按材料查询</span>
                     </div>
                     <i class='iconfont icon-shang-copy'></i>
                 </div>
-                <el-tree 
-                    :data="cateList" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
+                <el-tree ref="tree"
+                    :data="cateList" node-key = "id" :default-expanded-keys="defaultExpand" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
                     v-show='t==0'>
                 </el-tree>
-                <div :class='t==1?"title acttitle":"title"' @click='t =1'>
+                <div :class='t==1?"title acttitle":"title"' @click='check(1)'>
                     <div>
                         <p class='a'></p>                   
                         <span>按地区查询</span>
@@ -26,8 +26,8 @@
                         @click='handleNodeClick(a)'
                         :class='chosed_city ==a?"ac":""'>{{a.name}}</li>
                 </ul-->
-                <el-tree 
-                    :data="areaList" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
+                <el-tree ref="tree1"
+                    :data="areaList" node-key = "id" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
                     v-show='t==1'>
                 </el-tree>
             </el-aside>
@@ -69,19 +69,21 @@
                                 </ul>
                                 <el-popover
                                     class='sm'
-                                    v-show='chosed_type == "base_index"|| chosed_type == "allprice"'
+                                    v-show='chosed_type == "base_index_b"|| chosed_type == "allprice"'
                                     placement="bottom-start"
                                     width="200"
                                     trigger="hover"
-                                    :title="chosed_type == 'base_index'?'指数定义':chosed_type == 'allprice'?'价格说明':''">
+                                    :title="chosed_type == 'base_index_b'?'指数定义':''">
+                                    <!-- :chosed_type == 'allprice'?'价格说明' -->
                                     <p>
-                                        {{chosed_type == 'base_index'?'反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数':'这里是价格说明'}}
+                                        {{chosed_type == 'base_index_b'?'反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数':'这里是价格说明'}}
                                     </p>
-                                    <p v-show="chosed_type == 'base_index'">基准期：2018年1月</p>
-                                    <p v-show="chosed_type == 'base_index'">定基指数：1000</p>
+                                    <p v-show="chosed_type == 'base_index_b'">基准期：2018年1月</p>
+                                    <p v-show="chosed_type == 'base_index_b'">定基指数：1000</p>
                                     <div slot="reference">
-                                        {{chosed_type == 'base_index'?'指数说明':chosed_type == 'allprice'?'价格说明':''}}
-                                        <img src="../../public/img/wh.png" alt="">
+                                        {{chosed_type == 'base_index_b'?'指数说明':''}}
+                                        <!-- :chosed_type == 'allprice'?'价格说明' -->
+                                        <img src="../../public/img/wh.png" alt="" v-show="chosed_type == 'base_index_b'">
                                     </div>
                                 </el-popover>
                                 <div v-show='t == 0 && chosed_type == "allprice"' style='font-size:12px;margin-left:20px'>（单位：元 / {{dw}}）</div>
@@ -204,7 +206,7 @@ export default {
             yearoptions:[],//年度时间控件
             time:'',//选取的时间
             filtConditions:[],
-            chosed_type:'base_index',//表格内容展示筛选 allprice:价格 base_index：指数 years_rate：同比 chain_rate：环比
+            chosed_type:'base_index_b',//表格内容展示筛选 allprice:价格 base_index_b：指数 years_rate：同比 chain_rate：环比
             timetype:3,//时间类型 3：月度 2：季度 1：年度
             tabledata:{},//表格数据 
             chosed_area:{
@@ -223,7 +225,8 @@ export default {
             loading:false,
             dw:'',//材料单位
             areaid:0,
-            areaname:''
+            areaname:'',
+            defaultExpand:[]
         }
     },
     created() {       
@@ -284,7 +287,6 @@ export default {
             } else {
                 this.time = this.yearoptions[0].id
             }
-            console.log(this.time)
             this.isnext = false
             if(this.t == 0){
                 this.get_area_data()
@@ -318,12 +320,13 @@ export default {
             this.chosed_city = {id:'53', name:'全省'}
             this.chosed_cate = this.cateList[0]
             this.isnext = false
-            console.log(this.chosed_cate)
             if(val == 0) {
+                this.areaid = 0
                 this.get_area_data()
             } else {
                 //多区域材料对比
-                if(this.chosed_type =='allprice') this.chosed_type = 'base_index'
+                this.areaid = 0
+                if(this.chosed_type =='allprice') this.chosed_type = 'base_index_b'
                 this.get_cate_data()
             }
         },
@@ -345,13 +348,23 @@ export default {
         }
     },  
     methods:{
+        check(aa){
+            this.t = aa
+            if(aa == 0){
+                this.$refs.tree.setCurrentKey(1)
+                this.defaultExpand = [1]
+            }else{
+                this.$refs.tree1.setCurrentKey(null)
+                this.defaultExpand = []
+            }
+        },
         back() {
             this.isnext = false
             if(this.t ==0) {
                 // this.chosed_area = {
                 //     area:53
                 // }
-                this.areaid = 53
+                this.areaid = 0
                 this.get_area_data()
             } else {
                 this.get_cate_data()
@@ -394,7 +407,6 @@ export default {
             data.access_token = localStorage.getItem('accesstoken')
             data1 = datawork(data)
             this.$api.get_cate(data1).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cateList = v.data.data.categorys
                     this.chosed_cate = v.data.data.categorys[0]
@@ -408,7 +420,7 @@ export default {
                 }else if(v.data.errcode == 1104){
                     //token失效的时候，再度获取token
                     let that = this
-                    getToken(data)
+                    getToken(commonparam)
                     setTimeout(function(){
                         if(localStorage.getItem('tokenDone')){
                             that.get_cate()
@@ -449,33 +461,30 @@ export default {
             data4.timestamp = Math.round(new Date().getTime() / 1000).toString()
             data4.client_id = localStorage.getItem('clientid')
             data4.access_token = localStorage.getItem('accesstoken')
-            data4.categorys = this.chosed_cate.id
+            data4.categorys = Number(this.chosed_cate.id)
             data4.data_type = this.timetype
             if(this.time){
                 data4.date_type = this.time
             }else{
                 data4.date_type = 1
             }
-            // if(this.areaid){
-            //     data4.areas = this.areaid
-            // }else{
-            //     data4.areas = 53
-            // }
+            if(this.areaid){
+                data4.areas = this.areaid
+            }else{
+                // data4.areas = 53
+            }
             data4.field = this.chosed_type
-            // console.log(data4)
             data5 = datawork(data4)
             this.$api.get_area_time_list(data5).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.loading = false
-                    console.log(v.data.data)
                     this.tabledata = v.data.data
                     //将“指数、同比、环比、价格索引条件赋值给数组”
                     this.filtConditions = v.data.data.fieldData
                 }else if(v.data.errcode == 1104){
                     //token失效的时候，再度获取token
                     let that = this
-                    getToken(data4)
+                    getToken(commondata)
                     setTimeout(function(){
                         if(localStorage.getItem('tokenDone')){
                             that.get_area_data()
@@ -514,8 +523,6 @@ export default {
             for(var i in commondata){
                 data2[i] = commondata[i]
             }
-            console.log(data2)
-            console.log(commondata)
             data2.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
             if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
                 data2.user_id = localStorage.getItem('userid')
@@ -535,21 +542,19 @@ export default {
             if(this.areaid){
                 data2.areas = this.areaid
             }else{
-                data2.areas = 53
+                // data2.areas = 53
             }
             data2.field = this.chosed_type
             data3 = datawork(data2)
             this.$api.get_cate_time_list(data3).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.loading = false
                     this.tabledata = v.data.data
-                    console.log(this.tabledata)
                     this.filtConditions = v.data.data.fieldData
                 }else if(v.data.errcode == 1104){
                     //token失效的时候，再度获取token
                     let that = this
-                    getToken(data4)
+                    getToken(commondata)
                     setTimeout(function(){
                         if(localStorage.getItem('tokenDone')){
                             that.get_area_data()
@@ -577,10 +582,7 @@ export default {
             this.loading = true
             this.tabledata = {}
             this.checked = []
-            this.areaid = aa.id
             this.areaname = aa.name
-            // console.log(aa)
-            // this.tabledata.push(i)
             let data6 = {}
             let commondata = {}
             let data7
@@ -607,18 +609,16 @@ export default {
                 data6.date_type = 1
             }
             data6.field = this.chosed_type
-            data6.areas = this.areaid
+            data6.areas = aa.id
             data7 = datawork(data6)
-            console.log(data6)
             this.$api.get_area_time_list(data7).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.loading = false
                     this.tabledata = v.data.data
                     this.filtConditions = v.data.data.fieldData
                 }else if(v.data.errcode == 1104){
                     let that = this
-                    getToken(data6)
+                    getToken(commondata)
                     setTimeout(function(){
                         if(localStorage.getItem('tokenDone')){
                             that.get_next()
@@ -648,18 +648,17 @@ export default {
             this.isnext = false
             if(this.t == 0) { //获取材料多地区对比
                 this.chosed_cate = data
-                console.log(this.chosed_cate)
                 this.dw = data.unit
                 if(this.chosed_cate.level == 1) {
-                    this.chosed_type='base_index'
+                    this.chosed_type='base_index_b'
                 }else if(this.chosed_cate.level == 2){
                     this.chosed_type = 'allprice'
                 }
                 this.chosed_name = data.name
                 this.get_area_data()
             } else {
+                this.defaultExpand = []
                 this.chosed_city = data
-                console.log(data)
                 this.areaid = data.id
                 this.get_cate_data()
             }
@@ -727,8 +726,6 @@ export default {
                     data9 = datawork(data8)
 
                     const res = await this.$api.get_area_time_list(data9)
-                    console.log(res)
-                    console.log(res.data.data.data)
                     arr = res.data.data.data
                     y.push({
                         data:[],
@@ -903,8 +900,6 @@ export default {
                     data11 = datawork(data10)
 
                     const res = await this.$api.get_area_time_list(data11)
-                    console.log(res)
-                    console.log(res.data.data.data)
                     arr = res.data.data.data
                     y.push({
                         data:[],
@@ -1096,8 +1091,8 @@ export default {
                     data13 = datawork(data12)
 
                     const res = await this.$api.get_area_time_list(data13)
-                    console.log(res)
-                    console.log(res.data.data.data)
+                    // console.log(res)
+                    // console.log(res.data.data.data)
                     arr = res.data.data.data
                     y.push({
                         data:[],
@@ -1226,7 +1221,6 @@ export default {
         },
         checkList(val) { //根据获取到的list重新渲染图表
             this.checked = val
-            console.log(val)
             if(this.showcharts) {
                 if(this.change_charts == 'bar') {
                     this.init()

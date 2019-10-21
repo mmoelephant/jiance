@@ -57,78 +57,7 @@ import {getToken} from '../plugins/gettoken.js'
 export default {
     data() {
         return {
-            list:[
-                {
-                    name:'钢材',
-                    num:955.06,
-                    zs:18
-                },
-                {
-                    name:'地区材料',
-                    num:955.06,
-                    zs:18
-                },
-                {
-                    name:'电线电缆',
-                    num:955.06,
-                    zs:50
-                },
-                {
-                    name:'管材',
-                    num:955.06,
-                    zs:-15
-                },
-                {
-                    name:'防水材料',
-                    num:955.06,
-                    zs:44
-                },
-                {
-                    name:'混凝土预制件',
-                    num:955.06,
-                    zs:-1
-                },
-                {
-                    name:'建筑玻璃',
-                    num:955.06,
-                    zs:-12
-                },
-                {
-                    name:'钢材',
-                    num:955.06,
-                    zs:18
-                },
-                {
-                    name:'地区材料',
-                    num:955.06,
-                    zs:18
-                },
-                {
-                    name:'电线电缆',
-                    num:955.06,
-                    zs:50
-                },
-                {
-                    name:'管材',
-                    num:955.06,
-                    zs:-15
-                },
-                {
-                    name:'防水材料',
-                    num:955.06,
-                    zs:44
-                },
-                {
-                    name:'混凝土预制件',
-                    num:955.06,
-                    zs:-1
-                },
-                {
-                    name:'建筑玻璃',
-                    num:955.06,
-                    zs:-12
-                },
-            ],
+            list:[],
             cityNum:16,
             countyNum:129,
             nowT:'2019年9月',
@@ -150,7 +79,6 @@ export default {
                 // 下面的判断语句作用为：如果点击的是“返回”，那么请求参数的时候不传地区的对应代码
                 // 请求完数据以后，this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])，会随着变化。
                 // 这时候在center.vue模块会获取到变化
-                console.log(val)
                 if(val.id != '530000000000'){
                     this.areaid = Number(val.id)
                 }else{
@@ -177,7 +105,6 @@ export default {
             }else{
                 this.areaid = 0
             }
-            console.log(this.areaid)
         }else{
             console.log('用户还未登陆')
             this.areaid = 0
@@ -187,12 +114,13 @@ export default {
     },
     methods:{
         t() {
-            this.animate=true;    // 因为在消息向上滚动的时候需要添加css3过渡动画，所以这里需要设置true
+            let _that = this
+            _that.animate=true;    // 因为在消息向上滚动的时候需要添加css3过渡动画，所以这里需要设置true
             setTimeout(()=>{
-                    this.list.push(this.list[0]);  // 将数组的第一个元素添加到数组的
-                    this.list.shift();               //删除数组的第一个元素
-                    this.animate=false;  // margin-top 为0 的时候取消过渡动画，实现无缝滚动
-                    this.$store.commit('bigscreen/SET_CATE_ON', this.list[0])
+                    _that.list.push(_that.list[0]);  // 将数组的第一个元素添加到数组的
+                    _that.list.shift();               //删除数组的第一个元素
+                    _that.animate=false;  // margin-top 为0 的时候取消过渡动画，实现无缝滚动
+                    _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
             },1000)
         },
         async get_cate() {
@@ -215,29 +143,25 @@ export default {
             data.timestamp = Math.round(new Date().getTime() / 1000).toString()
             if(localStorage.getItem('clientid') && localStorage.getItem('accesstoken')){
                 console.log('存在clientid')
-                console.log(localStorage.getItem('clientid'))
                 data.client_id = localStorage.getItem('clientid')
                 data.access_token = localStorage.getItem('accesstoken')
             }else{
                 console.log('不存在client_id,要重新获取')
             }
-            // data.areas = 530100000000
             if(this.areaid){
-                // data.areas = this.areaid
                 data.areas = this.areaid
             }else{
-                // data.areas = 53
+                data.areas = 53
             }
             data2 = datawork(data)
-            console.log(data)
-            console.log(data2)
+
             this.$api.get_cate_level1(data2).then(v => {
-                // console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-                    console.log(v)
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
-                    this.list = v.data.data.data
+                    for(var i in v.data.data.data){
+                        this.list[i] = v.data.data.data[i]
+                    }
                     this.nowT = v.data.data.terms_name
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
                     this.sysTitle = v.data.data.title
@@ -247,12 +171,11 @@ export default {
                 }else if(v.data.errcode == 1104){
                     //token失效，重新获取·token
                     let that = this
-                    getToken(data)
+                    getToken(commondata)
                     setTimeout(function(){
                         that.get_cate()
                     },1000)
                 }else{
-                    console.log(v)
                     //重新获取client_id
                     let that = this
                     getCilentId(commondata)

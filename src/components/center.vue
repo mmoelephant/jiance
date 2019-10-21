@@ -86,8 +86,6 @@ export default {
                 if(val.areasData) {
                     // this.chart.dispose()
                     this.init_map(val.areasData)
-                    console.log(val)
-                    console.log(val.areasData)
                 } else {
                     this.get_bar_data()
                 }
@@ -98,7 +96,6 @@ export default {
             handler(val) {
                 //点击某个市的地图板块，还有在区县的地图里面点击“返回”，这里的值会翻身变化，所以渲染地图要用的area_map也要随着变化。
                 //这里的作用主要是让this.area_map随着变化，然后渲染地图的时候，比较方便跟传init_map()方法的数据做匹配
-                console.log(val)
                 //areaid的作用就是判断“返回”字眼的显示与否，当点击返回以后，这里val.id的值将是530000000000（云南省对应的地区编码），
                 // 当点击某个地区板块之后，areaid将会是对应地区的地区编码
                 this.areaid = Number(val.id)
@@ -119,7 +116,6 @@ export default {
                 }
             }
             this.areaid = Number(areanum)
-            console.log(this.areaid)
             // 当有账户信息存在的时候，用户如果不是云南省的权限，那就将对应的渲染地图要使用的数据area_map切换成用户的权限地区
             this.areaname = JSON.parse(localStorage.getItem('user')).area_name
             if(this.areaname.indexOf('>') != -1){
@@ -147,7 +143,6 @@ export default {
             if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
                 commondata = this.$store.state.login.commonParam
             }
-            console.log(commondata)
             for(var i in commondata){
                 data[i] = commondata[i]
             }
@@ -202,8 +197,6 @@ export default {
             this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
         },
         init_map(data) {
-            console.log(data)
-            console.log(this.area_map)
             const arr = this.area_map.features
             this.CoordMap = []
             if(data.length > 0) {
@@ -288,11 +281,9 @@ export default {
             this.chart.setOption(op);
             const _this= this
             this.chart.on('click', function(params){
-                console.log(params)
                 const area_name = params.name
                 _this.area.map(item => {
                     if(item.name == area_name) {
-                        console.log(item)
                         _this.$emit('click_map',item)
                         _this.area_map = _this.map[area_name]
                         _this.$store.commit('login/SET_MAP', item)

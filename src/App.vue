@@ -10,10 +10,10 @@
 							<i class='c'></i>
 							<p>数据查询</p>
 						</div>
-						<div :class='route == "/reportIndex"?"act":""' @click='$router.push("/reportIndex")'>
+						<!-- <div :class='route == "/reportIndex"?"act":""' @click='$router.push("/reportIndex")'>
 							<i class='c1'></i>
 							<p>智能报告</p>
-						</div>
+						</div> -->
 					</div>
                 </div>
                 <div class='right'>
@@ -169,7 +169,6 @@ export default {
 		this.ip_addre = returnCitySN["cip"]
 		// 获取16位的随机数(nonce_str)
 		this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-		// console.log(this.random16)
 		// 获取15位的随机数(unique_code),将会与clinent_id一起保存，二者是同步的
 		// 将客户端唯一身份码存储在本地
 		this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
@@ -180,7 +179,6 @@ export default {
 			uniquecode = this.random15
 			localStorage.setItem('uniquecode',this.random15)
 			this.$store.commit('login/SET_UNIQUE_CODE',this.random15)
-			console.log(this.random15)
 		}
 		// 获取10位时间戳(秒级,timestamp)
 		this.tt = Math.round(new Date().getTime() / 1000).toString()
@@ -200,21 +198,16 @@ export default {
 		for(var i in this.commonData){
 			data[i] = this.commonData[i]
 		}
-		// console.log(this.commonData)
-		// console.log(data)
 		data.nonce_str = this.random16
 		data.user_id = this.userid1
 		data.timestamp = this.tt
 		finaldata = datawork(data)
-		// console.log(finaldata)
 		if(localStorage.getItem('clientid') && localStorage.getItem('clientid').length > 0 && 
 		localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
 
 		}else{
 			this.$api.get_client(finaldata).then(v => {
-				// console.log(v)
 				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-					console.log(v.data.data.client_id)
 					localStorage.setItem('clientid',v.data.data.client_id)
 					this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
 					localStorage.setItem('accesstoken',v.data.data.access_token)
@@ -307,7 +300,7 @@ export default {
 						this.$router.push('login')
 					}else if(v.data.errcode == 1104){
 						let that = this
-						getToken(data0)
+						getToken(commondata)
 						setTimeout(function(){
 							if(localStorage.getItem('tokenDone')){
 								that.logout()
@@ -348,16 +341,14 @@ export default {
 			let data2 = {}
 			let commonparam = {}
 			let data3
-			if(localStorage.getItem('commonParam') && localStorage.getItem('commonParam').agent){
-				commonparam = localStorage.getItem('commonParam')
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commonparam = this.$store.state.login.commonParam
 			}else{
 				commonparam = this.commonData
 			}
 			for(var i in commonparam){
 				data2[i] = commonparam[i]
 			}
-			// console.log(commonparam)
-			// console.log(data2)
 			data2.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 			if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
 				data2.user_id = localStorage.getItem('userid')
@@ -371,9 +362,7 @@ export default {
 				data2.access_token = localStorage.getItem('accesstoken')
 			}
 			data3 = datawork(data2)
-			// console.log(data3)
 			this.$api.check_user(data3).then(v => {
-				// console.log(v)
 				if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
 					this.formInline = {
 						username:v.data.data.username,
@@ -387,7 +376,7 @@ export default {
 				}else if(v.data.errcode == 1104){
 					// token失效的情况下，重新获取token
 					let that = this
-					getToken(data2)
+					getToken(commonparam)
 					setTimeout(function(){
 						if(localStorage.getItem('tokenDone')){
 							that.goset()
@@ -409,20 +398,6 @@ export default {
 		save(){
 			this.dialogVisible =  false
 		}
-		// async save() {
-		// 	this.formInline.userid = this.userid
-		// 	const res = await this.$api.updata_user(this.formInline)
-		// 	console.log(res)
-		// 	if(res.data.data) {
-        //         this.$store.commit('login/SET_USER_INFO', res.data.data)
-        //         localStorage.setItem('user', JSON.stringify(res.data.data))
-        //         this.$message({
-        //             message: '修改成功',
-        //             type: 'success'
-		// 		});
-		// 		this.dialogVisible=false
-        //     }
-		// },
 	}
 }
 </script>

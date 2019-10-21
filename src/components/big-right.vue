@@ -61,7 +61,6 @@ export default {
             }else{
                 this.areaid = 0
             }
-            console.log(this.areaid)
         }else{
             console.log('用户还未登陆')
             this.areaid = 0
@@ -78,7 +77,6 @@ export default {
     watch:{
         cate:{
             handler(val) {
-                console.log(val)
                 if(val.areasData){
                     this.init_line(val.areasData)
                     // this.init_pie(val.areasData)
@@ -117,7 +115,6 @@ export default {
                 //这里只会随着对中间大屏的操作而改变，有两种情况：
                 // 1.点击摸个市的地区板块，会有一个变化
                 // 2.点击返回的时候，返回时的val.id的值固定是'530000000000'
-                console.log(val)
                 if(val.id != '530000000000'){
                     this.areaid = Number(val.id)
                     this.all_area.map(item => {
@@ -126,7 +123,7 @@ export default {
                         }
                     })
                 }else{
-                    this.areaid = 0
+                    // this.areaid = 0
                     this.area = this.all_area
                 }
                 // if(val.id=='53') {
@@ -192,7 +189,6 @@ export default {
             if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
                 commondata = this.$store.state.login.commonParam
             }
-            console.log(commondata)
             for(var i in commondata){
                 data[i] = commondata[i]
             }
@@ -212,11 +208,27 @@ export default {
             }
             data2 = datawork(data)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0){
                     this.all = v.data.data.all_count
                     this.init_pie(v.data.data)
                     this.areaname = v.data.data.areas_name
+                }else if(v.data.errcode == 1104){
+                    let that = this
+                    getToken(commondata)
+                    setTimeout(function(){
+                        if(localStorage.getItem('tokenDone')){
+                            that.get_pie_data()
+                        }
+                    },1000)
+
+                }else{
+                    let that = this
+                    getCilentId(commondata)
+                    setTimeout(function(){
+                        if(localStorage.getItem('done')){
+                            that.get_pie_data()
+                        }
+                    },1000)
                 }
             })
             // let data = {
@@ -240,7 +252,6 @@ export default {
         },
         init_pie(data) {
             let name = '云南省'
-            console.log(data)
             this.all_area.map(item => {
                 if(item.name == data.areas_name) {
                     name = item.name
@@ -368,26 +379,34 @@ export default {
             chart.setOption(op)
         },
         init_line(data) {
+            console.log(data)
             let x=[],tb=[],hb=[]
             if(data) {
                 data.map(item => {
-                    if(item.name && item.data && item.data != {} && item.data.chain_rate && item.data.chain_rate != {} && item.data.years_rate && item.data.years_rate != {}){
+                    if(item.name && item.data && item.data != {}){
                         x.push(item.name)
-                        tb.push(item.data.years_rate)
-                        hb.push(item.data.chain_rate)
+                        if(item.data.chain_rate && item.data.chain_rate != {}){
+                            tb.push(item.data.years_rate)
+                        }
+                        if(item.data.chain_rate){
+                            hb.push(item.data.chain_rate)
+                        }
+                    }else{
+                        x.push(item.name)
+                        tb.push(0)
+                        hb.push(0)
                     }
                 })
             } else {
 
             }
-            console.log(x)
             const chart = this.$echarts.init(document.getElementById('line'))
             const op = {
                 tooltip : {
                     trigger: 'axis',
                     formatter: function (params, ticket, callback) {
                         
-                        return params[0].name+':同比'+params[0].value.toFixed(2)+'%'+'<br/>'+params[1].name+':环比'+params[1].value.toFixed(2)+'%';
+                        return params[0].name+':同比'+params[0].value +'<br/>'+params[1].name+':环比'+params[1].value;
                     }
                     // formatter:'{b0}:Number({c0}).toFixed(2)同比%<br />{b1}:环比{c1}%'
                 },
@@ -523,7 +542,7 @@ export default {
                     trigger: 'axis',
                     formatter: function (par) {
                         // return JSON.stringify(par[0].name)
-                        return par[0].name+':'+Number(par[0].value).toFixed(2)
+                        return par[0].name+':'+Number(par[0].value)
                     }
                 },
                 grid:{

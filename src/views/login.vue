@@ -74,20 +74,23 @@ export default {
             random16:'',
             random15:'',
             tt:'',
-            userid:''
+            userid:'',
+            commondata:{}
         }
     },
     created() {
-        let commonParam = this.$store.state.login.commonParam
-        console.log(commonParam)
+        if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+            this.commondata = this.$store.state.login.commonParam
+        }
         // 获取16位的随机数(nonce_str)
         this.random16 = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 		// 获取15位的随机数(unique_code)
         if(localStorage.getItem('uniquecode')){
             this.random15 = localStorage.getItem('uniquecode')
-        }else{
-            this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
         }
+        // else{
+        //     this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
+        // }
         // 获取user_id
         if(localStorage.getItem('userid')){
             this.userid = localStorage.getItem('userid')
@@ -97,10 +100,9 @@ export default {
         // 获取10位时间戳(秒级,timestamp)
         this.tt = Math.round(new Date().getTime() / 1000).toString()
         // 获取公共请求参数
-        for(var i in commonParam){
-            this.requestaData[i] = commonParam[i]
+        for(var i in this.commondata){
+            this.requestaData[i] = this.commondata[i]
         }
-        console.log(this.requestaData)
         this.requestaData.nonce_str = this.random16
         this.requestaData.timestamp = this.tt
         this.requestaData.unique_code = this.random15
@@ -166,7 +168,6 @@ export default {
             this.loading = true
             this.requestaData.username = this.username
             this.requestaData.password = this.password
-            // console.log(this.requestaData.unique_code)
             finaldata = datawork(this.requestaData)
             this.$api.login(finaldata).then(v => {
                 if(v.data.data && v.data.errcode == 0 && v.data.errmsg == 'ok') {
@@ -192,7 +193,7 @@ export default {
                         this.error2 = '密码错误'
                     }else if(v.data.errcode == 1103){
                         let that = this
-                        getCilentId(that.requestaData)
+                        getCilentId(that.commondata)
                         setTimeout(function(){
                             if(localStorage.getItem('done')){
                                that.loading = false
@@ -207,13 +208,13 @@ export default {
                         },1000)
                     }else if(v.data.errcode == 1104){
                         let that = this
-                        getToken(this.requestaData)
+                        getToken(that.commondata)
                         setTimeout(function(){
                             if(localStorage.getItem('tokenDone')){
                                that.loading = false
-                                this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                                this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                                this.requestaData.access_token = localStorage.getItem('accesstoken')
+                                that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                                that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                                that.requestaData.access_token = localStorage.getItem('accesstoken')
                                 that.login()
                             }else{
                             }  
@@ -223,36 +224,6 @@ export default {
                 }
             })
             // const v = await this.$api.login(data1)
-        },
-        copy(){
-                        // getClientFinal = getCilentId(this.requestaData)
-                        // this.$api.get_client(getClientFinal).then(v => {
-                        //     if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-                        //         this.loading = false
-                        //         localStorage.setItem('clientid',v.data.data.client_id)
-                        //         this.$store.commit('login/SET_CLIENT_ID', v.data.data.client_id)
-                        //         localStorage.setItem('accesstoken',v.data.data.access_token)
-                        //         this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
-                        //         this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                        //         this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                        //         this.requestaData.client_id = v.data.data.client_id
-                        //         this.requestaData.access_token = v.data.data.access_token
-                        //         this.requestaData.unique_code = localStorage.getItem('uniquecode')
-                        //         this.login()
-                        //     }else{
-                        //     }
-                        // })
-                        // getTokenFinal = getToken(this.requestaData)
-                        // this.$api.get_token(getTokenFinal).then(v => {
-                        //     if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
-                        //         localStorage.setItem('accesstoken',v.data.data.access_token)
-                        //         this.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                        //         this.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                        //         this.requestaData.access_token = v.data.data.access_token
-                        //         this.$store.commit('login/SET_ACCESS_TOKEN', v.data.data.access_token)
-                        //         this.login()
-                        //     }
-                        // })
         },
         check() {
             if(!this.username || this.username.length==0) {
