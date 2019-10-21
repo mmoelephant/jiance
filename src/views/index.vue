@@ -69,7 +69,7 @@ export default {
 		height 100%
 		top 0
 		left 0
-		background url('../../public/img/bgb.png') no-repeat
+		background url('../../public/img/bgb.jpg') no-repeat
 		background-size 100% 100%
 		font-family "MicrosoftYaHei"
 		z-index 999

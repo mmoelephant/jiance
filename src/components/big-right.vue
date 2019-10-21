@@ -412,7 +412,7 @@ export default {
                     // formatter:'{b0}:Number({c0}).toFixed(2)同比%<br />{b1}:环比{c1}%'
                 },
                 grid:{
-                    bottom:22,
+                    bottom:43,
                     left:85,
                     top:10
                 },
