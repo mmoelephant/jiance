@@ -2,17 +2,13 @@
     <div class='cb'>
         <p class='t'>当前展示</p>
         <div class='b'>{{this.$store.state.bigscreen.cate_on.name}}</div>
-        <div 
-            style='width :100%;margin-top:15px;position:relative;height:30px;text-align:center' @click='backToYN'>
-            <p style='cursor:pointer;color:#55c0fd;line-height:30px;
-                position:absolute;left:15px'
-                >{{areaid != 0 && areaid != 530000000000?"返回":""}}</p>
+        <div style='width :100%;margin-top:15px;position:relative;height:30px;text-align:center' @click='backToYN'>
+            <p style='cursor:pointer;color:#55c0fd;line-height:30px;position:absolute;left:15px'>
+                {{areaid != 0 && areaid != 530000000000?"返回":""}}
+            </p>
             <img src="../../public/img/tem.png" alt="" class='tem'>    
         </div>
-        <div class='map'>
-
-        </div>
-        
+        <div class='map'></div>
     </div>
 </template>
 <script>

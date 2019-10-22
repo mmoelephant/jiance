@@ -88,9 +88,6 @@ export default {
         if(localStorage.getItem('uniquecode')){
             this.random15 = localStorage.getItem('uniquecode')
         }
-        // else{
-        //     this.random15 = new Date().getTime() + "" + Math.floor(Math.random()*89 +10)
-        // }
         // 获取user_id
         if(localStorage.getItem('userid')){
             this.userid = localStorage.getItem('userid')

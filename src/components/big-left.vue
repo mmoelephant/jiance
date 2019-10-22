@@ -156,6 +156,7 @@ export default {
             data2 = datawork(data)
             console.log(commondata)
             this.$api.get_cate_level1(data2).then(v => {
+                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
@@ -164,6 +165,7 @@ export default {
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
                     this.$store.commit('bigscreen/SET_DISPLAY_NAME',v.data.data.areas_name)
                     this.$store.commit('bigscreen/SET_DISPLAY_AREA_COUNT',v.data.data.area_count)
+                    this.$store.commit('bigscreen/SET_DISPLAY_ALL_COUNT',v.data.data.all_count)
                     this.sysTitle = v.data.data.title
                     this.$store.commit('bigscreen/SET_SYSTEM_TITLE',v.data.data.title)
                     this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])

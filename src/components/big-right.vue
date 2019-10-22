@@ -4,7 +4,7 @@
             <div class='tt'>
                 <i></i>
                 <p>监测平台数据总量</p>
-                <p class='fontb'>{{all}}<span>条</span></p>
+                <p class='fontb'>{{this.$store.state.bigscreen.allcount}}<span>条</span></p>
             </div>
             <div id='pie'></div>
         </div>
@@ -278,7 +278,7 @@ export default {
                     data : x,
                     /*echarts 隐藏x轴横线*/
                     axisLine: {
-                    show: false
+                        show: false
                     },
                     /*去除刻度线*/
                     splitLine:{
@@ -391,11 +391,11 @@ export default {
                     data : x,
                     /*echarts 隐藏x轴横线*/
                     axisLine: {
-                    show: false
+                        show: false
                     },
                     /*去除刻度线*/
                     splitLine:{
-                    show:false
+                        show:false
                     },
                     axisLabel:{
                         color: '#fff', 
@@ -416,18 +416,18 @@ export default {
                     splitNumber:4,
                     /*echarts 隐藏Y轴横线*/
                     axisLine: {
-                    show: false
+                        show: false
                     },
                     //这行代码控制着坐标轴x轴的文字是否显示
                     splitLine: {
-                    show: false, // 网格线是否显示
+                        show: false, // 网格线是否显示
                     /*lineStyle: {
                         color: 'red' // 修改网格线颜色
                     },*/
                     },
                     /*去除刻度线*/
                     axisTick:{
-                    show:false
+                        show:false
                     },
                     axisLabel:{
                         show: true,
