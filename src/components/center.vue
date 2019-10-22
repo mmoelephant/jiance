@@ -78,6 +78,7 @@ export default {
     watch:{
         cate:{
             handler(val) {
+                // console.log(val)
                 //这里获取到的是左边部分的数据变化，（在big-left.vue部分有说明），然后对应的渲染地图
                 if(val.areasData) {
                     // this.chart.dispose()

@@ -70,6 +70,7 @@ export default {
     watch:{
         cate:{
             handler(val) {
+                // console.log(val)
                 if(val.areasData){
                     this.init_line(val.areasData)
                 }

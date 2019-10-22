@@ -120,6 +120,7 @@ export default {
                     _that.list.shift();               //删除数组的第一个元素
                     _that.animate=false;  // margin-top 为0 的时候取消过渡动画，实现无缝滚动
                     _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
+                    // console.log(_that.list)
             },1000)
         },
         async get_cate() {
@@ -154,7 +155,7 @@ export default {
             }
             data2 = datawork(data)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
+                // console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
