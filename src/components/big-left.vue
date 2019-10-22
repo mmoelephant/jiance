@@ -154,6 +154,7 @@ export default {
             }
             data2 = datawork(data)
             this.$api.get_cate_level1(data2).then(v => {
+                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area

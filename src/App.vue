@@ -69,7 +69,7 @@
 
 <script>
 import {datawork} from './plugins/datawork.js'
-import { getToken } from './plugins/gettoken';
+import { getToken } from './plugins/gettoken'
 export default {
 	name: 'app',
 	data() {

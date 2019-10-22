@@ -4,10 +4,11 @@
 <div style="height:auto;" v-else>
 	<div class="intellReport">
 		<div class="inteLeft">
-			<!-- <a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a> -->
-			<div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0,'全部报告')">全部报告</div>
-			<div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1,'月度智能报告')">月度智能报告</div>
-			<div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2,'自定义报告')">自定义报告</div>
+			<div :class="bigType == 0?'all allOn':'all'">全部报告</div>
+			<div v-for="item in leftItems" :key="item.id" :class="bigType == item.id?'all allOn':'all'">
+				<span class="reIcons" style="font-family:reIcons" v-show="item.id == 1">&#xe60b;</span>
+				{{item.name}}
+			</div>
 		</div>
 		<div class="inteRight">
 			<div class="reportBtns">
@@ -432,10 +433,13 @@
 </div>
 </template>
 <script>
+import {datawork} from '../../plugins/datawork.js'
+import { getToken } from '../../plugins/gettoken.js'
 export default {
 	data() {
 		return {
-			bigType:0,
+			leftItems:[],
+			bigType:1,
 			navigiOn:'全部报告',
 			// type切换网格视图或列表视图
 			type:1,
@@ -539,19 +543,54 @@ export default {
 		}
 	},
 	created(){
-		var data1 = {
-			pageNum:this.pageNum1,
-			pageSize:this.pageSize1,
-			token:this.token,
-			type:1,
-			dataType:1
+		console.log(this.$store.state.login.commonParam)
+		let commondata = {}
+		let data = {}
+		let data1 = {}
+		let clientid = localStorage.getItem('clientid')
+		let accesstoken = localStorage.getItem('accesstoken')
+		if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+			commondata = this.$store.state.login.commonParam
 		}
-		var data2 = {
-			pageNum:this.pageNum2,
-			pageSize:this.pageSize2,
-			token:this.token,
-			type:2
-		}	
+		for(var i in commondata){
+			data[i] = commondata[i]
+		}
+		data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+		data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+		if(localStorage.getItem('userid')){
+			data.user_id = localStorage.getItem('userid')
+		}else{
+			data_user_id = 0
+		}
+		if(localStorage.getItem('uniquecode')){
+			data.unique_code = localStorage.getItem('uniquecode')
+		}
+		if(clientid && clientid.length > 0){
+			data.client_id = clientid
+		}
+		if(accesstoken && accesstoken.length > 0){
+			data.access_token = accesstoken
+		}
+		data1 = datawork(data)
+		this.$api.get_report_left(data1).then(v => {
+			console.log(v)
+			if(v.data.errcode == 0){
+				this.leftItems = v.data.data.data
+			}
+		})
+		// var data1 = {
+		// 	pageNum:this.pageNum1,
+		// 	pageSize:this.pageSize1,
+		// 	token:this.token,
+		// 	type:1,
+		// 	dataType:1
+		// }
+		// var data2 = {
+		// 	pageNum:this.pageNum2,
+		// 	pageSize:this.pageSize2,
+		// 	token:this.token,
+		// 	type:2
+		// }	
 		// 获取平台报告
 		this.$api.get_reports(data1).then(v => {
 			if(v.data.count != null){
@@ -1263,26 +1302,27 @@ export default {
 .all,.month,.custom
 	width 100%
 	height 58px
-	background url(../../../public/img/report/all_grey.png) no-repeat 15px 15px
-	padding-left 46px
+	padding 0 18px
 	box-sizing border-box
 	margin-bottom 10px
 	font-size 14px
 	color #8E9099
-	line-height 58px
 	cursor pointer
+	display flex
+	align-items center
+	span
+		font-size 20px
 
 .all:hover
-	background #F5F6FE url(../../../public/img/report/all_black.png) no-repeat 15px 15px !important
 	color #2C2D33
 
 .allOn
-	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
+	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 	font-weight bold
 
 .allOn:hover
-	background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
+	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .month

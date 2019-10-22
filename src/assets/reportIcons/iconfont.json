@@ -1,0 +1,65 @@
+{
+  "id": "1457153",
+  "name": "监测平台追加",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "6270980",
+      "name": "三角形",
+      "font_class": "sanjiaoxing",
+      "unicode": "e6bd",
+      "unicode_decimal": 59069
+    },
+    {
+      "icon_id": "11272865",
+      "name": "返回",
+      "font_class": "jiancepingtaizhuijia_fanhui",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "11272866",
+      "name": "地区",
+      "font_class": "jiancepingtaizhuijia_diqu",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "11272867",
+      "name": "全部",
+      "font_class": "jiancepingtaizhuijia_quanbu",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "11272868",
+      "name": "上传",
+      "font_class": "jiancepingtaizhuijia_shangchuan",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "11272869",
+      "name": "时间",
+      "font_class": "jiancepingtaizhuijia_shijian",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "11272871",
+      "name": "监测平台追加_下载",
+      "font_class": "jiancepingtaizhuijia_xiazai",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "11290769",
+      "name": "智能数据报告",
+      "font_class": "jiancepingtaizhuijia_yuedu",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    }
+  ]
+}

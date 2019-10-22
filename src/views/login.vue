@@ -55,7 +55,7 @@
 <script>
 import $ from 'jquery'
 import {datawork} from '../plugins/datawork.js'
-import {getCilentId} from '../plugins/getclientidagain'
+import {getCilentId} from '../plugins/getclientidagain.js'
 import {getToken} from '../plugins/gettoken.js'
 // import { deflate } from 'zlib'
 export default {
