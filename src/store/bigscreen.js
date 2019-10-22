@@ -5,7 +5,8 @@ export default {
         cate_list:[],
         sys_title:'',
         what_time:'',
-        what_name:''
+        what_name:'',
+        areacount:0
     },
     mutations:{
         SET_CATE_ON(state, data) {
@@ -23,5 +24,8 @@ export default {
         SET_DISPLAY_NAME(state,data){
             state.what_name = data
         },
+        SET_DISPLAY_AREA_COUNT(state,data){
+            state.areacount = data
+        }
     }
 }

@@ -156,26 +156,26 @@ export default {
             data2 = datawork(data)
             console.log(commondata)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
-                    for(var i in v.data.data.data){
-                        this.list[i] = v.data.data.data[i]
-                    }
+                    this.list = v.data.data.data
                     this.nowT = v.data.data.terms_name
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
                     this.$store.commit('bigscreen/SET_DISPLAY_NAME',v.data.data.areas_name)
+                    this.$store.commit('bigscreen/SET_DISPLAY_AREA_COUNT',v.data.data.area_count)
                     this.sysTitle = v.data.data.title
                     this.$store.commit('bigscreen/SET_SYSTEM_TITLE',v.data.data.title)
                     this.$store.commit('bigscreen/SET_CATE_ON',this.list[0])
                     this.$store.commit('bigscreen/SET_CATE_LIST',this.list)
-                }else if(v.data.errcode == 1104){
+                } else if(v.data.errcode == 1104){
                     //token失效，重新获取·token
                     let that = this
                     getToken(commondata)
                     setTimeout(function(){
-                        that.get_cate()
+                        if(localStorage.getItem('tokenDone')){
+                            that.get_cate()
+                        }
                     },1000)
                 }else{
                     //重新获取client_id
@@ -193,17 +193,6 @@ export default {
             this.$nextTick(() => {
                 this.timer = setInterval(this.t,10000)
             })
-            // if(this.$store.state.login.map.id == 53) {
-            //     res = await this.$api.get_cate_level1(data2)
-            // } else {
-            //     res = await this.$api.get_cate_level1({area:this.$store.state.login.map.id})
-            // }
-            // this.list = res.data
-            // this.$store.commit('bigscreen/SET_CATE_ON', this.list[0])
-            // this.$store.commit('bigscreen/SET_CATE_LIST', this.list)
-            // this.$nextTick(() => {
-            //     this.timer = setInterval(this.t,10000)
-            // })
         }
     },
     mounted() {

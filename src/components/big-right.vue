@@ -5,29 +5,22 @@
                 <i></i>
                 <p>监测平台数据总量</p>
                 <p class='fontb'>{{all}}<span>条</span></p>
-                
             </div>
-            <div id='pie'>
-
-            </div>
+            <div id='pie'></div>
         </div>
         <div class='box'>
             <div class='tt'>
                 <i></i>
                 <p>{{this.$store.state.bigscreen.what_time}}{{cate.name}}环比/同比</p>
             </div>
-            <div id='line'>
-
-            </div>
+            <div id='line'></div>
         </div>
         <div class='box'>
             <div class='tt'>
                 <i></i>
                 <p>{{this.$store.state.bigscreen.what_name}}{{cate.name}}价格指数对比</p>
             </div>
-            <div id='bar'>
-
-            </div>
+            <div id='bar'></div>
         </div>
     </div>
 </template>
@@ -52,11 +45,11 @@ export default {
             let areanum = JSON.parse(localStorage.getItem('user')).area_code
             let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
             if(arealen != 12){
-                for(var i = 0;i < 12-arealen;i++){
+                for(var i = 0;i < 12-arealen;i++) {
                     areanum = areanum + '0'
                 }
             }
-            if(areanum != '530000000000'){
+            if(areanum != '530000000000') {
                 this.areaid = Number(areanum)
             }else{
                 this.areaid = 0
@@ -77,37 +70,15 @@ export default {
     watch:{
         cate:{
             handler(val) {
-                console.log(val)
                 if(val.areasData){
                     this.init_line(val.areasData)
-                    // this.init_pie(val.areasData)
-                }else{
-
                 }
-                if(val.all_count){
+                if(val.count){
                     this.init_pie(val)
-                }else{
-                    this.get_pie_data() 
                 }
                 if(val.termsData){
                     this.init_bar(val.termsData)
                 }
-                // if(val.areasData) {
-                //     this.init_line(val.areasData)
-                // } else {
-                //     this.get_line_data()
-                    
-                // }
-                // if(val.barData) {
-                //     this.init_bar(val.barData)
-                // } else {
-                //     this.get_bar_data()
-                // }
-                // if(val.pieData) {
-                //     this.init_pie(val.pieData)
-                // }else {
-                //     this.get_pie_data()
-                // }
             },
             deep: true
         },
@@ -124,143 +95,16 @@ export default {
                         }
                     })
                 }else{
-                    // this.areaid = 0
                     this.area = this.all_area
                 }
-                // if(val.id=='53') {
-                //     this.area = this.all_area
-                // } else { 
-                //     this.all_area.map(item => {
-                //         if(item.id == val.id) {
-                //             this.area = item.childrenList
-                //         }
-                //     })
-                // }
             },
             deep:true
         }
     },
     methods:{
-        async get_line_data() {
-            let data = {
-                id:this.cate.cid,
-				monthNumber:12,
-            }
-            let res
-            if(this.$store.state.login.map.id==53) {
-                res = await this.$api.get_bg_line(data)
-            } else {
-                data.area = this.$store.state.login.map.id
-                res = await this.$api.get_area_line(data)
-            }
-			let cate_list = this.$store.state.bigscreen.cate_list
-			cate_list.forEach(item => {
-				if(item.cid == this.cate.cid) {
-					item.lineData = res.data?res.data.data:[]
-				}
-            })
-            this.init_line(res.data?res.data.data:[])
-			this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
-        },
-        async get_bar_data() {
-            let data = {
-                id:this.cate.cid,
-                monthNumber:1,
-            }
-            let res
-            if(this.$store.state.login.map.id==53) {
-                res = await this.$api.get_bg_line(data)
-            } else {
-                data.area = this.$store.state.login.map.id
-                res = await this.$api.get_area_line(data)
-            }
-			let cate_list = this.$store.state.bigscreen.cate_list
-			cate_list.forEach(item => {
-				if(item.cid == this.cate.cid) {
-					item.barData = res.data?res.data.data:[]
-				}
-            })
-            this.init_bar(res.data?res.data.data:[])
-			this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
-        },
-        async get_pie_data() {
-            let data = {}
-            let commondata = {}
-            let data2 = {}
-            if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
-                commondata = this.$store.state.login.commonParam
-            }
-            for(var i in commondata){
-                data[i] = commondata[i]
-            }
-            data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-            if(localStorage.getItem('userid') && localStorage.getItem('userid').length > 0){
-                data.user_id = localStorage.getItem('userid')
-            }else{
-                data.user_id = 0
-            }
-            data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-            data.client_id = localStorage.getItem('clientid')
-            data.access_token = localStorage.getItem('accesstoken')
-            if(this.areaid){
-                data.areas = this.areaid
-            }else{
-
-            }
-            data2 = datawork(data)
-            this.$api.get_cate_level1(data2).then(v => {
-                if(v.data.errcode == 0){
-                    this.all = v.data.data.all_count
-                    this.init_pie(v.data.data)
-                    this.areaname = v.data.data.areas_name
-                }else if(v.data.errcode == 1104){
-                    let that = this
-                    getToken(commondata)
-                    setTimeout(function(){
-                        if(localStorage.getItem('tokenDone')){
-                            that.get_pie_data()
-                        }
-                    },1000)
-
-                }else{
-                    let that = this
-                    getCilentId(commondata)
-                    setTimeout(function(){
-                        if(localStorage.getItem('done')){
-                            that.get_pie_data()
-                        }
-                    },1000)
-                }
-            })
-            // let data = {
-            //     mid:this.cate.cid,
-            // }
-            // if(this.$store.state.login.map.id!='53') {
-            //     data.area = this.$store.state.login.map.id
-            // }
-            // const res = await this.$api.get_bg_pie(data)
-            // let cate_list = this.$store.state.bigscreen.cate_list
-			// cate_list.forEach(item => {
-			// 	if(item.cid == this.cate.cid) {
-			// 		item.pieData = res.data.data
-			// 	}
-            // })
-            // if(!this.all||this.all==0) {
-            //     this.all = res.data.data.all.count
-            // }
-            // this.init_pie(res.data.data)
-			// this.$store.commit('bigscreen/SET_CATE_LIST', cate_list)
-        },
         init_pie(data) {
             let name = '云南省'
-            this.all_area.map(item => {
-                if(item.name == data.areas_name) {
-                    name = item.name
-                }
-            })
-
-            // const all = data.other.count + data.km.count
-            // console.log(all,'123132132')
+            name = this.$store.state.bigscreen.what_name
             const chart = this.$echarts.init(document.getElementById('pie'))
             const op = {
                 color:['#ffaf25', '#215973'],
@@ -291,7 +135,7 @@ export default {
                         }
                     },
                     data:[{ 
-                        value:data.area_count,
+                        value:this.$store.state.bigscreen.areacount,
                         name:name,
                         itemStyle: {
                             normal: {
@@ -303,9 +147,8 @@ export default {
                         label:{
                             formatter: [
                                 '{a|'+name+'}',
-                                '{b|'+data.area_count+'}'
+                                '{b|'+this.$store.state.bigscreen.areacount+'}'
                             ].join('\n'),
-
                             rich: {
                                 a: {
                                     color: '#fff',
@@ -319,7 +162,7 @@ export default {
                             }
                         }
                     },{
-                        value:data.area_count, name:'',itemStyle: { color: '#215973' }
+                        value:this.$store.state.bigscreen.areacount, name:'',itemStyle: { color: '#215973' }
                     }]
                     },
                     {
@@ -380,26 +223,28 @@ export default {
             chart.setOption(op)
         },
         init_line(data) {
-            console.log(data)
             let x=[],tb=[],hb=[]
             if(data) {
                 data.map(item => {
-                    if(item.name && item.data && item.data != {}){
+                    if(item.name && item.name != ''){
                         x.push(item.name)
-                        if(item.data.chain_rate && item.data.chain_rate != {}){
+                    }
+                    if(item.data && item.data != {}){
+                        if(item.data.years_rate && item.data.years_rate != {}){
                             tb.push(item.data.years_rate)
+                        }else{
+                            tb.push(0)
                         }
-                        if(item.data.chain_rate){
+                        if(item.data.chain_rate && item.data.chain_rate != {}){
                             hb.push(item.data.chain_rate)
+                        }else{
+                            hb.push(0)
                         }
                     }else{
-                        x.push(item.name)
                         tb.push(0)
                         hb.push(0)
                     }
                 })
-            } else {
-
             }
             const chart = this.$echarts.init(document.getElementById('line'))
             const op = {
@@ -515,30 +360,18 @@ export default {
         },
         init_bar(data) {
             let x = [],y=[]
-            if(data) {
+            if(data){
                 data.filter(item => {
-                    // this.area.forEach(a => {
-                    //     if(a.id==item.area) {
-                    //         item.city = a.name
-                    //     }
-                    // })
-                    // if(item.city&&item.city.length>4) {
-                    //     item.city= item.city.substr(0,4)
-                    // }
                     x.push(item.name)
                     if(item.data && item.data != {} && item.data.base_index_b && item.data.base_index_b != {}){
                         y.push(item.data.base_index_b)
                     }else{
                         y.push(0)
                     }
-
                 })
-            } else {
-
-            }
-            
+            } 
             const chart = this.$echarts.init(document.getElementById('bar'))
-            const op ={
+            const op = {
                 tooltip : {
                     trigger: 'axis',
                     formatter: function (par) {
@@ -547,7 +380,7 @@ export default {
                     }
                 },
                 grid:{
-                    bottom:72,
+                    bottom:50,
                     left:85,
                     top:10
                 },
@@ -592,7 +425,6 @@ export default {
                         color: 'red' // 修改网格线颜色
                     },*/
                     },
-
                     /*去除刻度线*/
                     axisTick:{
                     show:false
@@ -635,28 +467,23 @@ export default {
         scroll_line() {
             const box = $('.box')
             const content = $('#line div')
-           
             const offW = content.width()-box.width()
             content.animate({"left":"-"+offW+"px"}, 5000,function() {
 				content.animate({"left":0}, 2000, function() {
-
                 })
             })
         },
         scroll_bar() {
             const box = $('.box')
             const content = $('#bar div')
-           
             const offW = content.width()-box.width()
             content.animate({"left":"-"+offW+"px"}, 5000,function() {
 				content.animate({"left":0}, 2000, function() {
-                    
                 })
             })
         }
     },
     mounted() {
-        
     }
 }
 </script>

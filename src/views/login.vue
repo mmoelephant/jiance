@@ -184,46 +184,39 @@ export default {
                     setTimeout(function(){
                         me.$router.push({name:'ref'})
                     },1000)
-                } else {
-                    if(v.data.errcode == 2901) {
-                        this.loading = false
-                        this.error1 = '账号不存在'
-                    }else if(v.data.errcode == 2902){
-                        this.loading = false
-                        this.error2 = '密码错误'
-                    }else if(v.data.errcode == 1103){
-                        let that = this
-                        getCilentId(that.commondata)
-                        setTimeout(function(){
-                            if(localStorage.getItem('done')){
-                               that.loading = false
-                                that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                                that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                                that.requestaData.client_id = localStorage.getItem('clientid')
-                                that.requestaData.access_token = localStorage.getItem('accesstoken')
-                                that.requestaData.unique_code = localStorage.getItem('uniquecode')
-                                that.login()
+                }else if(v.data.errcode == 2901){
+                    this.loading = false
+                    this.error1 = '账号不存在'
+                }else if(v.data.errcode == 2902){
+                    this.loading = false
+                    this.error2 = '密码错误'
+                }else if(v.data.errcode == 1104){
+                    let _that = this
+                    getToken(_that.commondata)
+                    setTimeout(function(){
+                        if(localStorage.getItem('tokenDone')){
+                            _that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                            _that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                            _that.requestaData.access_token = localStorage.getItem('accesstoken')
+                            _that.login()
+                        }
+                    },1000)
+                }else{
+                    let _that = this
+                    getCilentId(_that.commondata)
+                    setTimeout(function(){
+                        if(localStorage.getItem('done')){
+                            _that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+                            _that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
+                            _that.requestaData.client_id = localStorage.getItem('clientid')
+                            _that.requestaData.access_token = localStorage.getItem('accesstoken')
+                            _that.requestaData.unique_code = localStorage.getItem('uniquecode')
+                            _that.login()
                             }else{
                             }  
                         },1000)
-                    }else if(v.data.errcode == 1104){
-                        let that = this
-                        getToken(that.commondata)
-                        setTimeout(function(){
-                            if(localStorage.getItem('tokenDone')){
-                               that.loading = false
-                                that.requestaData.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-                                that.requestaData.timestamp = Math.round(new Date().getTime() / 1000).toString()
-                                that.requestaData.access_token = localStorage.getItem('accesstoken')
-                                that.login()
-                            }else{
-                            }  
-                        },1000)
-
-                    }
                 }
             })
-            // const v = await this.$api.login(data1)
         },
         check() {
             if(!this.username || this.username.length==0) {
@@ -232,12 +225,7 @@ export default {
             } else if(!this.password || this.password.length==0) {
                 this.error2 = '请输入正确的密码'
                 return false
-            }
-            // else if(!(/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/.test(this.name))) {
-            //     this.error1 = '手机号格式不正确'
-            //     return false
-            // }
-            else {
+            }else {
                 return true
             }
         }
