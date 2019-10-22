@@ -95,7 +95,6 @@ export default {
 	watch:{
 		user:{
 			handler(val) {
-				console.log(val)
 			},
 			deep:true
 		},
@@ -106,8 +105,6 @@ export default {
 		},
 		tabledata:{
 			handler(val,oldVal) {
-				console.log(val)
-				console.log(typeof val)
 				this.newdata = []
 				this.time = []
 				var objDeepCopy = function (source) {// 深度拷贝数组对象
@@ -127,9 +124,7 @@ export default {
 					this.newdata = objDeepCopy(val.data)
 					this.checked = [this.newdata[0]]
 				}else{
-					console.log('1')
 				}
-				console.log(this.newdata)
 				if(this.type == 1){
 					console.log(this.newdata)
 				}	
@@ -146,7 +141,6 @@ export default {
 			}
 		},
 		chose_area(item) {
-			console.log(item)
 			if(item.parent_id == '0'){
 				item.parent_id = '1'
 			}else{
@@ -155,7 +149,6 @@ export default {
 			// item.expand = !item.expand
 		},
 		get_next_level(i) {
-			console.log(i)
 			this.$emit('get_next',i)
 		}
 	}

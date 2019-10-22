@@ -106,7 +106,6 @@ export default {
                 this.areaid = 0
             }
         }else{
-            console.log('用户还未登陆')
             this.areaid = 0
             
         }
@@ -154,9 +153,7 @@ export default {
                 data.areas = 53
             }
             data2 = datawork(data)
-            console.log(commondata)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
@@ -185,7 +182,6 @@ export default {
                     getCilentId(commondata)
                     setTimeout(function(){
                         if(localStorage.getItem('done')){
-                            console.log('重新获取了client_id')
                             that.get_cate()
                         }
                     },1000)

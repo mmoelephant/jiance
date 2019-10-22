@@ -20,12 +20,6 @@
                     </div>
                     <i class='iconfont icon-shang-copy'></i>
                 </div>
-                <!--ul class='alist' 
-                    v-show='t==1'>
-                    <li v-for='a in areaList' :key='a.id' 
-                        @click='handleNodeClick(a)'
-                        :class='chosed_city ==a?"ac":""'>{{a.name}}</li>
-                </ul-->
                 <el-tree ref="tree1"
                     :data="areaList" node-key = "id" :props="defaultProps" @node-click="handleNodeClick" :indent='30' :accordion='true'
                     v-show='t==1'>
@@ -155,15 +149,6 @@
                             <i class='iconfont icon-zhuzhuangzhexian'></i>
                         </li>
                     </ul>
-                    <!--ul>
-                        <li @click='showcharts=false'>
-                            收起图表
-                        </li>
-                        <li @click='saveImg'>
-                            <i class='iconfont icon-xiazai'></i>
-                            下载
-                        </li>
-                    </ul-->
                 </div>
                 <div id ='main'>
                 </div>
@@ -232,20 +217,6 @@ export default {
     },
     created() {       
         this.get_cate()
-        // if(this.user) {
-        //     this.areaList.filter(item => {
-        //         if(this.user.area == '53') {
-        //             return item
-        //         } else {
-        //             if(item.id == this.user.area) {
-        //                 return item
-        //             } else {
-        //                 delete item.childrenList
-        //                 return item
-        //             }
-        //         } 
-        //     })
-        // }
     },
     computed:{
         user() {
@@ -255,19 +226,6 @@ export default {
     watch:{
         user:{
             handler(val) {
-                // this.areaList.filter(item => {
-                //     if(val.area == '53') {
-                //         return item
-                //     } else {
-                //         if(item.id == val.area) {
-                //             return item
-                //         } else {
-                //             delete item.childrenList
-                //             return item
-                //         }
-                //     } 
-                // })
-                // console.log(val,1231)
             },
             deep:true
         }
@@ -282,7 +240,7 @@ export default {
     watch:{
         timetype(type) {
             if(type==3) {
-                this.time = this.monthoptions[0].id
+                // this.time = this.monthoptions[0].id
             } else if(type==2) {
                 this.time = this.seasonoptions[0].id
             } else {
@@ -421,7 +379,8 @@ export default {
                     this.monthoptions = v.data.data.month
                     this.seasonoptions = v.data.data.quarter
                     this.yearoptions = v.data.data.years
-                    this.time = this.monthoptions[0].id
+                    // this.time = this.monthoptions[0].id
+                    this.get_area_data()
                 }else if(v.data.errcode == 1104){
                     //token失效的时候，再度获取token
                     let that = this
@@ -437,12 +396,6 @@ export default {
 
                 }
             })
-            // const res = await this.$api.get_cate(data1)
-            // console.log(res)
-            // this.cateList = res.data
-            // this.chosed_cate = this.cateList[0]
-            // console.log(this.chosed_cate)
-            // this.time = this.monthoptions[1].value
         },
         async get_area_data() {// 获取单材料多地区的数据
             this.loading = true
@@ -471,7 +424,7 @@ export default {
             if(this.time){
                 data4.date_type = this.time
             }else{
-                data4.date_type = 1
+                // data4.date_type = 1
             }
             if(this.areaid){
                 data4.areas = this.areaid
@@ -542,7 +495,7 @@ export default {
             if(this.time){
                 data2.date_type = this.time
             }else{
-                data2.date_type = 1
+                // data2.date_type = 1
             }
             if(this.areaid){
                 data2.areas = this.areaid
@@ -562,7 +515,7 @@ export default {
                     getToken(commondata)
                     setTimeout(function(){
                         if(localStorage.getItem('tokenDone')){
-                            that.get_area_data()
+                            that.get_cate_data()
                         }else{}
                     },1000)   
                 }else{
@@ -611,7 +564,7 @@ export default {
             if(this.time){
                 data6.date_type = this.time
             }else{
-                data6.date_type = 1
+                // data6.date_type = 1
             }
             data6.field = this.chosed_type
             data6.areas = aa.id
@@ -724,7 +677,7 @@ export default {
                     if(this.time){
                         data8.date_type = this.time
                     }else{
-                        data8.date_type = 1
+                        // data8.date_type = 1
                     }
                     data8.field = this.chosed_type
                     data8.areas = 53
@@ -898,7 +851,7 @@ export default {
                     if(this.time){
                         data10.date_type = this.time
                     }else{
-                        data10.date_type = 1
+                        // data10.date_type = 1
                     }
                     data10.field = this.chosed_type
                     data10.areas = 53
@@ -1096,8 +1049,6 @@ export default {
                     data13 = datawork(data12)
 
                     const res = await this.$api.get_area_time_list(data13)
-                    // console.log(res)
-                    // console.log(res.data.data.data)
                     arr = res.data.data.data
                     y.push({
                         data:[],
@@ -1527,17 +1478,17 @@ export default {
                 height 32px
                 background #fff
                 border 1px solid #D6D9E2
-                border-radius 4px 0px 0px 4px
+                // border-radius 4px 0px 0px 4px
                 font-size 12px
                 color #8E9099
                 line-height 32px
                 text-align center
                 cursor pointer
             p+p
-                border-radius 0
+                // border-radius 0
                 border-left 0
             p+p+p
-                border-radius 0px 4px 4px 0px
+                // border-radius 0px 4px 4px 0px
                 border-left 0
             p:hover
                 background #eee
