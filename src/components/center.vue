@@ -301,7 +301,7 @@ export default {
 @import '../style/px2vh.stylus'
     .cb
         width px2vw(880)
-        height 100% 
+        height 100%
         padding-top px2vh(88)
         box-sizing border-box
         display flex
