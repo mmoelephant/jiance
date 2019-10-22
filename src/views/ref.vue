@@ -58,27 +58,24 @@
                                 </p>
                                 <ul>
                                     <li v-for="item in filtConditions" v-bind:key="item.id" :class="chosed_type == item.id?'ac':''" @click="toggleChoseType(item.id)">
-                                        <!-- chosed_type = item.id -->
                                         {{item.name}}
                                     </li>
                                 </ul>
                                 <el-popover
                                     class='sm'
-                                    v-show='chosed_type == "base_index_b"|| chosed_type == "allprice"'
+                                    v-show='chosed_type == "base_index_b"'
                                     placement="bottom-start"
                                     width="200"
                                     trigger="hover"
-                                    :title="chosed_type == 'base_index_b'?'指数定义':''">
-                                    <!-- :chosed_type == 'allprice'?'价格说明' -->
+                                    title="指数定义">
                                     <p>
-                                        {{chosed_type == 'base_index_b'?'反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数':'这里是价格说明'}}
+                                        反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数
                                     </p>
-                                    <p v-show="chosed_type == 'base_index_b'">基准期：2018年1月</p>
-                                    <p v-show="chosed_type == 'base_index_b'">定基指数：1000</p>
+                                    <p>基准期：2018年1月</p>
+                                    <p>定基指数：1000</p>
                                     <div slot="reference">
-                                        {{chosed_type == 'base_index_b'?'指数说明':''}}
-                                        <!-- :chosed_type == 'allprice'?'价格说明' -->
-                                        <img src="../../public/img/wh.png" alt="" v-show="chosed_type == 'base_index_b'">
+                                        指数说明
+                                        <img src="../../public/img/wh.png" alt="">
                                     </div>
                                 </el-popover>
                                 <div v-show='t == 0 && chosed_type == "allprice"' style='font-size:12px;margin-left:20px'>（单位：元 / {{dw}}）</div>
@@ -203,9 +200,9 @@ export default {
             checked:[],//选中作为图渲染的数据,
             mycharts:null,
             change_charts:'bar',//展示图表的类型
-            color:['#ff5193','#09d8ca','#ffa966','#2bbdef','#5f81ff',
-            '#ff7e68','#18db98','#d06cff','#77a1ff','#f58d13','#ed5627',
-            '#fe76cc','#f037c2','#18cb00','#2da5ea','#994eee'],
+            color:['#7bc9ff','#eea8c3','#7be2db','#fedcc1','#ade3f6',
+            '#b6c6fe','#efbbb2','#fa9583','#b4fce3','#e4c3f4','#77a1ff',
+            '#f1dc4f','#bc8878','#f9b7e1','#c890c3','#9eca98','#ff7571'],
             boxwidth:0,
             tablewidth:0,
             loading:false,
@@ -256,6 +253,7 @@ export default {
         time(val) {
             this.isnext = false
             if(this.t == 0) {
+                this.areaid = 0
                 this.get_area_data()
             } else {
                 this.get_cate_data()
@@ -319,7 +317,7 @@ export default {
         },
         toggleChoseType(bb){
             this.chosed_type = bb
-            this.isnext = false
+            // this.isnext = false
         },
         back() {
             this.isnext = false
@@ -540,6 +538,7 @@ export default {
             this.loading = true
             this.tabledata = {}
             this.checked = []
+            this.areaid = aa.id
             this.areaname = aa.name
             let data6 = {}
             let commondata = {}

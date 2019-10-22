@@ -13,7 +13,7 @@
 								<p v-show='type == 1' style='cursor:pointer'>{{i.dateData&&i.name?i.name:''}}</p>
 							</div>
 							<div v-show='type == 0 && !isnext && index !=0' @click='get_next_level(i)'>
-								<p style='font-size:12px;color:#6C7DFF;cursor:pointer'>查看更多</p>
+								<p style='font-size:12px;color:#6C7DFF;cursor:pointer'>区县数据</p>
 								<i class='iconfont icon-shang-copy'></i>
 							</div>
 							<i style="margin-right:10px" :class="i.parent_id == '1'?'iconfont icon-shang-copy rotate':'iconfont icon-shang-copy'" @click="chose_area(i)"  v-show='type == 1'></i>
