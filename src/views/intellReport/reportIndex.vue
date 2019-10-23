@@ -4,22 +4,33 @@
 <div style="height:auto;" v-else>
 	<div class="intellReport">
 		<div class="inteLeft">
-			<div :class="bigType == 0?'all allOn':'all'">全部报告</div>
-			<div v-for="item in leftItems" :key="item.id" :class="bigType == item.id?'all allOn':'all'">
-				<span class="reIcons" style="font-family:reIcons" v-show="item.id == 1">&#xe60b;</span>
-				{{item.name}}
+			<div :class="bigType == 0?'all allOn':'all'" @click="changeToAll(0,'全部报告')">
+				<span class="iconfont">&#xe608;</span>
+				<span class="whatRe">全部报告</span>
+			</div>
+			<div v-for="item in leftItems" :key="item.id" :class="bigType == item.id?'all allOn':'all'" @click="toggleBigType(item)">
+				<span class="iconfont" v-show="item.id == 1">&#xe60b;</span>
+				<span class="iconfont" v-show="item.id == 2">&#xe607;</span>
+				<span class="iconfont" v-show="item.id == 3">&#xe60a;</span>
+				<span class="whatRe">{{item.name}}</span>
 			</div>
 		</div>
 		<div class="inteRight">
 			<div class="reportBtns">
-				<div class="btnClass"><span class="dotClass"></span>智能报告  >&nbsp<span class="navigiOn">{{ navigiOn}}</span></div>
-				<div class="viewToggle">
+				<div class="btnClass">
+					<span class="dotClass"></span>
+					<span class="navigiOn">{{ navigiOn}}</span>
+				</div>
+				<!-- <div class="viewToggle">
 					<span :class="type == 0?'view1 viewActive':'view1'" @click="choose(0)">网格显示</span>
 					<span :class="type == 1?'view2 viewActive':'view2'" @click="choose(1)">列表显示</span>
+				</div> -->
+				<div class="createBtn" v-show="bigType != 1" @click="createRe(bigType)">
+					<img src="../../../public/img/report/add.png" alt="">
+					<span>{{bigType == 2?'新建地区对比报告':bigType == 3?'新建时间对比报告':''}}</span>
 				</div>
 				<div class="search">
 					<input class="searchBox" placeholder="请输入需要检索的报告标题" v-model="searContent">
-					<!-- <a href="javascript:void(0)" @click="goSearch"><div class="searchIcon"></div></a> -->
 					<div class="searchIcon" @click="goSearch"></div>
 				</div>
 			</div>
@@ -266,39 +277,39 @@
 				</div>
 			</div>
 		</div>
-		<el-dialog title="新建自定义报告" :visible.sync="dialogFormVisible" width="620px">
-			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" style="padding:20px">
-				<el-form-item label="报告名称" prop="name">
-					{{ruleForm.name}}
-				</el-form-item>
+		<el-dialog :title="createTitle" :visible.sync="dialogFormVisible" width="600px" class="createNewBox">
+			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
 				<el-form-item label="报告类型" prop="type">
-					<el-select v-model="ruleForm.type" placeholder="请选择报告类型" @change="changeType" :style="ruleFormClass">
-						<el-option v-for="item in reType" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+					<el-select v-model="ruleForm.type" placeholder="请选择报告类型" @change="changeType">
+						<el-option v-for="item in reTypes" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
 					</el-select>
 				</el-form-item>
   				<el-form-item label="时间选择" prop="timeInterval">
-  					<el-select v-model="ruleForm.timeInterval" :placeholder="word" :style="season" @change="changeTime" v-if='ruleForm.type==2'>
+  					<!-- <el-select v-model="ruleForm.timeInterval" :placeholder="word" @change="changeTime" v-if='ruleForm.type==2'>
   						<el-option v-for="item in seasons" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
   					</el-select>
-					<el-date-picker v-model="ruleForm.timeInterval" :style="timePicker" @change="changeTime" :type="timeRange" value-format='yyyy-MM' range-separator="至" 
-					:placeholder="word" v-if="ruleForm.type == 1 || ruleForm.type == ''">
-					</el-date-picker>
-					<el-date-picker v-model="ruleForm.timeInterval" :style="timePicker" @change="changeTime" :type="timeRange" value-format='yyyy' 
-					:placeholder="word" v-if='ruleForm.type == 3'>
+					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :type="timeRange" value-format='yyyy-MM' range-separator="至" 
+					:placeholder="word" v-show="ruleForm.type == 1 || ruleForm.type == ''">
+					</el-date-picker> -->
+					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :type="timeRange" value-format='yyyy-MM-dd' 
+					:placeholder="word">
+					<!-- v-show ='ruleForm.type == 3' -->
 					</el-date-picker>
   				</el-form-item>
   				<el-form-item label="材料类型" prop="materialType">
-					<el-select v-model="ruleForm.materialType" multiple placeholder="请选择材料类型" @change="changeMateri" :style="ruleFormClass">
-						<el-option class="matetiBig" v-for="item in material" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+					<el-select v-model="ruleForm.materialType" multiple collapse-tags placeholder="请选择材料类型">
+						 <!-- @change="changeMateri" -->
+						<el-option v-for="item in materiaList" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
   					</el-select>
   				</el-form-item>
   				<el-form-item label="对比地区" prop="compareRegion">
-  					<el-select v-model="ruleForm.compareRegion" multiple placeholder="请选择对比地区" @change="changeRegion" :style="ruleFormClass">
+  					<el-select v-model="ruleForm.compareRegion" multiple collapse-tags placeholder="请选择对比地区">
+						   <!-- @change="changeRegion" -->
   						<el-option v-for="item in regions" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
   					</el-select>
   				</el-form-item>
   				<el-form-item>
-  					<el-button type="primary" @click="submitForm('ruleForm')" class="newNow">立即创建</el-button>
+  					<el-button type="primary" @click="createNewNow('ruleForm')" class="newNow">立即创建</el-button>
   					<el-button @click="cancleNewReport('ruleForm')">取消</el-button>
   				</el-form-item>
 			</el-form>
@@ -438,9 +449,34 @@ import { getToken } from '../../plugins/gettoken.js'
 export default {
 	data() {
 		return {
+			userid:'0',
+			uniquecode:'',
+			clientid:'',
+			accesstoken:'',
 			leftItems:[],
 			bigType:1,
 			navigiOn:'全部报告',
+			dialogFormVisible: false,
+			createTitle:'新建地区对比报告',
+			ruleForm: {},
+			rules: {
+				type: [
+					{required: true, message: '请选择报告类型', trigger: 'change'}
+				],
+				timeInterval: [
+					{required: true, message: '请选择时间节点', trigger: 'change'}
+				],
+				materialType: [
+					{required: true, message: '请选择材料类型', trigger: 'focus'}
+				],
+				compareRegion: [
+					{required: true, message: '请选择对比地区', trigger: 'focus'}
+				]
+			},
+			word:'请选择月份',
+			reTypes:[],
+			materiaList:[],
+			regions:[],
 			// type切换网格视图或列表视图
 			type:1,
 			token:this.$store.state.login.token,
@@ -466,55 +502,14 @@ export default {
 			noImg:false,
 			noImgCustom:false,
 			noImgResult:false,
-			dialogFormVisible: false,
-			reType:[
-				{id:1,name:'月度数据报告'},
-				{id:2,name:'季度数据报告'},
-				{id:3,name:'年度数据报告'},
-			],
 			seasons:[
 				{id:1,name:'第1季度'},
 				{id:2,name:'第2季度'},
 				// {id:3,name:'第三季度'},
 				// {id:4,name:'第四季度'},
 			],
-			material:[],
-			regions:[],
-			ruleForm: {
-				name: '请先选择相应的报告内容',
-				type:'',
-				timeInterval: '',
-				materialType:'',
-				compareRegion:'',
-			},
-			ruleFormClass:{
-				width:'360px'
-			},
 			timeRange:'month',
 			timeType:1,
-			word:'请选择月份',
-			season:{
-				display:'none',
-				width:'360px'
-			},
-			timePicker:{
-				display:'',
-				width:'360px'
-			},
-			rules: {
-				type: [
-					{required: true, message: '请选择报告类型', trigger: 'change'}
-				],
-				timeInterval: [
-					{required: true, message: '请选择时间节点', trigger: 'change'}
-				],
-				materialType: [
-					{required: true, message: '请选择材料类型', trigger: 'focus'}
-				],
-				compareRegion: [
-					{required: true, message: '请选择对比地区', trigger: 'focus'}
-				]
-			},
 			loading:true,
 			detailDialog1:false,
 			detailDialog:false,
@@ -543,54 +538,20 @@ export default {
 		}
 	},
 	created(){
-		console.log(this.$store.state.login.commonParam)
-		let commondata = {}
-		let data = {}
-		let data1 = {}
-		let clientid = localStorage.getItem('clientid')
-		let accesstoken = localStorage.getItem('accesstoken')
-		if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
-			commondata = this.$store.state.login.commonParam
+		this.get_left()
+		var data1 = {
+			pageNum:this.pageNum1,
+			pageSize:this.pageSize1,
+			token:this.token,
+			type:1,
+			dataType:1
 		}
-		for(var i in commondata){
-			data[i] = commondata[i]
-		}
-		data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
-		data.timestamp = Math.round(new Date().getTime() / 1000).toString()
-		if(localStorage.getItem('userid')){
-			data.user_id = localStorage.getItem('userid')
-		}else{
-			data_user_id = 0
-		}
-		if(localStorage.getItem('uniquecode')){
-			data.unique_code = localStorage.getItem('uniquecode')
-		}
-		if(clientid && clientid.length > 0){
-			data.client_id = clientid
-		}
-		if(accesstoken && accesstoken.length > 0){
-			data.access_token = accesstoken
-		}
-		data1 = datawork(data)
-		this.$api.get_report_left(data1).then(v => {
-			console.log(v)
-			if(v.data.errcode == 0){
-				this.leftItems = v.data.data.data
-			}
-		})
-		// var data1 = {
-		// 	pageNum:this.pageNum1,
-		// 	pageSize:this.pageSize1,
-		// 	token:this.token,
-		// 	type:1,
-		// 	dataType:1
-		// }
-		// var data2 = {
-		// 	pageNum:this.pageNum2,
-		// 	pageSize:this.pageSize2,
-		// 	token:this.token,
-		// 	type:2
-		// }	
+		var data2 = {
+			pageNum:this.pageNum2,
+			pageSize:this.pageSize2,
+			token:this.token,
+			type:2
+		}	
 		// 获取平台报告
 		this.$api.get_reports(data1).then(v => {
 			if(v.data.count != null){
@@ -633,18 +594,251 @@ export default {
 	mounted() {
     },
 	methods:{
-		toggleBig:function(aa,bb){
+		get_left(){
+			console.log(this.$store.state.login.commonParam)
+			let data = {}
+			let data1 = {}
+			let commondata = {}
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commondata = this.$store.state.login.commonParam
+			}
+			for(var i in commondata){
+				data[i] = commondata[i]
+			}
+			this.userid = localStorage.getItem('userid')
+			this.uniquecode = localStorage.getItem('uniquecode')
+			this.clientid = localStorage.getItem('clientid')
+			this.accesstoken = localStorage.getItem('accesstoken')
+
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			if(this.userid){
+				data.user_id = this.userid
+			}else{
+				data_user_id = '0'
+			}
+			if(this.uniquecode){
+				data.unique_code = this.uniquecode
+			}
+			if(this.clientid && this.clientid.length > 0){
+				data.client_id = this.clientid
+			}
+			if(this.accesstoken && this.accesstoken.length > 0){
+				data.access_token = this.accesstoken
+			}
+			data1 = datawork(data)
+			this.$api.get_report_left(data1).then(v => {
+				console.log(v)
+				if(v.data.errcode == 0){
+					this.leftItems = v.data.data.data
+				}else if(v.data.errcode == 1104){
+					let _that = this
+					getToken(commondata)
+					setTimeout(() => {
+						if(localStorage.getItem('tokenDone')){
+							_that.get_left()
+						}
+					}, 1000);
+				}
+			})
+		},
+		changeToAll(aa,bb){
 			this.bigType = aa
 			this.navigiOn = bb
-			if(aa == 0){
-				this.newHidden = false
-			}else{
-				this.newHidden = true
+		},
+		toggleBigType(aa){
+			this.bigType = aa.id
+			this.navigiOn = aa.name
+			if(aa.id == 2){
+				this.createTitle = '新建地区对比报告'
+			}else if(aa.id == 3){
+				this.createTitle = '新建时间对比报告'
 			}
 		},
-		choose:function(status){
-			this.type = status
+		createRe(aa){
+			let data = {}
+			let data2 = {}
+			let commondata = {}
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commondata = this.$store.state.login.commonParam
+			}
+			for(var i in commondata){
+				data[i] = commondata[i]
+			}
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			if(this.userid){
+				data.user_id = this.userid
+			}else{
+				data_user_id = '0'
+			}
+			if(this.uniquecode){
+				data.unique_code = this.uniquecode
+			}
+			if(this.clientid && this.clientid.length > 0){
+				data.client_id = this.clientid
+			}
+			if(this.accesstoken && this.accesstoken.length > 0){
+				data.access_token = this.accesstoken
+			}
+			data.type = aa
+			data2 = datawork(data)
+			this.$api.get_report_new_type(data2).then(v => {
+				this.dialogFormVisible = true
+				console.log(v)
+				if(v.data.errcode == 0){
+					this.materiaList = v.data.data.categoryData
+					this.regions = v.data.data.areasData
+					this.reTypes = v.data.data.termsTypeData
+				}else if(v.data.errcode == 1104){
+					let _that = this
+					getToken(commondata)
+					setTimeout(() => {
+						if(localStorage.getItem('tokenDone')){
+							_that.createRe()
+						}
+					}, 1000);
+				}
+			})
 		},
+		changeType(vv){
+			console.log(vv)
+			// if(vv == 1){
+			// 	this.season.display = 'none'
+			// 	this.timeRange = 'month'
+			// 	this.word = '请选择月份'
+			// 	this.ruleForm.timeInterval = ''
+			// 	this.timeType = 1	
+			// }else if(vv == 2){
+			// 	this.season.display = ''
+			// 	this.word = '请选择季度'
+			// 	this.ruleForm.timeInterval = ''
+			// 	this.timeType = 2
+			// }else{
+			// 	this.season.display = 'none'
+			// 	this.timeRange = 'year'
+			// 	this.word = '请选择年份'
+			// 	this.ruleForm.timeInterval = ''
+			// 	this.timeType = 3
+			// }
+		},
+		changeTime(){
+			// this.ruleFormName()
+		},
+		createNewNow(formName) {
+			this.$refs[formName].validate((valid) => {
+				if (valid) {
+					console.log(this.ruleForm)
+					let data = {}
+					let data2 = {}
+					let commondata = {}
+					if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+						commondata = this.$store.state.login.commonParam
+					}
+					for(var i in commondata){
+						data[i] = commondata[i]
+					}
+					data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+					data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+					if(this.userid){
+						data.user_id = this.userid
+					}else{
+						data_user_id = '0'
+					}
+					if(this.uniquecode){
+						data.unique_code = this.uniquecode
+					}
+					if(this.clientid && this.clientid.length > 0){
+						data.client_id = this.clientid
+					}
+					if(this.accesstoken && this.accesstoken.length > 0){
+						data.access_token = this.accesstoken
+					}
+					data.type = this.bigType
+					data.terms_type = this.ruleForm.type
+					data.categorys_ids = JSON.stringify(this.ruleForm.materialType)
+					data.areas_ids = JSON.stringify(this.ruleForm.compareRegion)
+					if(this.bigType == 2){
+						data.terms = this.ruleForm.timeInterval
+					}
+					if(this.bigType == 3){
+						data.start_terms = this.ruleForm.timeInterval
+						data.end_terms = this.ruleForm.timeInterval
+					}
+					data2 = datawork(data)
+					this.$api.create_new_report(data2).then(v => {
+						console.log(v)
+						if(v.data.errcode == 0){
+							this.dialogFormVisible = false
+							this.$refs[formName].resetFields()
+							this.$message({
+								type:'success',
+								message:'创建成功！'
+							})
+						}else if(v.data.errcode == 1104){
+							let _that = this
+							getToken(commondata)
+							setTimeout(() => {
+								if(localStorage.getItem('tokenDone')){
+									_that.createNewNow(formName)
+								}
+							}, 1000);
+						}else{
+							this.$message({
+								type:'error',
+								message:'创建失败！'
+							})
+						}
+					})
+					// this.$api.add_report(data8).then(v =>{
+					// 	if(v.data.msg == 'success'){
+					// 		this.dialogFormVisible = false
+					// 		this.$refs[formName].resetFields()
+					// 		this.$api.get_reports(data11).then(v => {
+					// 			if(v.data.count != null){
+					// 				// this.noImgCustom.display = 'none'
+					// 				this.noImgCustom = false
+					// 				this.customReport = v.data.list
+					// 				this.totalPage2 = v.data.count
+					// 				this.$message({
+					// 					type: 'success',
+					// 					message: '创建成功!'
+					// 				})
+					// 			}else{
+					// 				// this.noImgCustom.display = 'block'
+					// 				this.noImgCustom = true
+					// 				this.customReport= []
+					// 				this.totalPage2 = 0
+					// 				this.$message({
+					// 					type: 'info',
+					// 					message: '重新加载失败!'
+					// 				})
+					// 			}
+					// 		})
+					// 	}else{
+					// 		this.dialogFormVisible = false
+					// 		this.$refs[formName].resetFields()
+					// 		this.openTip1()
+					// 	}
+					// })
+				} else {
+					console.log('error submit!!');
+					return false;
+				}
+			});
+		},
+		// toggleBig:function(aa,bb){
+		// 	this.bigType = aa
+		// 	this.navigiOn = bb
+		// 	if(aa == 0){
+		// 		this.newHidden = false
+		// 	}else{
+		// 		this.newHidden = true
+		// 	}
+		// },
+		// choose:function(status){
+		// 	this.type = status
+		// },
 		goSearch(){
 			this.resultReport = []
 			this.type = 1
@@ -1141,66 +1335,6 @@ export default {
 		openDialog(){
 			this.dialogFormVisible = true
 		},
-		ruleFormName(){
-			let cate_list =[]
-			this.ruleForm.materialType.map( item=> {
-				this.material.map(cate => {
-					if(item == cate.id) {
-						cate_list.push(cate.name)
-					}
-				})
-			})
-			let area_list = []
-			this.ruleForm.compareRegion.map(item => {
-				this.regions.map(area => {
-					if(item == area.id) {
-						area_list.push(area.name)
-					}
-				})
-			})
-			if(this.timeType == 1){
-				this.ruleForm.name = this.ruleForm.timeInterval.split('-')[0] + '年' + this.ruleForm.timeInterval.split('-')[1] + '月' + area_list.toString() + cate_list.toString() + '月度数据报告'
-			}else if(this.timeType == 2){
-				let jidu = ''
-				this.seasons.map(ji => {
-					if(this.ruleForm.timeInterval == ji.id){
-						jidu = ji.name
-					}
-				})
-				this.ruleForm.name = '2019年' + jidu + area_list.toString() + cate_list.toString() + '季度数据报告'
-			}else{
-				this.ruleForm.name = this.ruleForm.timeInterval.substr(0,4) + '年' + area_list.toString() + cate_list.toString() + '年度数据报告'
-			}
-		},
-		changeType(vv){
-			if(vv == 1){
-				this.season.display = 'none'
-				this.timeRange = 'month'
-				this.word = '请选择月份'
-				this.ruleForm.timeInterval = ''
-				this.timeType = 1	
-			}else if(vv == 2){
-				this.season.display = ''
-				this.word = '请选择季度'
-				this.ruleForm.timeInterval = ''
-				this.timeType = 2
-			}else{
-				this.season.display = 'none'
-				this.timeRange = 'year'
-				this.word = '请选择年份'
-				this.ruleForm.timeInterval = ''
-				this.timeType = 3
-			}
-		},
-		changeTime(){
-			this.ruleFormName()
-		},
-		changeMateri(){
-			this.ruleFormName()
-		},
-		changeRegion(){
-			this.ruleFormName()
-		},
 		openTip(){
 			this.$message({
 				showClose:true,
@@ -1217,61 +1351,6 @@ export default {
 				duration:2000				
 			})
 		},
-		submitForm(formName) {
-			this.$refs[formName].validate((valid) => {
-				if (valid) {
-					var data8 = {
-						type:2,
-						dataType:this.ruleForm.type,
-						token:this.token,
-						timeInterval:this.ruleForm.timeInterval,
-						materialClassID:this.ruleForm.materialType.toString(),
-						contrastRegionID:this.ruleForm.compareRegion.toString(),
-						name:this.ruleForm.name
-					}
-					var data11 = {
-						pageNum:this.pageNum2,
-						pageSize:this.pageSize2,
-						token:this.token,
-						type:2
-					}
-					this.$api.add_report(data8).then(v =>{
-						if(v.data.msg == 'success'){
-							this.dialogFormVisible = false
-							this.$refs[formName].resetFields()
-							this.$api.get_reports(data11).then(v => {
-								if(v.data.count != null){
-									// this.noImgCustom.display = 'none'
-									this.noImgCustom = false
-									this.customReport = v.data.list
-									this.totalPage2 = v.data.count
-									this.$message({
-										type: 'success',
-										message: '创建成功!'
-									})
-								}else{
-									// this.noImgCustom.display = 'block'
-									this.noImgCustom = true
-									this.customReport= []
-									this.totalPage2 = 0
-									this.$message({
-										type: 'info',
-										message: '重新加载失败!'
-									})
-								}
-							})
-						}else{
-							this.dialogFormVisible = false
-							this.$refs[formName].resetFields()
-							this.openTip1()
-						}
-					})
-				} else {
-					console.log('error submit!!');
-					return false;
-				}
-			});
-		},
 		cancleNewReport(formName){
 			this.dialogFormVisible = false
 			this.$refs[formName].resetFields();
@@ -1282,9 +1361,6 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-
-.el-dialog__body
-	padding 20px !important
 .intellReport
 	width 100%
 	height auto
@@ -1299,19 +1375,21 @@ export default {
 	position fixed
 	top 78px
 	left 0
-.all,.month,.custom
+.all
 	width 100%
 	height 58px
 	padding 0 18px
 	box-sizing border-box
 	margin-bottom 10px
-	font-size 14px
 	color #8E9099
 	cursor pointer
 	display flex
 	align-items center
-	span
+	span.iconfont
+		margin-right 8px
 		font-size 20px
+	span.whatRe
+		font-size 14px
 
 .all:hover
 	color #2C2D33
@@ -1323,38 +1401,6 @@ export default {
 
 .allOn:hover
 	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-	color white
-
-.month
-	background url(../../../public/img/report/month_grey.png) no-repeat 15px 15px !important
-
-.month:hover
-	background #F5F6FE url(../../../public/img/report/month_black.png) no-repeat 15px 15px !important
-	color #2C2D33
-
-.monthOn
-	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-	color white
-	font-weight bold
-
-.monthOn:hover
-	background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-	color white
-
-.custom
-	background url(../../../public/img/report/custom_grey.png) no-repeat 15px 15px !important
-
-.custom:hover
-	background #F5F6FE url(../../../public/img/report/custom_black.png) no-repeat 15px 15px !important
-	color #2C2D33
-
-.customOn
-	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-	color white
-	font-weight bold
-
-.customOn:hover
-	background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 
 .inteRight
@@ -1861,6 +1907,25 @@ export default {
 	p
 		font-size 14px
 		line-height 24px
+
+
+</style>
+<style lang="stylus">
+.el-dialog__wrapper.createNewBox
+	.el-dialog__header
+		padding-bottom 20px
+		line-height 18px
+	.el-dialog__body
+		padding 20px 0 35px 0 !important
+		.el-select
+			width 360px
+		.el-button
+			margin-top 10px
+		.el-button.el-button--primary
+			background #9A7CFF
+			border none
+		.el-button.el-button--primary:hover
+			background #C7B7FF
 
 
 </style>

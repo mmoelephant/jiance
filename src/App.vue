@@ -37,7 +37,7 @@
 				</el-footer>
             </el-container>
         </el-container>
-		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="480px">
+		<el-dialog title="账户信息" :visible.sync="dialogVisible" width="480px" class="userInfoBox">
 			<el-form :model="formInline" style='width:86%;padding:30px 0 0 40px;box-sizing:border-box' label-width="42px">
 				<el-form-item label="账号">
 					<el-input v-model="formInline.username" :disabled="true"></el-input>

@@ -2,7 +2,13 @@
 	<div style='position:relative' class='ttt'>
 		<div class='ul'>
 			<div class='left'>
-				<p class='head'>{{type == 0?'地区':'材料'}}</p>
+				<div class='head'>
+					<div class="alllabel">
+						<el-checkbox v-show="type == 0" :label="allCheckTxt" v-model="allchecked">全选</el-checkbox>
+						<span>全选</span>
+					</div>
+					<span>{{type == 0?'地区':'材料'}}</span>
+				</div>
 				<el-checkbox-group v-model="checked">
 					<div class='info' v-for="(i,index) in newdata" :key="index">
 						<div :class='type == 0 && index == 0?"nb n":"n"' style="">
@@ -35,6 +41,7 @@
 				<div class='head'>
 					<p v-for="i in time" :key="i.id">{{i.name?i.name:'-'}}</p>
 				</div>
+
 				<div class='info' v-for="(i,index) in newdata" :key="index">
 					<div :class='type == 0&&index==0?"nb n":"n"'>
 						<p v-for='(num,a) in i.dateData' :key='a'>
@@ -65,6 +72,8 @@ import $ from 'jquery'
 export default {
 	data() {
 		return {
+			allchecked:false,
+			allCheckTxt:'全选',
 			checked:[],
 			time:[],
 			newdata:[]
@@ -103,6 +112,17 @@ export default {
 				this.$emit('checkList',val)          
 			}
 		},
+		allchecked:{
+			handler(val) {
+				console.log(val)
+				if(val){
+					this.checked = this.newdata
+				}else{
+					this.checked = []
+				}
+				
+			}
+		},
 		tabledata:{
 			handler(val,oldVal) {
 				this.newdata = []
@@ -123,6 +143,7 @@ export default {
 					})
 					this.newdata = objDeepCopy(val.data)
 					this.checked = [this.newdata[0]]
+					this.allchecked = false
 				}else{
 				}
 				if(this.type == 1){
@@ -167,13 +188,18 @@ export default {
 		font-size 14px
 	.left 
 		width 300px
-		text-align center	
+		text-align center
 		flex-shrink 0
 		position absolute
 		top 56px
 		left 0	
 		.head 
 			width 100%
+			.alllabel
+				position absolute
+				left 15px
+				z-index 5
+				cursor pointer
 		.n
 			display flex
 			justify-content space-between
@@ -252,8 +278,8 @@ export default {
 				p
 					background #F3F4FE
 	.nb,.nb p
-			background #8AA3FF!important
-			color #fff!important
+		background #8AA3FF!important
+		color #fff!important
 			// border 1px yellow solid
 	.head 
 		background #B0BDFF
@@ -293,3 +319,9 @@ img
 .el-checkbox
 	margin-right 10px
 </style>
+// <style lang="stylus">
+// .el-checkbox.alllabel
+// 	position absolute
+// 	left 15px
+// 	cursor pointer
+// </style>

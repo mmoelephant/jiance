@@ -134,6 +134,14 @@ const api = {
 		get_report_left(data){
 			if(data) data = qs.stringify(data,{allowDots:true})
 			return service.post('/Api/Report/left',data)
+		},
+		get_report_new_type(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/addBefore',data)
+		},
+		create_new_report(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/add',data)
 		}
 }
 
