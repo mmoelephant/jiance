@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
-const test = 'http://test.dlzjzy.com'
+// const test = 'http://test.dlzjzy.com'
+const test = 'http://nindex.ynbzde.com'
 // const baseURL = '/api'
 // const baseURL = '/'
 // console.log(process.env.NODE_ENV === 'development' )
@@ -9,32 +10,6 @@ const service = axios.create({ //hg
     withCredentials: false,
     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 })
-// const service1 = axios.create({ //lw
-// 	baseURL: process.env.NODE_ENV === 'development'?'/lw':test+':9220',
-//     withCredentials: false,
-//     headers: { 'Content-Type': 'application/json;charset=UTF-8' }
-// })
-// const service2 = axios.create({ //xb
-// 	baseURL: process.env.NODE_ENV === 'development'?'/xb':test+':9220',
-//     withCredentials: false,
-//     headers: { 'Content-Type': 'application/json;charset=UTF-8' }
-// })
-// const service3 = axios.create({
-// 	baseURL: process.env.NODE_ENV === 'development'?'/api':test+':9220',
-//     withCredentials: false,
-//     headers: { 'Content-Type': 'application/json;charset=UTF-8' }
-// })
-// const formser = axios.create({ //hg
-// 	baseURL: process.env.NODE_ENV === 'development'?'/api':test+':9440',
-// 	withCredentials: false,
-// 	headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-// })
-// const formser = axios.create({ //hg
-// 	baseURL: '/api',
-// 	withCredentials: false,
-// 	headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
-// })
-
 service.interceptors.response.use(
     response => {
       return response
@@ -44,51 +19,6 @@ service.interceptors.response.use(
 		// 	return Promise.reject(error)
     // }
 )
-// service1.interceptors.response.use(
-// 	response => {
-// 		return response
-// 	},
-// 	(error) => {
-// 		alert('网络错误，请稍后重试')
-// 		return Promise.reject(error)
-// 	}
-// )
-// service2.interceptors.response.use(
-// 	response => {
-// 		return response
-// 	},
-// 	(error) => {
-// 		alert('网络错误，请稍后重试')
-// 		return Promise.reject(error)
-// 	}
-// )
-// service3.interceptors.response.use(
-// 	response => {
-// 		return response
-// 	},
-// 	(error) => {
-// 		alert('网络错误，请稍后重试')
-// 		return Promise.reject(error)
-// 	}
-// )
-// formser.interceptors.response.use(
-// 	response => {
-// 		return response
-// 	},
-// 	(error) => {
-// 		alert('网络错误，请稍后重试')
-// 		return Promise.reject(error)
-// 		// console.log(
-// 		// 	'fetch',
-// 		// 	error.config.url,
-// 		// 	error.config.params,
-// 		// 	'error. error:',
-// 		// 	error
-// 		// )
-// 		// return Promise.reject(error)
-// 	}
-// )
-// export default service
 const api = {
 		get_client(data){
 			if(data) data = qs.stringify(data, { allowDots: true })
