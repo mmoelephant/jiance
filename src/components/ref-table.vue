@@ -3,11 +3,11 @@
 		<div class='ul'>
 			<div class='left'>
 				<div class='head'>
-					<div class="alllabel">
-						<el-checkbox v-show="type == 0" :label="allCheckTxt" v-model="allchecked">全选</el-checkbox>
-						<span>全选</span>
+					<div class="alllabel" v-show="type == 0">
+						<el-checkbox :label="allCheckTxt" v-model="allchecked">全选</el-checkbox>
+						<span>地区</span>
 					</div>
-					<span>{{type == 0?'地区':'材料'}}</span>
+					<span v-show="type == 1">材料</span>
 				</div>
 				<el-checkbox-group v-model="checked">
 					<div class='info' v-for="(i,index) in newdata" :key="index">
@@ -187,7 +187,7 @@ export default {
 		display flex
 		font-size 14px
 	.left 
-		width 300px
+		width 220px
 		text-align center
 		flex-shrink 0
 		position absolute
@@ -242,7 +242,7 @@ export default {
 	.right
 		height 100%
 		min-width 100%
-		padding-left 300px
+		padding-left 220px
 		box-sizing border-box
 		.head 
 			display flex

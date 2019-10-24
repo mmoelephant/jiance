@@ -49,8 +49,8 @@
     </div>
 </template>
 <script>
-import { setInterval, clearInterval } from 'timers';
-import $ from 'jquery';
+import { setInterval, clearInterval } from 'timers'
+import $ from 'jquery'
 import {datawork} from '../plugins/datawork.js'
 import {getCilentId} from '../plugins/getclientidagain'
 import {getToken} from '../plugins/gettoken.js'
@@ -93,20 +93,15 @@ export default {
     created() {
         console.log('进入到首页了')
         this.list = []
+        console.log(this.list)
         console.log(this.timer)
         clearInterval(this.timer)
         this.$store.commit('bigscreen/SET_CATE_ON', {})
         this.$store.commit('bigscreen/SET_CATE_LIST', [])
         if(localStorage.getItem('user')){
             let areanum = JSON.parse(localStorage.getItem('user')).area_code
-            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
-            if(arealen != 12){
-                for(var i = 0;i < 12-arealen;i++){
-                    areanum = areanum + '0'
-                }
-            }
-            if(areanum != '530000000000') {
-                this.areaid = Number(areanum)
+            if(areanum != 53){
+                this.areaid = areanum
             }else{
                 this.areaid = 0
             }
@@ -120,13 +115,20 @@ export default {
         t() {
             let _that = this
             _that.animate=true;    // 因为在消息向上滚动的时候需要添加css3过渡动画，所以这里需要设置true
-            setTimeout(()=>{
-                    _that.list.push(_that.list[0]);  // 将数组的第一个元素添加到数组的
-                    _that.list.shift();               //删除数组的第一个元素
-                    _that.animate=false;  // margin-top 为0 的时候取消过渡动画，实现无缝滚动
-                    _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
-                    console.log(_that.list)
-            },1000)
+            _that.list.push(_that.list[0])
+            setTimeout(() => {
+                _that.list.shift()
+                _that.animate = false
+                _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
+                console.log(_that.list)
+            },100)
+            // setTimeout(()=>{
+            //         _that.list.push(_that.list[0])
+            //         _that.list.shift()
+            //         _that.animate = false
+            //         _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
+            //         console.log(_that.list)
+            // },1000)
         },
         async get_cate() {
             let res
@@ -165,6 +167,7 @@ export default {
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
                     this.list = v.data.data.data
+                    console.log(this.list)
                     this.nowT = v.data.data.terms_name
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
                     this.$store.commit('bigscreen/SET_DISPLAY_NAME',v.data.data.areas_name)

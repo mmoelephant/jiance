@@ -602,7 +602,7 @@ export default {
         },
         handleNodeClick(data) { //选择材料
             this.checked = []
-            this.isnext = false
+            // this.isnext = false
             if(this.t == 0) { //获取材料多地区对比
                 this.chosed_cate = data
                 this.dw = data.unit

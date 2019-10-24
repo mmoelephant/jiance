@@ -43,14 +43,8 @@ export default {
     created(){
         if(localStorage.getItem('user')){
             let areanum = JSON.parse(localStorage.getItem('user')).area_code
-            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
-            if(arealen != 12){
-                for(var i = 0;i < 12-arealen;i++) {
-                    areanum = areanum + '0'
-                }
-            }
-            if(areanum != '530000000000') {
-                this.areaid = Number(areanum)
+            if(areanum != 53){
+                this.areaid = areanum
             }else{
                 this.areaid = 0
             }

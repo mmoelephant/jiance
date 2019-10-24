@@ -106,13 +106,11 @@ export default {
         //判断有误账户信息
         if(localStorage.getItem('user')){
             let areanum = JSON.parse(localStorage.getItem('user')).area_code
-            let arealen = JSON.parse(localStorage.getItem('user')).area_code.length
-            if(arealen != 12){
-                for(var i = 0;i < 12-arealen;i++){
-                    areanum = areanum + '0'
-                }
+            if(areanum != 53){
+                this.areaid = areanum
+            }else{
+                this.areaid = 0
             }
-            this.areaid = Number(areanum)
             // 当有账户信息存在的时候，用户如果不是云南省的权限，那就将对应的渲染地图要使用的数据area_map切换成用户的权限地区
             this.areaname = JSON.parse(localStorage.getItem('user')).area_name
             if(this.areaname.indexOf('>') != -1){
