@@ -1,5 +1,6 @@
 // const test = 'http://192.168.8.121'
-const test = 'http://nindex.ynbzde.com'
+// const test = 'http://nindex.ynbzde.com'
+const test = 'http://test.dlzjzy.com'
 module.exports = {
     // 选项...
     publicPath:process.env.NODE_ENV === 'development'?'':'/',

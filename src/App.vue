@@ -10,10 +10,10 @@
 							<i class='c'></i>
 							<p>数据查询</p>
 						</div>
-						<!-- <div :class='route == "/reportIndex"?"act":""' @click='$router.push("/reportIndex")'>
+						<div :class='route == "/reportIndex" || route == "/reportIndex/reportDetail"?"act":""' @click='$router.push("/reportIndex")'>
 							<i class='c1'></i>
 							<p>智能报告</p>
-						</div> -->
+						</div>
 					</div>
                 </div>
                 <div class='right'>
@@ -28,7 +28,7 @@
 					</div>
                 </div>
             </el-header>
-            <el-container style='height:100%;flex-direction:column;overflow:auto;'>
+            <el-container style='height:100%;flex-direction:column;overflow:auto'>
 				<router-view></router-view>
 				<el-footer :style="route == '/ref'?'margin-top:72px':''">
 					<!-- :style="route.name == 'ref'?'margin-top:72px;border:1px green solid':''"	 -->

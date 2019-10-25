@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
-// const test = 'http://test.dlzjzy.com'
-const test = 'http://nindex.ynbzde.com'
+const test = 'http://test.dlzjzy.com'
+// const test = 'http://nindex.ynbzde.com'
 // const baseURL = '/api'
 // const baseURL = '/'
 // console.log(process.env.NODE_ENV === 'development' )
@@ -72,6 +72,18 @@ const api = {
 		create_new_report(data){
 			if(data) data = qs.stringify(data,{allowDots:true})
 			return service.post('/Api/Report/add',data)
+		},
+		get_report_all(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/index',data)
+		},
+		get_report_list(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/search',data)
+		},
+		delete_report(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/delete',data)
 		}
 }
 

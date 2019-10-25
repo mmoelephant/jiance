@@ -1,17 +1,16 @@
 <template>
-<div style="height:auto">
+<div style="width:100%;height:100%">
     <div class="reportDetail">
-        <div class="detailLeft">
-            <!-- <a href="javascript:void(0)"><div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div></a> -->
-            <div :class="bigType == 0 ?'all allOn':'all'" @click="toggleBig(0)">全部报告</div>
-            <div :class="bigType == 1 ?'month monthOn':'month'" @click="toggleBig(1)">月度智能报告</div>
-            <div :class="bigType == 2 ?'custom customOn':'custom'" @click="toggleBig(2)">自定义报告</div>
-        </div>
         <div class="detailRight">
 			<div class="reportBtns">
-				<div class="btnClass"><span class="dotClass"></span>月度智能报告  >&nbsp<span class="navigiOn">报告详情</span></div>
+				<div class="btnClass">
+                    <span class="dotClass"></span>
+                    <span style="color:#8E9099">{{reType == 1?'智能数据报告':reType == 2?'地区对比报告':'时间对比报告'}}  >&nbsp</span>
+                    <span class="navigiOn">报告详情</span>
+                </div>
                 <div class="backBtn">
-                    返回
+                    <i class="iconfont">&#xe606;</i>
+                    <span>返回</span>
                 </div>
 			</div>
             <div class="detailBox">
@@ -88,13 +87,14 @@
 export default {
     data(){
         return {
-            bigType:0
+            reType:1
         }
     },
+    created(){
+        console.log(this.$route)
+        this.reType = this.$route.query.type
+    },
     methods:{
-        toggleBig(aa){
-            this.bigType = aa
-        }
     }
 }
 </script>
@@ -105,77 +105,20 @@ export default {
     min-height 100%
     // overflow auto
     // display flex
-.detailLeft
-    width 200px
-    height calc(100% - 78px)
-    max-height calc(100% - 78px)
-    background-color #fff
-    position fixed
-    top 78px
-    left 0
 .detailRight
-    width calc(100% - 220px)
-    height auto
-    padding-top 30px
-    box-sizing border-box
-    margin-left 220px
-.reportBtns
-    align-items center
-.all,.month,.custom
     width 100%
-    height 58px
-    background url(../../../public/img/report/all_grey.png) no-repeat 15px 15px
-    padding-left 46px
+    height auto
     box-sizing border-box
-    margin-bottom 10px
-    font-size 14px
-    color #8E9099
-    line-height 58px
-    cursor pointer
-.all:hover
-    background #F5F6FE url(../../../public/img/report/all_black.png) no-repeat 15px 15px !important
-    color #2C2D33
-.allOn
-    background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
-    font-weight bold
-.allOn:hover
-    background url(../../../public/img/report/all_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
-.month
-    background url(../../../public/img/report/month_grey.png) no-repeat 15px 15px !important
-.month:hover
-    background #F5F6FE url(../../../public/img/report/month_black.png) no-repeat 15px 15px !important
-    color #2C2D33
-.monthOn
-    background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
-    font-weight bold
-.monthOn:hover
-    background url(../../../public/img/report/month_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
-.custom
-    background url(../../../public/img/report/custom_grey.png) no-repeat 15px 15px !important
-.custom:hover
-    background #F5F6FE url(../../../public/img/report/custom_black.png) no-repeat 15px 15px !important
-    color #2C2D33
-.customOn
-    background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
-    font-weight bold
-.customOn:hover
-    background url(../../../public/img/report/custom_white.png) no-repeat 15px 15px,linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
-    color white
 .backBtn
-    padding-left 17px
-    box-sizing border-box
     margin-left 20px
     font-size 14px
     color #635EF9
     font-weight bold
     text-decoration underline
     cursor pointer
-    // background url(../../../public/img/)
+    // i
+    //     margin-right 3px
+    //     text-decoration none !important
 .backBtn:hover
     color #7f94ff
 .detailBox

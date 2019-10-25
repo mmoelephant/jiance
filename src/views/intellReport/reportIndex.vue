@@ -1,7 +1,5 @@
 <template>
-<router-view v-if='$route.name == "reportDetail"'></router-view>
-<!-- v-loading.fullscreen="loading" style="height:100%" -->
-<div style="height:auto;" v-else>
+<div style="height:100%" v-loading.fullscreen="loading">
 	<div class="intellReport">
 		<div class="inteLeft">
 			<div :class="bigType == 0?'all allOn':'all'" @click="changeToAll(0,'全部报告')">
@@ -16,268 +14,115 @@
 			</div>
 		</div>
 		<div class="inteRight">
-			<div class="reportBtns">
-				<div class="btnClass">
-					<span class="dotClass"></span>
-					<span class="navigiOn">{{ navigiOn}}</span>
-				</div>
-				<!-- <div class="viewToggle">
-					<span :class="type == 0?'view1 viewActive':'view1'" @click="choose(0)">网格显示</span>
-					<span :class="type == 1?'view2 viewActive':'view2'" @click="choose(1)">列表显示</span>
-				</div> -->
-				<div class="createBtn" v-show="bigType != 1" @click="createRe(bigType)">
-					<img src="../../../public/img/report/add.png" alt="">
-					<span>{{bigType == 2?'新建地区对比报告':bigType == 3?'新建时间对比报告':''}}</span>
-				</div>
-				<div class="search">
-					<input class="searchBox" placeholder="请输入需要检索的报告标题" v-model="searContent">
-					<div class="searchIcon" @click="goSearch"></div>
-				</div>
-			</div>
-			<div class="reportContent">
-				<div class="searchTip" v-show="searchTip">搜索
-					<span class="keyWord">{{'“' + searContent + '”'}}</span>结果如下：<a href="javascript:void(0)" class="goback" @click="goback">返回</a>
-				</div>
-				<div class="gridView" v-show="type == 0">
-					<!-- :style="viewToggle" -->
-					<!-- 月度智能报告(网格视图) -->
-					<div v-show="bigType != 2">
-						<!-- :style="allVis" -->
-						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">月度智能报告</p></el-badge>
-						<ul class="gridUl" v-show="!lazyUlVis">
-							<li class="gridListClass" v-for="item in systemReport" :key="item.id" @click="toDetail_system(item.id)">
-								<img src="../../../public/img/report/more.png" class="reportImg" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1">
-								<img src="../../../public/img/report/single.png" class="reportImg" v-else>
-								<p class="reporTitle">云南省建设工程主要材料市场价格变动情况</p>
-								<p class="reporTime">
-									<span v-if="item.timeInterval.length == 6">
-										{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,1) + '月':'-'}}
-									</span>
-									<span v-else>
-										{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,2) + '月':'-'}}
-									</span>
-								</p>
-							</li>
-						</ul>
-						<ul class="lazyUl" v-show="lazyUlVis">
-							<!-- :style="lazyUlVis"  -->
-							<li class="lazyLi"></li>
-						</ul>
-						<div class="noData" v-show="noImg">
-							<!-- :style="noImg"  -->
-							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
-							<p class="noDatap1">暂时没有报告</p>
-							<p class="noDatap2">不要着急，要不再试试~</p>
-						</div>
-						<el-pagination :page-size="pageSize1" :total="totalPage1" :pager-count="5" :current-page="pageNum1" :hide-on-single-page="true" layout="prev, pager, next" 
-						class="reportPage" @current-change="get_data1" v-show='bigType==1'>
-						</el-pagination>
+			<router-view v-if='$route.name == "reportDetail"'></router-view>
+			<div v-else>
+				<div class="reportBtns">
+					<div class="btnClass">
+						<span class="dotClass"></span>
+						<span class="navigiOn">{{ navigiOn}}</span>
 					</div>
-					<!-- 自定义报告(网格视图) -->
-					<div v-show="bigType != 1">
-						<!-- :style="allVis" -->
-						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">自定义报告</p></el-badge>
-						<div style="height:0">
-							<div class="newRe" v-show="bigType == 2" @click="openDialog">
-								<img src="../../../public/img/report/add.png">
-								<span>新建自定义报告</span>
+					<div class="createBtn" v-show="bigType == 2 || bigType == 3" @click="createRe(bigType)">
+						<img src="../../../public/img/report/add.png" alt="">
+						<span>{{bigType == 2?'新建地区对比报告':bigType == 3?'新建时间对比报告':''}}</span>
+					</div>
+					<div class="search">
+						<input class="searchBox" placeholder="请输入需要检索的报告标题" v-model="searContent" @input="searchInput($event)">
+						<div class="searchIcon" @click="goSearch"></div>
+					</div>
+				</div>
+				<div class="reportContent">
+					<div class="searchTip" v-show="searchModel">为您找到相关结果{{resultCount}}个</div>
+					<div class="conBox">
+						<div v-for="item in reportslist" :key="item.id" class="conItem" v-show="!searchModel && bigType == 0">
+							<div class="conItem_title">
+								<el-badge value="NEW" :hidden="newHidden"><p class="reporTypeTitle">{{item.name}}</p></el-badge>
+								<div class="seeMoreBtn" @click="seeMore(item.id,item.name)">查看更多 ></div>
 							</div>
-						</div>
-						<ul class="gridUl" v-show="!lazyUlVis" style="border:1px red solid">
-							<!-- <li class="gridListClass">
-								<div class="typedd">
-									<div class="reporType" @click="toDetail(item.id)">月报</div>
-									<img src="../../../public/img/report/delete.png" class="deleteIcon" @click="deleteRe(item.id)">
-								</div>
-								<img src="../../../public/img/report/more1.png" class="reportIcon" @click="toDetail(item.id)">
-								<div class="reportMateri" @click="toDetail(item.id)">
-									<span>单材料-钢材</span>
-								</div>
-								<p class="reporTitle1" @click="toDetail(item.id)">某某同报告</p>
-								<div class="timeArea">
-									<p class="reporTime" @click="toDetail(item.id)">2019-06-24</p>
-									<p class="reportarea" @click="toDetail(item.id)">昆明</p>
-								</div>
-							</li> -->
-							<li class="gridListClass" v-for="item in customReport" :key="item.id">
-								<img src="../../../public/img/report/more1.png" class="reportIcon" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1" 
-								@click="toDetail(item.id)">
-								<img src="../../../public/img/report/single1.png" class="reportIcon" v-else @click="toDetail(item.id)">
-								<!-- <a href="javascript:void(0)" v-if="item.materialClassID&&item.materialClassID.indexOf(',') != -1" @click="toDetail(item.id)"> -->
-								<!-- <a href="javascript:void(0)" v-else @click="toDetail(item.id)"> -->
-								<!-- </a> -->
-								<div :class="item.materialClassID&&item.materialClassID.indexOf(',') != -1?'reportMateri':'reportMateri reportMateri1'" 
-								@click="toDetail(item.id)">
-
-									{{item.materialClassID&&item.materialClassID.indexOf(',') != -1?item.materialName:'单材料-' + item.materialName}}
-								</div>
-								<div class="reporType" v-if="item.dataType == 1" @click="toDetail(item.id)">月报</div>
-								<div class="reporType1" v-else-if="item.dataType == 2" @click="toDetail(item.id)">季报</div>
-								<div class="reporType2" v-else @click="toDetail(item.id)">年报</div>
-								<img src="../../../public/img/report/delete.png" class="deleteIcon" @click="deleteRe(item.id)">
-								<!-- <a href="javascript:void(0)">
-									
-								</a> -->
-								<p class="reportarea" @click="toDetail(item.id)">{{item.areaName}}</p>
-								<p class="reporTitle1" @click="toDetail(item.id)">{{item.title}}</p>
-								<p class="reporTime" @click="toDetail(item.id)">{{item.createTimeStr?item.createTimeStr:'-'}}</p>
-							</li>
-						</ul>
-						<ul class="lazyUl" v-show="lazyUlVis">
-							<li class="lazyLi1"></li>
-						</ul>
-						<div class="noData" v-show="noImgCustom">
-							<!-- :style="noImgCustom"  -->
-							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
-							<p class="noDatap1">暂时没有报告</p>
-							<p class="noDatap2">不要着急，要不再试试~</p>
-						</div>
-						<el-pagination :page-size="pageSize2" :total="totalPage2" :pager-count="5" :current-page="pageNum2" :hide-on-single-page="true" 
-						layout="prev, pager, next" class="reportPage" @current-change="get_data2" v-show='bigType==2'>
-						</el-pagination>
-					</div>
-				</div>
-				<div class="listView" v-show="type == 1">
-					<!-- :style="viewToggle1" -->
-					<!-- 月度智能报告(列表视图) -->
-					<div v-show="bigType != 2">
-						<!-- :style="allVis" -->
-						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">月度智能报告</p></el-badge>
-						<ul class="listUl">
-							<li class="lisTitle">
-								<span class="titleItem titleNum">序号</span>
-								<span class="titleItem titleT">报告标题</span>
-								<span class="titleItem titleTime">创建时间</span>
-								<span class="titleItem titleDo">操作</span>
-							</li>
-							<li class="listClass" v-for="(item,index) in systemReport" :key="index">
-								<span class="listItem listNum">{{index < 9 ?"YD00" + (index + 1):"YD0" + (index+1)}}</span>
-								<span class="listItem listT" @click="toDetail_system(item.id)">
-									<a href="javascript:void(0)">
-										云南省建设工程主要材料市场价格变动情况
-										<span v-if="item.timeInterval.length == 6">
-											{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,1) + '月':'-'}}
-										</span>
-										<span v-else>
-											{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,2) + '月':'-'}}
-										</span>
-									</a>
-								</span>
-								<span class="listItem listTime">{{item.createTimeStr?item.createTimeStr:'-'}}</span>
-								<span class="listItem listDo"><a href="javascript:void(0)" @click="toDetail_system(item.id)">查看报告></a></span>	
-							</li>
-						</ul>
-						<div class="noData" v-show="noImg">
-							<!-- :style="noImg"  -->
-							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
-							<p class="noDatap1">暂时没有报告</p>
-							<p class="noDatap2">不要着急，要不再试试~</p>
-						</div>
-						<el-pagination :page-size="pageSize1" :total="totalPage1" :pager-count="5" :current-page="pageNum1" :hide-on-single-page="true" 
-						layout="prev, pager, next" class="reportPage" @current-change="get_data1">
-						</el-pagination>
-					</div>
-					<!-- 自定义报告(列表视图) -->
-					<div v-show="bigType != 1">
-						<!-- :style="allVis" -->
-						<el-badge value="new" :hidden="newHidden"><p class="reporTypeTitle">自定义报告</p></el-badge>
-						<div class="newRe" v-show="bigType == 2" @click="openDialog">
-							<img src="../../../public/img/report/add.png">
-							<span>新建自定义报告</span>
-						</div>
-						<ul class="listUl">
-							<li class="lisTitle">
-								<span class="titleItem titleNum_custom">序号</span>
-								<span class="titleItem titleT_custom">报告标题</span>
-								<span class="titleItem titleType_custom">类型
-									<span class="filterDo">
-										<a href="javascript:void(0)" class="lift" title="升序" @click="lift(0)"></a>
-										<a href="javascript:void(0)" class="down" title="降序" @click="down(0)"></a>
+							<ul class="listUl">
+								<li class="lisTitle">
+									<span class="titleItem titleNum">编号</span>
+									<span class="titleItem titleT">报告标题</span>
+									<span class="titleItem titleTime">创建时间</span>
+									<span class="titleItem titleType">报告类型</span>
+									<span class="titleItem titleDo">操作</span>
+								</li>
+								<li class="listClass" v-for="item1 in item.data" :key="item1.id">
+									<span class="listItem listNum">{{item1.sn?item1.sn:'--'}}</span>
+									<span class="listItem listT" @click="reDetail(item1.id,item.id)">{{item1.title?item1.title:'--'}}</span>
+									<span class="listItem listTime">{{item1.addtime?item1.addtime:'--'}}</span>
+									<span class="listItem listType" 
+									:style="item1.terms_type&&item1.terms_type == '月度'?'color:#EB7846':item1.terms_type == '年度'?'color:#F95E70':item1.terms_type == '季度'?'color:#4F65E1':''">
+										{{item1.terms_type?item1.terms_type:'--'}}
 									</span>
-								</span>
-								<span class="titleItem titleTime_custom">创建时间
-									<span class="filterDo" style="margin-left:32px">
-										<a href="javascript:void(0)" class="lift" title="升序" @click="lift(1)"></a>
-										<a href="javascript:void(0)" class="down" title="降序" @click="down(1)"></a>
+									<span class="listItem listDo">
+										<span class="seeDeIcon" @click="reDetail(item1.id,item.id)">查看报告</span>
+										<span class="deleteIcon" @click="deleteRe(item1.id)" v-show="item.id != 1">删除</span>
 									</span>
-								</span>
-								<span class="titleItem titleDo_custom">操作</span>
-							</li>
-							<li class="listClass" v-for="(item,index) in customReport" :key="index">
-								<span class="listItem listNum_custom">{{index < 9 ?"YD00" + (index + 1):"YD0" + (index+1)}}</span>
-								<span class="listItem listT_custom" @click="toDetail(item.id)">
-									<a href="javascript:void(0)">
-										{{item.title?item.title.substr(0,25)+'...':'-'}}
-									</a>
-								</span>
-								<span class="listItem listType_custom" v-if="item.dataType == 1">月度</span>
-								<span class="listItem listType_custom1" v-else-if="item.dataType == 2">季度</span>
-								<span class="listItem listType_custom2" v-else>年度</span>
-								<span class="listItem listTime_custom">{{item.createTimeStr?item.createTimeStr:'-'}}</span>
-								<span class="listItem listDo_custom">
-									<a href="javascript:void(0)" class="toDetail" @click="toDetail(item.id)">查看报告</a>
-									<a href="javascript:void(0)" class="deleteRe" @click="deleteRe(item.id)">删除</a>
-								</span>	
-							</li>
-						</ul>
-						<div class="noData" v-show="noImgCustom">
-							<!-- :style="noImgCustom"  -->
-							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
-							<p class="noDatap1">暂时没有报告</p>
-							<p class="noDatap2">不要着急，要不再试试~</p>
+								</li>
+							</ul>
 						</div>
-						<el-pagination :page-size="pageSize2" :total="totalPage2" :pager-count="5" :current-page="pageNum2" :hide-on-single-page="true" 
-						layout="prev, pager, next" class="reportPage" @current-change="get_data2">
-						</el-pagination>
-					</div>
-					<div v-show="resultVis">
-						<!-- :style="resultVis"  -->
-						<ul class="listUl">
-							<li class="lisTitle">
-								<span class="titleItem titleNum">编号</span>
-								<span class="titleItem titleT">报告标题</span>
-								<span class="titleItem titleTime">创建时间</span>
-								<span class="titleItem titleDo">操作</span>
-							</li>
-							<li class="listClass" v-for="(item,index) in resultReport" :key="index">
-								<span class="listItem listNum">{{index < 9 ?"YD00" + (index + 1):"YD0" + (index+1)}}</span>
-								<span class="listItem listT" @click="toDetail_system(item.id)" v-if="item.type == 1">
-									<a href="javascript:void(0)">
-										{{item.title.substr(0,item.title.indexOf(searContent))}}
+						<div class="conItem" v-show="searchModel || bigType != 0">
+							<ul class="listUl">
+								<li class="lisTitle">
+									<span class="titleItem titleNum">编号</span>
+									<span class="titleItem titleT">报告标题</span>
+									<div class="titleItem titleTime">
+										<span>创建时间</span>
+										<div class="timeFilterBox">
+											<div v-for="item in filterTimes" :key="item.id" :class="f_time_type == item.filter?'filterOn':''" 
+											@click="filterTime(item.filter)">{{item.name == ''?'全部':item.name}}</div>
+										</div>
+									</div>
+									<div class="titleItem titleType">
+										<span>报告类型</span>
+										<div class="timeFilterBox">
+											<div v-for="item in filterTypes" :key="item.id" :class="f_type == item.id?'filterOn':''" 
+											@click="filterType(item.id)">{{item.name == ''?'全部':item.name}}</div>
+										</div>
+									</div>
+									<span class="titleItem titleDo">操作</span>
+								</li>
+								<li class="listClass" v-for="item1 in reportslist1" :key="item1.id">
+									<span class="listItem listNum">{{item1.sn?item1.sn:'--'}}</span>
+									<span class="listItem listT" @click="reDetail(item1.id,bigType)" v-show="!searchModel">{{item1.title?item1.title:'--'}}</span>
+									<span class="listItem listT" @click="reDetail(item1.id,bigType)" v-show="searchModel">
+										{{item1.title?item1.title.substr(0,item1.title.indexOf(searContent)):''}}
 										<span style="color:#F2342B">{{searContent}}</span>
-										{{item.title.substr(item.title.indexOf(searContent) + searContent.length)}}
-										<span v-if="item.timeInterval.length == 6">
-											{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,1) + '月':'-'}}
-										</span>
-										<span v-else>{{item.timeInterval?item.timeInterval.substr(0,4) + '年' + item.timeInterval.substr(5,2) + '月':'-'}}</span>
-									</a>
-								</span>
-								<span class="listItem listT" @click="toDetail(item.id)" v-if="item.type == 2">
-									<a href="javascript:void(0)">
-										{{item.title.substr(0,item.title.indexOf(searContent))}}
-										<span style="color:#F2342B">{{searContent}}</span>
-										{{item.title.substr(item.title.indexOf(searContent) + searContent.length).slice(0,10)}}...
-									</a>
-								</span>
-								<span class="listItem listTime">{{item.createTimeStr?item.createTimeStr:'-'}}</span>
-								<span class="listItem listDo" v-if="item.type == 1"><a href="javascript:void(0)" @click="toDetail_system(item.id)">查看报告></a></span>	
-								<span class="listItem listDo" v-if="item.type == 2"><a href="javascript:void(0)" @click="toDetail(item.id)">查看报告></a></span>	
-							</li>
-						</ul>
-						<div class="noData" v-show="noImgResult">
-							<!-- :style="noImgResult"  -->
-							<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
-							<p class="noDatap1">暂时没有报告</p>
-							<p class="noDatap2">不要着急，要不再试试~</p>
+										{{item1.title?item1.title.substr(item1.title.indexOf(searContent) + searContent.length):''}}
+									</span>
+									<span class="listItem listTime">{{item1.addtime?item1.addtime:'--'}}</span>
+									<span class="listItem listType" 
+									:style="item1.terms_type&&item1.terms_type == '月度'?'color:#EB7846':item1.terms_type == '年度'?'color:#F95E70':item1.terms_type == '季度'?'color:#4F65E1':''">
+									{{item1.terms_type?item1.terms_type:'--'}}
+									</span>
+									<span class="listItem listDo">
+										<span class="seeDeIcon" @click="reDetail(item1.id,bigType)">查看报告</span>
+										<span class="deleteIcon" @click="deleteRe(item1.id)" v-show="bigType != 1 && !searchModel">删除</span>
+									</span>
+								</li>
+								<div class="noData" v-show="reportslist1.length == 0">
+									<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
+									<p class="noDatap1">暂时没有报告</p>
+									<p class="noDatap2">不要着急，要不再试试~</p>
+								</div>
+								<el-pagination 
+								:page-size="pageSize1" 
+								:total="totalPage1" 
+								:pager-count="5" 
+								:current-page="pageNum1" 
+								:hide-on-single-page="false" 
+								layout="prev, pager, next" 
+								class="reportPage" 
+								@current-change="get_data1">
+								<!-- v-show='bigType != 0' -->
+								</el-pagination>
+							</ul>
 						</div>
-						<el-pagination :page-size="pageSize3" :total="totalPage3" :pager-count="5" :current-page="pageNum3" :hide-on-single-page="true" 
-						layout="prev, pager, next" class="reportPage" @current-change="get_data3">
-						</el-pagination>
 					</div>
 				</div>
 			</div>
 		</div>
-		<el-dialog :title="createTitle" :visible.sync="dialogFormVisible" width="600px" class="createNewBox">
+		<el-dialog :title="createTitle" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :before-close="beforeCancel" width="600px" class="createNewBox">
 			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
 				<el-form-item label="报告类型" prop="type">
 					<el-select v-model="ruleForm.type" placeholder="请选择报告类型" @change="changeType">
@@ -287,14 +132,16 @@
   				<el-form-item label="时间选择" prop="timeInterval">
   					<!-- <el-select v-model="ruleForm.timeInterval" :placeholder="word" @change="changeTime" v-if='ruleForm.type==2'>
   						<el-option v-for="item in seasons" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
-  					</el-select>
-					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :type="timeRange" value-format='yyyy-MM' range-separator="至" 
-					:placeholder="word" v-show="ruleForm.type == 1 || ruleForm.type == ''">
-					</el-date-picker> -->
-					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :type="timeRange" value-format='yyyy-MM-dd' 
-					:placeholder="word">
-					<!-- v-show ='ruleForm.type == 3' -->
-					</el-date-picker>
+  					</el-select> -->
+					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :disabled="ruleForm.type?false:true" :type="timeType" 
+					value-format='yyyy-MM-dd' format="yyyy-MM-dd" :placeholder="word" v-show="bigType == 2 && ruleForm.type != 2"></el-date-picker>
+					<el-date-picker v-model="ruleForm.timeInterval" :disabled="ruleForm.type?false:true" :type="timeType" range-separator="至" :start-placeholder="startWord" :end-placeholder="endWord" 
+					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 3"></el-date-picker>
+					<el-date-picker class="picker" v-model="ruleForm.timeInterval" :disabled="ruleForm.type?false:true" :type="timeType" :placeholder="startWord" 
+					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker>
+					<span style="margin:0 12px" v-show="bigType == 3 && ruleForm.type == 1">至</span>
+					<el-date-picker class="picker" v-model="ruleForm.timeInterval2" :disabled="ruleForm.type?false:true" :type="timeType" :placeholder="endWord" 
+					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker>
   				</el-form-item>
   				<el-form-item label="材料类型" prop="materialType">
 					<el-select v-model="ruleForm.materialType" multiple collapse-tags placeholder="请选择材料类型">
@@ -303,8 +150,7 @@
   					</el-select>
   				</el-form-item>
   				<el-form-item label="对比地区" prop="compareRegion">
-  					<el-select v-model="ruleForm.compareRegion" multiple collapse-tags placeholder="请选择对比地区">
-						   <!-- @change="changeRegion" -->
+  					<el-select v-model="ruleForm.compareRegion" :multiple="multiChose" collapse-tags placeholder="请选择对比地区">
   						<el-option v-for="item in regions" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
   					</el-select>
   				</el-form-item>
@@ -393,7 +239,6 @@
 			</div>
 			<div class="lazyPic" :style="detaiLazy1"></div>
 		</el-dialog>
-
 		<el-dialog :visible.sync="detailDialog" width="1000px">
 			<p class="reTitle">{{detailTitle}}</p>
 			<div class="dataItem">
@@ -444,17 +289,18 @@
 </div>
 </template>
 <script>
+import $ from 'jquery'
 import {datawork} from '../../plugins/datawork.js'
 import { getToken } from '../../plugins/gettoken.js'
 export default {
 	data() {
 		return {
+			loading:false,
 			userid:'0',
 			uniquecode:'',
 			clientid:'',
-			accesstoken:'',
 			leftItems:[],
-			bigType:1,
+			bigType:0,
 			navigiOn:'全部报告',
 			dialogFormVisible: false,
 			createTitle:'新建地区对比报告',
@@ -464,7 +310,7 @@ export default {
 					{required: true, message: '请选择报告类型', trigger: 'change'}
 				],
 				timeInterval: [
-					{required: true, message: '请选择时间节点', trigger: 'change'}
+					{required: true, message: ' ', trigger: ''}
 				],
 				materialType: [
 					{required: true, message: '请选择材料类型', trigger: 'focus'}
@@ -474,13 +320,37 @@ export default {
 				]
 			},
 			word:'请选择月份',
+			startWord:'请选择开始月份',
+			endWord:'请选择结束月份',
+			timeType:'month',
 			reTypes:[],
 			materiaList:[],
 			regions:[],
+			multiChose:true,
+			reportslist:[],
+			reportslist1:[],
+			filterTimes:[
+				{id:1,name:'',filter:''},
+				{id:2,name:'按最新筛选',filter:'addtime_d'},
+				{id:3,name:'按最早筛选',filter:'addtime_a'}
+			],
+			filterTypes:[
+				{id:0,name:''},
+				{id:1,name:'年度数据报告'},
+				{id:2,name:'季度数据报告'},
+				{id:3,name:'月度数据报告'}
+			],
+			f_time_type:'',
+			f_type:0,
+			searContent:'',
+			searchModel:false,
+			resultCount:0,
+			pageSize1:10,
+			totalPage1:10,
+			pageNum1:1,
 			// type切换网格视图或列表视图
 			type:1,
-			token:this.$store.state.login.token,
-			searContent:'',
+			token:this.$store.state.login.token,	
 			// state2:'',
 			resultVis:false,
 			searchTip:false,
@@ -490,9 +360,6 @@ export default {
 			customReport:[],
 			new:'new',
 			newHidden:false,
-			pageNum1:1,
-			pageSize1:14,
-			totalPage1:14,
 			pageNum2:1,
 			pageSize2:14,
 			totalPage2:14,
@@ -509,8 +376,7 @@ export default {
 				// {id:4,name:'第四季度'},
 			],
 			timeRange:'month',
-			timeType:1,
-			loading:true,
+			// timeType:1,
 			detailDialog1:false,
 			detailDialog:false,
 			reTitle:'',
@@ -538,64 +404,28 @@ export default {
 		}
 	},
 	created(){
+		console.log(this.ruleForm.type)
+		this.userid = localStorage.getItem('userid')
+		this.uniquecode = localStorage.getItem('uniquecode')
+		this.clientid = localStorage.getItem('clientid')
 		this.get_left()
-		var data1 = {
-			pageNum:this.pageNum1,
-			pageSize:this.pageSize1,
-			token:this.token,
-			type:1,
-			dataType:1
-		}
-		var data2 = {
-			pageNum:this.pageNum2,
-			pageSize:this.pageSize2,
-			token:this.token,
-			type:2
-		}	
-		// 获取平台报告
-		this.$api.get_reports(data1).then(v => {
-			if(v.data.count != null){
-				this.lazyUlVis = false
-				this.noImg = false
-				this.systemReport = v.data.list
-				this.totalPage1 = v.data.count
-			}else{
-				this.noImg = true
-				this.lazyUlVis = false
-				this.systemReport = []
-				this.totalPage1 = 0
-			}
-			this.$nextTick(() => {
-				this.loading = false
-			})
-		})
-		this.$api.get_reports(data2).then(v => {
-			if(v.data.count != null){
-				this.noImgCustom = false
-				this.customReport = v.data.list
-				this.totalPage2 = v.data.count
-			}else{
-				this.noImgCustom = true
-				this.customReport = []
-				this.totalPage2 = 0
-			}
-		})
-		this.$api.get_area().then(res => {
-			this.regions = res.data
-		})
-		this.$api.get_cate().then(res => {
-			res.data.map( item=> {
-				item.childrenList.map(aa => {
-					this.material.push(aa)
-				})
-			})
-		})
+		this.getReportAll()
 	},
 	mounted() {
-    },
+        const input = $('input')[0]
+        // this.isSupportPlaceholder =  'placeholder' in input
+		const that = this
+		document.onkeydown = function(e) {
+			var keycode = document.all ? event.keyCode : e.which;
+			if (keycode == 13) {
+				that.goSearch()
+				return false;
+			}
+		}
+	},
 	methods:{
 		get_left(){
-			console.log(this.$store.state.login.commonParam)
+			this.loading = true
 			let data = {}
 			let data1 = {}
 			let commondata = {}
@@ -605,11 +435,6 @@ export default {
 			for(var i in commondata){
 				data[i] = commondata[i]
 			}
-			this.userid = localStorage.getItem('userid')
-			this.uniquecode = localStorage.getItem('uniquecode')
-			this.clientid = localStorage.getItem('clientid')
-			this.accesstoken = localStorage.getItem('accesstoken')
-
 			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
 			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
 			if(this.userid){
@@ -623,13 +448,13 @@ export default {
 			if(this.clientid && this.clientid.length > 0){
 				data.client_id = this.clientid
 			}
-			if(this.accesstoken && this.accesstoken.length > 0){
-				data.access_token = this.accesstoken
+			if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+				data.access_token = localStorage.getItem('accesstoken')
 			}
 			data1 = datawork(data)
 			this.$api.get_report_left(data1).then(v => {
-				console.log(v)
 				if(v.data.errcode == 0){
+					this.loading = false
 					this.leftItems = v.data.data.data
 				}else if(v.data.errcode == 1104){
 					let _that = this
@@ -638,24 +463,43 @@ export default {
 						if(localStorage.getItem('tokenDone')){
 							_that.get_left()
 						}
-					}, 1000);
+					}, 1000)
+				}else{
+
 				}
 			})
 		},
 		changeToAll(aa,bb){
 			this.bigType = aa
 			this.navigiOn = bb
+			this.searchModel = false
+			this.searContent = ''
+			this.$router.push({name:'reportIndex'})
 		},
 		toggleBigType(aa){
 			this.bigType = aa.id
 			this.navigiOn = aa.name
+			this.searchModel = false
+			this.searContent = ''
+			this.$router.push({name:'reportIndex'})
 			if(aa.id == 2){
 				this.createTitle = '新建地区对比报告'
 			}else if(aa.id == 3){
 				this.createTitle = '新建时间对比报告'
 			}
 		},
+		seeMore(aa,bb){
+			this.bigType = aa
+			this.navigiOn = bb
+			this.f_time_type = ''
+			this.f_type = 0
+		},
 		createRe(aa){
+			if(aa == 2){
+				this.multiChose = true
+			}else{
+				this.multiChose = false
+			}
 			let data = {}
 			let data2 = {}
 			let commondata = {}
@@ -678,14 +522,14 @@ export default {
 			if(this.clientid && this.clientid.length > 0){
 				data.client_id = this.clientid
 			}
-			if(this.accesstoken && this.accesstoken.length > 0){
-				data.access_token = this.accesstoken
+			if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+				data.access_token = localStorage.getItem('accesstoken')
 			}
 			data.type = aa
 			data2 = datawork(data)
 			this.$api.get_report_new_type(data2).then(v => {
-				this.dialogFormVisible = true
 				console.log(v)
+				this.dialogFormVisible = true
 				if(v.data.errcode == 0){
 					this.materiaList = v.data.data.categoryData
 					this.regions = v.data.data.areasData
@@ -698,11 +542,32 @@ export default {
 							_that.createRe()
 						}
 					}, 1000);
+				}else{
+
 				}
 			})
 		},
 		changeType(vv){
 			console.log(vv)
+			if(this.bigType == 2){
+				if(vv == 1){
+					this.word = "请选择年份"
+					this.timeType = 'year'
+				}else if(vv == 3){
+					this.word = '请选择月份'
+					this.timeType = 'month'
+				}
+			}else if(this.bigType == 3){
+				if(vv == 1){
+					this.startWord = "请选择开始年份"
+					this.endWord = '请选择结束年份'
+					this.timeType = 'year'
+				}else if(vv == 3){
+					this.startWord = '请选择开始月份'
+					this.endWord = '请选择结束月份'
+					this.timeType = 'monthrange'
+				}
+			}
 			// if(vv == 1){
 			// 	this.season.display = 'none'
 			// 	this.timeRange = 'month'
@@ -722,13 +587,14 @@ export default {
 			// 	this.timeType = 3
 			// }
 		},
-		changeTime(){
-			// this.ruleFormName()
+		changeTime(vv){
+			console.log(vv)
+			this.ruleForm.timeInterval = vv
 		},
 		createNewNow(formName) {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
-					console.log(this.ruleForm)
+					this.loading = true
 					let data = {}
 					let data2 = {}
 					let commondata = {}
@@ -751,8 +617,8 @@ export default {
 					if(this.clientid && this.clientid.length > 0){
 						data.client_id = this.clientid
 					}
-					if(this.accesstoken && this.accesstoken.length > 0){
-						data.access_token = this.accesstoken
+					if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+						data.access_token = localStorage.getItem('accesstoken')
 					}
 					data.type = this.bigType
 					data.terms_type = this.ruleForm.type
@@ -762,19 +628,28 @@ export default {
 						data.terms = this.ruleForm.timeInterval
 					}
 					if(this.bigType == 3){
-						data.start_terms = this.ruleForm.timeInterval
-						data.end_terms = this.ruleForm.timeInterval
+						if(this.ruleForm.type == 3){
+							data.start_terms = this.ruleForm.timeInterval[0]
+							data.end_terms = this.ruleForm.timeInterval[1]
+						}else if(this.ruleForm.type == 1){
+							console.log(this.ruleForm.timeInterval2)
+							data.start_terms = this.ruleForm.timeInterval
+							data.end_terms = this.ruleForm.timeInterval2
+						}
 					}
 					data2 = datawork(data)
 					this.$api.create_new_report(data2).then(v => {
-						console.log(v)
 						if(v.data.errcode == 0){
+							this.loading = false
 							this.dialogFormVisible = false
+							this.searContent = ''
+							this.searchModel = false
 							this.$refs[formName].resetFields()
 							this.$message({
 								type:'success',
 								message:'创建成功！'
 							})
+							this.getReportList()
 						}else if(v.data.errcode == 1104){
 							let _that = this
 							getToken(commondata)
@@ -784,359 +659,224 @@ export default {
 								}
 							}, 1000);
 						}else{
+							this.loading = false
 							this.$message({
 								type:'error',
 								message:'创建失败！'
 							})
 						}
 					})
-					// this.$api.add_report(data8).then(v =>{
-					// 	if(v.data.msg == 'success'){
-					// 		this.dialogFormVisible = false
-					// 		this.$refs[formName].resetFields()
-					// 		this.$api.get_reports(data11).then(v => {
-					// 			if(v.data.count != null){
-					// 				// this.noImgCustom.display = 'none'
-					// 				this.noImgCustom = false
-					// 				this.customReport = v.data.list
-					// 				this.totalPage2 = v.data.count
-					// 				this.$message({
-					// 					type: 'success',
-					// 					message: '创建成功!'
-					// 				})
-					// 			}else{
-					// 				// this.noImgCustom.display = 'block'
-					// 				this.noImgCustom = true
-					// 				this.customReport= []
-					// 				this.totalPage2 = 0
-					// 				this.$message({
-					// 					type: 'info',
-					// 					message: '重新加载失败!'
-					// 				})
-					// 			}
-					// 		})
-					// 	}else{
-					// 		this.dialogFormVisible = false
-					// 		this.$refs[formName].resetFields()
-					// 		this.openTip1()
-					// 	}
-					// })
 				} else {
+					this.loading = false
 					console.log('error submit!!');
 					return false;
 				}
 			});
 		},
-		// toggleBig:function(aa,bb){
-		// 	this.bigType = aa
-		// 	this.navigiOn = bb
-		// 	if(aa == 0){
-		// 		this.newHidden = false
-		// 	}else{
-		// 		this.newHidden = true
-		// 	}
-		// },
-		// choose:function(status){
-		// 	this.type = status
-		// },
-		goSearch(){
-			this.resultReport = []
-			this.type = 1
-			this.resultVis = true
+		getReportAll(){
 			this.loading = true
-			var data17 = {
-				pageNum:this.pageNum3,
-				pageSize:this.pageSize3,
-				token:this.token,
-				title:this.searContent	
+			let data = {}
+			let data2 = {}
+			let commondata = {}
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commondata = this.$store.state.login.commonParam
 			}
-			this.$api.get_reports(data17).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					this.searchTip = true
-					this.noImgResult = false
-					this.resultReport = v.data.list
-					this.totalPage3 = v.data.count
+			for(var i in commondata){
+				data[i] = commondata[i]
+			}
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			if(this.userid){
+				data.user_id = this.userid
+			}else{
+				data_user_id = '0'
+			}
+			if(this.uniquecode){
+				data.unique_code = this.uniquecode
+			}
+			if(this.clientid && this.clientid.length > 0){
+				data.client_id = this.clientid
+			}
+			if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+				data.access_token = localStorage.getItem('accesstoken')
+			}
+			data2 = datawork(data)
+			this.$api.get_report_all(data2).then(v => {
+				console.log(v)
+				if(v.data.errcode == 0){
+					this.loading = false
+					this.reportslist = v.data.data.data
+				}else if(v.data.errcode == 1104){
+					let _that = this
+					getToken(commondata)
+					setTimeout(() => {
+						if(localStorage.getItem('tokenDone')){
+							_that.getReportAll()
+						}
+					}, 1000)
 				}else{
-					this.searchTip = true
-					this.noImgResult = true
-					this.resultReport = []
-					this.totalPage3 = 0
 				}
 			})
 		},
-		goback(){
+		getReportList(){
 			this.loading = true
-			this.type = 0
-			this.resultReport = []
-			this.resultVis = false
-			this.searchTip = false
-			this.noImgResult = false
-			this.searContent = ''
-			this.loading = false
-		},
-		get_data1(val) {
-			this.pageNum1 = val
-			var data5 = {
-				pageNum:val,
-				pageSize: this.pageSize1,
-				token:this.token,
-				type:1,
-				dataType:1
+			let data = {}
+			let data2 = {}
+			let commondata = {}
+			if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+				commondata = this.$store.state.login.commonParam
 			}
-			this.loading = true
-			this.$api.get_reports(data5).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					this.noImg = false
-					this.systemReport = v.data.list
-					this.totalPage1 = v.data.count
+			for(var i in commondata){
+				data[i] = commondata[i]
+			}
+			data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+			data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+			if(this.userid){
+				data.user_id = this.userid
+			}else{
+				data_user_id = '0'
+			}
+			if(this.uniquecode){
+				data.unique_code = this.uniquecode
+			}
+			if(this.clientid && this.clientid.length > 0){
+				data.client_id = this.clientid
+			}
+			if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+				data.access_token = localStorage.getItem('accesstoken')
+			}
+			if(this.bigType == 0){
+			}else{
+				data.type = this.bigType
+			}
+			if(this.f_time_type && this.f_time_type != ''){
+				data.so = this.f_time_type
+			}
+			if(this.f_type){
+				data.terms_type = this.f_type
+			}
+			if(this.searContent){
+				data.keyword = this.searContent
+			}
+			if(this.pageNum1 == 1){
+
+			}else{
+				data.p = this.pageNum1
+			}
+			data2 = datawork(data)
+			this.$api.get_report_list(data2).then(v => {
+				console.log(v)
+				if(v.data.errcode == 0){
+					this.loading = false
+					this.reportslist1 = v.data.data.data
+					this.totalPage1 = Number(v.data.data.count)
+					this.resultCount = Number(v.data.data.count)
+				}else if(v.data.errcode == 1104){
+					let _that = this
+					getToken(commondata)
+					setTimeout(() => {
+						if(localStorage.getItem('tokenDone')){
+							_that.getReportList()
+						}
+					}, 1000)
 				}else{
-					this.noImg = true
-					this.systemReport = []
-					this.totalPage1 = 0
+
 				}
 			})
 		},
-		get_data2(val){
-			this.pageNum2 = val
-			var data6 = {
-				pageNum:val,
-				pageSize:this.pageSize2,
-				token:this.token,
-				type:2
-			}
-			this.loading = true
-			this.$api.get_reports(data6).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					this.noImgCustom = false
-					this.customReport = v.data.list
-					this.totalPage2 = v.data.count
-				}else{
-					// this.noImgCustom.display = 'block'
-					this.noImgCustom = true
-					this.customReport= []
-					this.totalPage2 = 0
-				}
-			})
+		filterTime(aa){
+			this.pageNum1 = 1
+			this.f_time_type = aa
+			this.getReportList()		
 		},
-		get_data3(val){
-			this.pageNum3 = val
-			var data18 = {
-				pageNum:val,
-				pageSize:this.pageSize3,
-				token:this.token,
-			}
-			this.loading = true
-			this.$api.get_reports(data18).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					this.noImgResult = false
-					this.resultReport = v.data.list
-					this.totalPage3 = v.data.count
-				}else{
-					this.noImgResult.display = 'block'
-					this.noImgResult = true
-					this.resultReport= []
-					this.totalPage3 = 0
-				}
-			})
+		filterType(aa){
+			this.pageNum1 = 1
+			this.f_type = aa
+			this.getReportList()
 		},
-		deleteRe(dd){
-			var data9 = {
-				id:dd
-			}
-			var data10 = {
-				pageNum:this.pageNum2,
-				pageSize:this.pageSize2,
-				token:this.token,
-				type:2
-			}
-			var data12 = {
-				pageSize:14,
-				token:this.token,
-				type:2
-			}
+		reDetail(aa,bb){
+			// this.$router.push({name:'reportDetail',query:{type:bb}})
+		},
+		deleteRe(aa){
 			this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				this.$api.delete_report(data9).then(v => {
-					if(v.data.msg == 'success'){
-						this.$api.get_reports(data10).then(v => {
-							if(v.data.count != null){
-								this.noImgCustom = false
-								this.customReport = v.data.list
-								this.totalPage2 = v.data.count
-								this.$message({
-									type: 'success',
-									message: '删除成功!'
-								})
-							}else{
-								this.$api.get_reports(data12).then(v => {
-									if(v.data.count != null){
-										this.noImgCustom = false
-										this.customReport = v.data.list
-										this.totalPage2 = v.data.count
-										this.$message({
-											type:'success',
-											message:'删除成功！'
-										})
-									}else{
-										this.noImgCustom = true
-										this.customReport = []
-										this.totalPage2 = 0
-										this.$message({
-											type:'info',
-											message:'获取失败！'
-										})
-									}
-								})
-							}
-						})
-					}else{
+				this.loading = true
+				let data = {}
+				let data2 = {}
+				let commondata = {}
+				if(this.$store.state.login.commonParam && this.$store.state.login.commonParam.agent){
+					commondata = this.$store.state.login.commonParam
+				}
+				for(var i in commondata){
+					data[i] = commondata[i]
+				}
+				data.nonce_str = new Date().getTime() + "" + Math.floor(Math.random()*899 +100)
+				data.timestamp = Math.round(new Date().getTime() / 1000).toString()
+				if(this.userid){
+					data.user_id = this.userid
+				}else{
+					data_user_id = '0'
+				}
+				if(this.uniquecode){
+					data.unique_code = this.uniquecode
+				}
+				if(this.clientid && this.clientid.length > 0){
+					data.client_id = this.clientid
+				}
+				if(localStorage.getItem('accesstoken') && localStorage.getItem('accesstoken').length > 0){
+					data.access_token = localStorage.getItem('accesstoken')
+				}
+				data.id = Number(aa)
+				data2 = datawork(data)
+				this.$api.delete_report(data2).then(v => {
+					if(v.data.errcode == 0){
+						this.loading = false
+						// this.f_time_type = ''
+						// this.f_type = 0
 						this.$message({
-							type: 'error',
-							message: '删除失败!'
+							type:'success',
+							message:'删除成功！'
 						})
+						if(this.bigType == 0){
+							this.getReportAll()
+						}else{
+							this.getReportList()
+						}
+					}else if(v.data.errcode == 1104){
+						let _that = this
+						getToken(commondata)
+						setTimeout(() => {
+							if(localStorage.getItem('tokenDone')){
+								_that.deleteRe()
+							}
+						}, 1000)
+					}else{
+
 					}
 				})
 			}).catch(() => {
 				this.$message({
-					type: 'info',
-					message: '已取消删除'
+					type:'info',
+					message:'已取消删除！'
 				})
 			})
 		},
-		toDetail(aa){
-			this.detailDialog1 = true
-			var data13 = {
-				id:aa,
-				token:this.token
-			}
-			this.$api.get_reports_detail(data13).then(v =>{
-				this.reTitle = v.data.data.title
-				this.detaiLazy1.display = 'none'
-				this.reportDetailList = v.data.data.mapList
-				this.time1 = v.data.data.timeInterval
-				this.$nextTick(() => {
-					this.reportDetailList.forEach((item,index) => {
-						this.drawGraph(item,index)
-						this.drawGraph1(item,index)
-					})
-				
-				})
-			})
+		goSearch(){
+			this.f_time_type = ''
+			this.f_type = 0
+			this.searchModel = true
+			this.reportslist = []
+			this.pageNum1 = 1
+			this.getReportList()
 		},
-		toDetail_system(cc){
-			this.detailDialog = true
-			var data14 = {
-				id:cc,
-				token:this.token
-			}
-			this.$api.get_reports_detail(data14).then(v =>{
-				v.data.data.dataList.map(item => {
-					item.mm.map(m => {
-					switch(m.maName){
-						case '钢筋':
-							m.munit = '吨'
-						break;
-						case '钢板':
-							m.munit = '吨'
-						break;
-						case '钢管':
-							m.munit = '吨'
-						break;
-						case '型钢':
-							m.munit = '吨'
-						break;
-						case '钢绞线':
-							m.munit = '千克'
-						break;
-						case '钢丝绳':
-							m.munit = '千克'
-						break;
-						case '水泥':
-							m.munit = '吨'
-						break;
-						case '建筑用砂':
-							m.munit = '立方米'
-						break;
-						case '砌体材料':
-							m.munit = '吨'
-						break;
-						case '建筑用石':
-							m.munit = '立方米'
-						break;
-						case '轻骨料':
-							m.munit = '立方米'
-						break;
-						case '地基用材':
-							m.munit = '立方米'
-						break;
-						case '混凝土':
-							m.munit = '立方米'
-						break;
-						case '建筑砂浆':
-							m.munit = '立方米'
-						break;
-						case '电力电缆':
-							m.munit = '米'
-						break;
-						case '电气装备用电线电缆':
-							m.munit = '米'
-						break;
-						case '其他电气材料':
-							m.munit = '米'
-							m.maName = '其他电力材料'
-						break;
-						case '非金属管':
-							m.munit = '米'
-						break;
-						case '复合管':
-							m.munit = '米'
-						break;
-						case '金属管':
-							m.munit = '吨'
-						break;
-						case '防水卷材':
-							m.munit = '平方米'
-						break;
-						case '防水涂料':
-							m.munit = '千克'
-						break;
-						case '防水砂浆':
-							m.munit = '吨'
-						break;
-						case '特种琉璃':
-							m.munit = '平方米'
-							m.maName = '特种玻璃'
-						break;
-						case '混凝土管':
-							m.munit = '米'
-						break;
-						case '混凝土预制桩':
-							m.munit = '米'
-						break;
-					}
-					})					
-				})
-				this.reportDetailList1 = v.data.data.dataList
-				this.detaiLazy.display = 'none'
-				this.detailTitle = '云南省建设工程主要材料市场价格变动情况' + '(' + v.data.data.year.toString() + '年' + v.data.data.month.toString() + '月' + ')'
-				this.time3 = v.data.data.year.toString() + '年' + v.data.data.month.toString() + '月'
-				this.riseNum = v.data.data.rise
-				this.descendNum = v.data.data.descend
-				this.unbiasedNum = v.data.data.unbiased
-				this.noDataMsg = v.data.msg
-				if( v.data.data.month == 1){
-					this.time2 = (v.data.data.year - 1).toString() + '年12月'
-				}else{
-					this.time2 = v.data.data.year.toString() + '年' + (v.data.data.month - 1).toString() + '月'
-				}
-			})
+		searchInput(event){
+		},
+		get_data1(val) {
+			this.pageNum1 = val
+			this.getReportList()
 		},
 		drawGraph(aa,bb){
 			if(aa.mm=='暂无数据') return 
@@ -1266,104 +1006,69 @@ export default {
 			}
 			mycharts1.setOption(option,true)
 		},
-		lift(aa){
-			var data22 = {
-				pageNum:this.pageNum2,
-				pageSize:this.pageSize2,
-				token:this.token,
-				type:2,
-				orderType:aa,
-				orderWay:1
-			}
-			this.loading = true
-			this.$api.get_reports(data22).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					// this.noImgCustom.display = 'none'
-					this.noImgCustom = false
-					this.customReport = v.data.list
-					this.totalPage2 = v.data.count
-					this.$message({
-						type:'success',
-						message:'排序成功'
-					})
-				}else{
-					// this.noImgCustom.display = 'block'
-					this.noImgCustom = true
-					this.customReport = []
-					this.totalPage2 = 0	
-					this.$message({
-						type:'error',
-						message:'暂未获取到数据'
-					})
-				}
-			})
-		},
-		down(aa){
-			var data22 = {
-				pageNum:this.pageNum2,
-				pageSize:this.pageSize2,
-				token:this.token,
-				type:2,
-				orderType:aa,
-				orderWay:0
-			}
-			this.loading = true
-			this.$api.get_reports(data22).then(v => {
-				this.loading = false
-				if(v.data.count != null){
-					// this.noImgCustom.display = 'none'
-					this.noImgCustom = false
-					this.customReport = v.data.list
-					this.totalPage2 = v.data.count
-					this.$message({
-						type:'success',
-						message:'排序成功'
-					})
-				}else{
-					// this.noImgCustom.display = 'block'
-					this.noImgCustom = true
-					this.customReport = []
-					this.totalPage2 = 0	
-					this.$message({
-						type:'error',
-						message:'暂未获取到数据'
-					})
-				}
-			})
-		},
-		openDialog(){
-			this.dialogFormVisible = true
-		},
-		openTip(){
-			this.$message({
-				showClose:true,
-				message:'创建成功！',
-				type:'success',
-				duration:2000				
-			})
-		},
-		openTip1(){
-			this.$message({
-				showClose:true,
-				message:'创建失败！',
-				type:'error',
-				duration:2000				
-			})
-		},
 		cancleNewReport(formName){
-			this.dialogFormVisible = false
-			this.$refs[formName].resetFields();
+			this.$confirm('此操作将清空您做出的选择, 是否继续?', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			}).then(() => {
+				this.dialogFormVisible = false
+				this.$refs[formName].resetFields();			
+			}).catch(() => {
+				this.$message({
+					type:'info',
+					message:'已取消！'
+				})
+			})
 		},
-    }
+		beforeCancel(formName){
+			this.$confirm('此操作将清空您做出的选择, 是否继续?', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			}).then(() => {
+				this.dialogFormVisible = false
+				this.$refs['ruleForm'].resetFields();			
+			}).catch(() => {
+				this.$message({
+					type:'info',
+					message:'已取消！'
+				})
+			})
+		}
+	},
+	watch:{
+		bigType(val){
+			if(val ==0){
+				this.reportslist1 = []
+				this.getReportAll()
+			}else{
+				this.reportslist = []
+				this.pageNum1 = 1
+				this.getReportList()
+			}
+		},
+		searContent(val){
+			if(val == ''){
+				this.searchModel = false
+				if(this.bigType == 0){
+					this.getReportAll()
+				}else{
+					this.pageNum1 = 1
+					this.getReportList()
+				}
+			}else{
+
+			}
+		}
 	}
+}
 // }
 </script>
-
 <style lang="stylus" scoped>
 .intellReport
 	width 100%
-	height auto
+	height 100%
 	min-height 100%
 	overflow auto
 	// display flex
@@ -1390,43 +1095,20 @@ export default {
 		font-size 20px
 	span.whatRe
 		font-size 14px
-
 .all:hover
 	color #2C2D33
-
 .allOn
 	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 	font-weight bold
-
 .allOn:hover
 	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
-
 .inteRight
 	width calc(100% - 220px)
 	padding-top 30px
 	box-sizing border-box
 	margin-left 220px
-
-.searchTip
-	margin-bottom 30px
-	font-size 20px
-
-.keyWord
-	color #F2342B
-
-.goback
-	margin-left 20px
-	color #454EFF
-	text-decoration underline
-
-.goback:hover
-	margin-left 20px
-	color #676efe
-.view1,.view2
-	cursor pointer
-
 .search
 	width 460px
 	height 38px
@@ -1435,7 +1117,6 @@ export default {
 	margin-left 156px
 	display flex
 	// position relative
-
 .searchBox
 	width calc(100% - 58px)
 	height 38px
@@ -1450,7 +1131,6 @@ export default {
 	color #CBCED8
 :-ms-input-placeholder/*Internet Explorer 10+*/
 	color #CBCED8
-
 .searchIcon
 	width 58px
 	height 38px
@@ -1459,455 +1139,385 @@ export default {
 	cursor pointer
 .searchIcon:hover
 	background-color #fe9b78
-
+.searchTip
+	font-size 12px
 .reportContent
 	width 100%
-	padding 40px 0
+	padding 30px 20px 0 0
 	box-sizing border-box
-	font-size 14px
-	color #333
+	// 这里声明了主要内容的字体大小
+	font-size 12px
+	color #8E9099
 	line-height 14px
-
+.conItem_title
+	display flex
+	align-items center
 .reporTypeTitle
 	font-size 20px
 	color #000
 	line-height 20px
-
-.newRe
-	width 154px
-	height 24px
-	background #8B78FE
-	padding-left 12px
-	border 1px solid #6C56F5
-	box-sizing border-box
-	border-radius 14px
-	color #fff
-	position relative
-	top -20px
-	left 118px
-	display flex
-	align-items center
-	cursor pointer
-	span
-		margin-left 6px
-.newRe:hover
-	background-color #9f8ffe
-// .newRe1
-// 	display none
-
-.gridUl
-	padding 20px 10px
-	box-sizing border-box
-	display flex
-	flex-wrap wrap
-
-.lazyUl
-	padding 20px 10px
-	box-sizing border-box
-	display flex
-	flex-direction row
-	flex-wrap wrap
-	justify-content flex-start
-
-.lazyLi
-	width 208px
-	height 240px
-	background url(../../../public/img/report/lazyImg2.png) no-repeat center
-	border-radius 8px
-	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
-	margin-right 20px
-	margin-bottom 20px
-
-.lazyLi1
-	width 208px
-	height 240px
-	background url(../../../public/img/report/lazyImg3.png) no-repeat center
-	border-radius 8px
-	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
-	margin-right 20px
-	margin-bottom 20px
-	
-.systemVis
-	display none
-
-.customVis
-	display none
-
-.newVis
-	display none
-
-.gridListClass
-	width 208px
-	height 240px
-	background-color #ffffff
-	border-radius 8px
-	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
-	margin-right 20px
-	margin-bottom 20px
-	cursor pointer
-	display flex
-	flex-direction column
-	transition all .2s
-
-.gridListClass:hover
-	background-color #E8EBF9
-	margin-top -10px
-
-.gridListClass:nth-child(6n)
-	margin-right 0
-
-.gridListClass:hover .deleteIcon
-	display block
-
-.reportImg
-	width 116px
-	height 116px
-	margin 30px auto 8px auto
-.reportIcon
-	width 116px
-	height 116px
-	margin 13px auto 2px auto
-
-.deleteIcon
-	width 20px
+.seeMoreBtn
+	width 82px
 	height 20px
-	display none
-.reportMateri
-	display flex
-	span
-		max-width 170px
-		background-color #2B94FE
-		padding 0 6px
-		border-radius 4px
-		box-sizing border-box
-		margin 0 10px
-		color #fff
-		line-height 18px
-		white-space nowrap
-		text-overflow ellipsis
-		overflow hidden
-
-.reportMateri1
-	background-color #FEAC2B!important
-
-.typedd
-	display flex
-	align-items center
-	justify-content space-between
-	padding 0 10px
-	box-sizing border-box
-	margin-top 10px
-.reporType
-	width 46px
-	height 18px
-	background #F83B5F
-	border 1px solid #D9193D
-	box-sizing border-box
-	border-radius 9px
-	color #fff
-	line-height 17px
-	text-align center
-.reporType1
-	width 46px
-	height 18px
-	background #643BF8
-	border 1px solid #4B22E0
-	box-sizing border-box
-	border-radius 9px
-	line-height 18px
-	text-align center
-.reporType2
-	width 46px
-	height 18px
-	background #52B4FF
-	border 1px solid #1184DC
-	box-sizing border-box
-	border-radius 9px
-	line-height 18px
-	text-align center
-.reportarea
-	width 70px
-	height 12px
-	color #8E9099
-	line-height 12px
-	text-align right
-	overflow hidden
-	text-overflow ellipsis
-	white-space nowrap
-
-.reporTitle
-	max-height 40px
-	padding 0 16px 0 10px
-	box-sizing border-box
-	line-height 20px
-	overflow hidden
-	text-overflow ellipsis
-
-.reporTitle1
-	padding 0 14px 0 10px
-	box-sizing border-box
-	margin 10px 0
-	line-height 14px
-	overflow hidden
-	text-overflow ellipsis
-	white-space nowrap
-
-.timeArea
-	display flex
-	align-items center
-	justify-content space-between
-	padding 0 10px
-	box-sizing border-box
-
-.reporTime
+	background #6389FB
+	border-radius 10px
+	margin-left 60px
 	font-size 12px
-	color #999999
-	overflow hidden
-	text-overflow ellipsis
-	white-space nowrap
-
-.reportPage
-	padding 0
-	padding-right 80px
-	box-sizing border-box
-	margin-bottom 50px
-	text-align right
-
+	color #fff
+	cursor pointer
+	line-height 20px
+	text-align center
+.seeMoreBtn:hover
+	background #7f94ff
 .listUl
-	padding 20px 10px
-	border 1px red solid
+	padding 20px 0
 	box-sizing border-box
 	display flex
 	flex-direction column
-	flex-wrap wrap
+	// flex-wrap wrap
 	text-align center
-
 .lisTitle
 	width 100%
 	height 36px
 	background-color #fff
-	border-radius 8px
+	border-radius 4px
 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
 	margin-bottom 10px
-	color #5C5D62
-	line-height 36px
+	font-weight bold
 	display flex
-
-.titleItem
-	display inline-block
-
+	align-items center
 .titleNum
-	width 10%
+	width 13%
 .titleT
-	width 45%
-.titleTime
-	width 35%
-.titleDo
-	width 10%
-
-.titleNum_custom
-	width 10%
-.titleT_custom
 	width 40%
-
-.titleType_custom
-	width 10%
+.titleTime,.titleType
+	width 15%
 	position relative
-
-.titleTime_custom
-	width 24%
-	position relative
-
-.filterDo
-	position absolute
-	top 0
-	left 50%
-	margin-left 16px
-
-.lift
-	display block
-	width 18px
-	height 18px
-	background url(../../../public/img/report/normal.png) no-repeat left bottom
-
-.lift:hover
-	background url(../../../public/img/report/hover.png) no-repeat left bottom
-
-.down
-	display block
-	width 20px
-	height 18px
-	background url(../../../public/img/report/normal1.png) no-repeat left top
-
-.down:hover
-	background url(../../../public/img/report/hover1.png) no-repeat left top
- 
-.titleDo_custom
-	width 16%
-
+	span
+		background url(../../../public/img/report/filterIcon1.png) no-repeat right center
+		background-size 7px
+		padding-right 11px
+		box-sizing border-box
+		line-height 36px
+		cursor pointer
+	span:hover
+		background-image url(../../../public/img/report/filterIcon.png)
+	.timeFilterBox
+		width 108px
+		background #fff
+		padding 12px 0
+		box-sizing border-box
+		box-shadow 0px 2px 8px 0px rgba(79,101,255,0.24)
+		border-radius 4px
+		display none
+		position absolute
+		top 26px
+		left 50%
+		margin-left -54px
+		font-weight normal
+		line-height 32px
+		transition display 0.5s
+		>div
+			cursor pointer
+		div:hover
+			color #5C5D62
+		.filterOn
+			background #E9ECFE
+			color #635EF9
+.titleTime:hover,.titleType:hover
+	.timeFilterBox
+		display block	
+.titleType
+	width 15% !important
+.titleDo
+	width 17%
 .listClass
 	width 100%
 	height 48px
 	background-color #fff
-	border-radius 8px
+	border-radius 4px
 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
 	margin-bottom 20px
-	line-height 48px
 	display flex
-	flex-direction row
-	flex-wrap nowrap
-	justify-content flex-start
+	align-items center
 	transition background-color 0.1s
-
 .listClass:hover
 	background-color #D3D8F4
-
 .listItem
-	display inline-block
-	padding 0 6px
+	// padding 0 6px
 	white-space nowrap
 	text-overflow ellipsis
 	overflow hidden
-
 .listNum
-	width 10%
-	color #8E9099
+	width 13%
 .listT
-	width 45%
-	color #2C2D33
-	a
-		color #2c2d33
-	a:hover
-		color #7f94ff
-
-.listTime
-	width 35%
-	color #8E9099
-.listDo
-	width 10%
-	color #454EFF
-	a
-		color #454EFF
-	a:hover
-		color #7f94ff
-
-.listNum_custom
-	width 10%
-	color #8E9099
-.listT_custom
 	width 40%
 	color #2C2D33
-	a
-		color #2c2d33
-	a:hover
-		color #7f94ff
-
-.listType_custom
-	width 10%
-	color #F83B5F
-.listType_custom1
-	width 10%
-	color #643BF8
-.listType_custom2
-	width 10%
-	color #52B4FF
-
-.listTime_custom
-	width 24%
-	color #8E9099
-
-.listDo_custom
-	width 16%
-	color #454EFF
-	a
-		padding 0 12px
-
-.toDetail
-	border-right 1px solid #8E9099
-	box-sizing border-box
-	color #454EFF
-.toDetail:hover
-	color #7f94ff
-
-.deleteRe
-	color #FF7437
-.deleteRe:hover
-	color #fc9d74
-
+	cursor pointer
+.listTime
+	width 15%
+.listType
+	width 15%
+	color #5C5D62
+.listDo
+	width 17%
+	color #5C5D62
+	span
+		cursor pointer
+	.deleteIcon
+		margin-left 20px
+		color #8E9099
+	span.seeDeIcon:hover
+		color #635EF9
+		text-decoration underline
+	span.deleteIcon:hover
+		color #635EF9
 .noData
-	margin-bottom 50px
+	// margin-bottom 50px
 	font-size 20px
 	text-align center
-
 .noDatap2
 	margin-top 10px
 	font-size 14px
 	color #8E9099
-
 .noDataImg
 	width 200px
 	height 249px
 	display block
 	margin 0 auto
-	margin-top 50px
+	margin-top 70px
 	margin-bottom 10px
-
-.reTitle
-	font-size 16px
-	font-weight bold
-	line-height 30px
-	text-align center
-
-.dataItem
-	padding 20px
-
-.graphName
-	font-weight bold
-	text-align center
-	margin-top 30px
-
-.titleItem1
-	font-size 14px
-	font-weight bold
-	line-height 28px
+.reportPage
+	padding 0
+	padding-right 50px
 	box-sizing border-box
-	margin-top 30px
-.titleDot
-	width 8px
-	height 8px
-	display inline-block
-	background #7F94FF
-	border-radius 50%
-	margin-right 4px
-	line-height 28px
+	margin-bottom 50px
+	text-align right
 
-.tableBox
-	width 100%
-	border 1px #ccc solid
-	border-collapse collapse
-	margin-top 20px
-	font-size 14px
-	text-align center
-.tableFoot
-	text-align left
-	td
-		padding-left 30px
-		text-align left
 
-.lazyPic
-	width 100%
-	height 825px
-	background url(../../../public/img/report/lazyPic.png) no-repeat center
-
-.notes
-	// margin-top 20px
-	padding 20px
-	.noTitle
-		font-weight bold
-	p
-		font-size 14px
-		line-height 24px
-
+// .newRe
+// 	width 154px
+// 	height 24px
+// 	background #8B78FE
+// 	padding-left 12px
+// 	border 1px solid #6C56F5
+// 	box-sizing border-box
+// 	border-radius 14px
+// 	color #fff
+// 	position relative
+// 	top -20px
+// 	left 118px
+// 	display flex
+// 	align-items center
+// 	cursor pointer
+// 	span
+// 		margin-left 6px
+// .newRe:hover
+// 	background-color #9f8ffe
+// .gridUl
+// 	padding 20px 10px
+// 	box-sizing border-box
+// 	display flex
+// 	flex-wrap wrap
+// .lazyUl
+// 	padding 20px 10px
+// 	box-sizing border-box
+// 	display flex
+// 	flex-direction row
+// 	flex-wrap wrap
+// 	justify-content flex-start
+// .lazyLi
+// 	width 208px
+// 	height 240px
+// 	background url(../../../public/img/report/lazyImg2.png) no-repeat center
+// 	border-radius 8px
+// 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
+// 	margin-right 20px
+// 	margin-bottom 20px
+// .lazyLi1
+// 	width 208px
+// 	height 240px
+// 	background url(../../../public/img/report/lazyImg3.png) no-repeat center
+// 	border-radius 8px
+// 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
+// 	margin-right 20px
+// 	margin-bottom 20px
+// .systemVis
+// 	display none
+// .customVis
+// 	display none
+// .newVis
+// 	display none
+// .gridListClass
+// 	width 208px
+// 	height 240px
+// 	background-color #ffffff
+// 	border-radius 8px
+// 	box-shadow 0px 8px 14px 0px rgba(33,58,233,0.05)
+// 	margin-right 20px
+// 	margin-bottom 20px
+// 	cursor pointer
+// 	display flex
+// 	flex-direction column
+// 	transition all .2s
+// .gridListClass:hover
+// 	background-color #E8EBF9
+// 	margin-top -10px
+// .gridListClass:nth-child(6n)
+// 	margin-right 0
+// .reportImg
+// 	width 116px
+// 	height 116px
+// 	margin 30px auto 8px auto
+// .reportIcon
+// 	width 116px
+// 	height 116px
+// 	margin 13px auto 2px auto
+// .reportMateri
+// 	display flex
+// 	span
+// 		max-width 170px
+// 		background-color #2B94FE
+// 		padding 0 6px
+// 		border-radius 4px
+// 		box-sizing border-box
+// 		margin 0 10px
+// 		color #fff
+// 		line-height 18px
+// 		white-space nowrap
+// 		text-overflow ellipsis
+// 		overflow hidden
+// .reportMateri1
+// 	background-color #FEAC2B!important
+// .typedd
+// 	display flex
+// 	align-items center
+// 	justify-content space-between
+// 	padding 0 10px
+// 	box-sizing border-box
+// 	margin-top 10px
+// .reporType
+// 	width 46px
+// 	height 18px
+// 	background #F83B5F
+// 	border 1px solid #D9193D
+// 	box-sizing border-box
+// 	border-radius 9px
+// 	color #fff
+// 	line-height 17px
+// 	text-align center
+// .reporType1
+// 	width 46px
+// 	height 18px
+// 	background #643BF8
+// 	border 1px solid #4B22E0
+// 	box-sizing border-box
+// 	border-radius 9px
+// 	line-height 18px
+// 	text-align center
+// .reporType2
+// 	width 46px
+// 	height 18px
+// 	background #52B4FF
+// 	border 1px solid #1184DC
+// 	box-sizing border-box
+// 	border-radius 9px
+// 	line-height 18px
+// 	text-align center
+// .reportarea
+// 	width 70px
+// 	height 12px
+// 	color #8E9099
+// 	line-height 12px
+// 	text-align right
+// 	overflow hidden
+// 	text-overflow ellipsis
+// 	white-space nowrap
+// .reporTitle
+// 	max-height 40px
+// 	padding 0 16px 0 10px
+// 	box-sizing border-box
+// 	line-height 20px
+// 	overflow hidden
+// 	text-overflow ellipsis
+// .reporTitle1
+// 	padding 0 14px 0 10px
+// 	box-sizing border-box
+// 	margin 10px 0
+// 	line-height 14px
+// 	overflow hidden
+// 	text-overflow ellipsis
+// 	white-space nowrap
+// .timeArea
+// 	display flex
+// 	align-items center
+// 	justify-content space-between
+// 	padding 0 10px
+// 	box-sizing border-box
+// .reporTime
+// 	font-size 12px
+// 	color #999999
+// 	overflow hidden
+// 	text-overflow ellipsis
+// 	white-space nowrap
+// .toDetail
+// 	border-right 1px solid #8E9099
+// 	box-sizing border-box
+// 	color #454EFF
+// .toDetail:hover
+// 	color #7f94ff
+// .deleteRe
+// 	color #FF7437
+// .deleteRe:hover
+// 	color #fc9d74
+// .reTitle
+// 	font-size 16px
+// 	font-weight bold
+// 	line-height 30px
+// 	text-align center
+// .dataItem
+// 	padding 20px
+// .graphName
+// 	font-weight bold
+// 	text-align center
+// 	margin-top 30px
+// .titleItem1
+// 	font-size 14px
+// 	font-weight bold
+// 	line-height 28px
+// 	box-sizing border-box
+// 	margin-top 30px
+// .titleDot
+// 	width 8px
+// 	height 8px
+// 	display inline-block
+// 	background #7F94FF
+// 	border-radius 50%
+// 	margin-right 4px
+// 	line-height 28px
+// .tableBox
+// 	width 100%
+// 	border 1px #ccc solid
+// 	border-collapse collapse
+// 	margin-top 20px
+// 	font-size 14px
+// 	text-align center
+// .tableFoot
+// 	text-align left
+// 	td
+// 		padding-left 30px
+// 		text-align left
+// .lazyPic
+// 	width 100%
+// 	height 825px
+// 	background url(../../../public/img/report/lazyPic.png) no-repeat center
+// .notes
+// 	padding 20px
+// 	.noTitle
+// 		font-weight bold
+// 	p
+// 		font-size 14px
+// 		line-height 24px
 
 </style>
 <style lang="stylus">
@@ -1926,7 +1536,8 @@ export default {
 			border none
 		.el-button.el-button--primary:hover
 			background #C7B7FF
-
+		.el-date-editor.picker.el-input
+			width 160px
 
 </style>
 
