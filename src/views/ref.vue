@@ -317,7 +317,8 @@ export default {
         },
         toggleChoseType(bb){
             this.chosed_type = bb
-            // this.isnext = false
+            this.areaid = 0
+            this.isnext = false
         },
         back() {
             this.isnext = false

@@ -8,7 +8,7 @@
 			</div>
 			<div v-for="item in leftItems" :key="item.id" :class="bigType == item.id?'all allOn':'all'" @click="toggleBigType(item)">
 				<span class="iconfont" v-show="item.id == 1">&#xe60b;</span>
-				<span class="iconfont" v-show="item.id == 2">&#xe607;</span>
+				<span class="iconfont" v-show="item.id == 2">&#xe60d;</span>
 				<span class="iconfont" v-show="item.id == 3">&#xe60a;</span>
 				<span class="whatRe">{{item.name}}</span>
 			</div>
@@ -764,6 +764,7 @@ export default {
 				data.p = this.pageNum1
 			}
 			data2 = datawork(data)
+			console.log(data)
 			this.$api.get_report_list(data2).then(v => {
 				console.log(v)
 				if(v.data.errcode == 0){
@@ -780,7 +781,8 @@ export default {
 						}
 					}, 1000)
 				}else{
-
+					this.loading = false
+					this.reportslist1 = []
 				}
 			})
 		},
@@ -854,7 +856,10 @@ export default {
 							}
 						}, 1000)
 					}else{
-
+						this.$message({
+							type:'error',
+							message:'删除失败！'
+						})
 					}
 				})
 			}).catch(() => {
@@ -1101,6 +1106,8 @@ export default {
 	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white
 	font-weight bold
+	span.iconfont
+		font-weight normal
 .allOn:hover
 	background linear-gradient(-90deg,rgba(97,224,255,1) 0%,rgba(100,57,248,1) 100%) !important
 	color white

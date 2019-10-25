@@ -20,13 +20,6 @@
       "unicode_decimal": 58886
     },
     {
-      "icon_id": "11272866",
-      "name": "地区",
-      "font_class": "jiancepingtaizhuijia_diqu",
-      "unicode": "e607",
-      "unicode_decimal": 58887
-    },
-    {
       "icon_id": "11272867",
       "name": "全部",
       "font_class": "jiancepingtaizhuijia_quanbu",
@@ -60,6 +53,13 @@
       "font_class": "jiancepingtaizhuijia_yuedu",
       "unicode": "e60b",
       "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "11472775",
+      "name": "监测平台追加_地区",
+      "font_class": "jiancepingtaizhuijia_diqu",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
     }
   ]
 }

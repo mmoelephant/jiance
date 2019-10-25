@@ -1,6 +1,6 @@
 @import './color.stylus'
 @import '../assets/font/font.css'
-@import '../assets/reportIcons/iconfont.css'
+@import '../assets/reportIcons/iconfont1.css'
 
 html,body,h1,h2,h3,h4,h5,h6,p,ul,li,input 
     margin 0
