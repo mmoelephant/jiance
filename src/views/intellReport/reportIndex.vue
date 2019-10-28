@@ -1,5 +1,5 @@
 <template>
-<div style="height:100%" v-loading.fullscreen="loading">
+<div style="height:calc(100% - 78px);margin-top:78px;" v-loading.fullscreen="loading">
 	<div class="intellReport">
 		<div class="inteLeft">
 			<div :class="bigType == 0?'all allOn':'all'" @click="changeToAll(0,'全部报告')">
@@ -48,14 +48,14 @@
 								</li>
 								<li class="listClass" v-for="item1 in item.data" :key="item1.id">
 									<span class="listItem listNum">{{item1.sn?item1.sn:'--'}}</span>
-									<span class="listItem listT" @click="reDetail(item1.id,item.id)">{{item1.title?item1.title:'--'}}</span>
+									<span class="listItem listT" @click="reDetail(item1.id)">{{item1.title?item1.title:'--'}}</span>
 									<span class="listItem listTime">{{item1.addtime?item1.addtime:'--'}}</span>
 									<span class="listItem listType" 
 									:style="item1.terms_type&&item1.terms_type == '月度'?'color:#EB7846':item1.terms_type == '年度'?'color:#F95E70':item1.terms_type == '季度'?'color:#4F65E1':''">
 										{{item1.terms_type?item1.terms_type:'--'}}
 									</span>
 									<span class="listItem listDo">
-										<span class="seeDeIcon" @click="reDetail(item1.id,item.id)">查看报告</span>
+										<span class="seeDeIcon" @click="reDetail(item1.id)">查看报告</span>
 										<span class="deleteIcon" @click="deleteRe(item1.id)" v-show="item.id != 1">删除</span>
 									</span>
 								</li>
@@ -84,11 +84,11 @@
 								</li>
 								<li class="listClass" v-for="item1 in reportslist1" :key="item1.id">
 									<span class="listItem listNum">{{item1.sn?item1.sn:'--'}}</span>
-									<span class="listItem listT" @click="reDetail(item1.id,bigType)" v-show="!searchModel">{{item1.title?item1.title:'--'}}</span>
-									<span class="listItem listT" @click="reDetail(item1.id,bigType)" v-show="searchModel">
-										{{item1.title?item1.title.substr(0,item1.title.indexOf(searContent)):''}}
-										<span style="color:#F2342B">{{searContent}}</span>
-										{{item1.title?item1.title.substr(item1.title.indexOf(searContent) + searContent.length):''}}
+									<span class="listItem listT" @click="reDetail(item1.id)" v-show="!searchModel">{{item1.title?item1.title:'--'}}</span>
+									<span class="listItem listT" @click="reDetail(item1.id)" v-show="searchModel">
+										{{item1.title && item1.title.indexOf(searContent) != -1?item1.title.substr(0,item1.title.indexOf(searContent)):item1.title}}
+										<span style="color:#F2342B">{{item1.title && item1.title.indexOf(searContent) != -1?searContent:''}}</span>
+										{{item1.title && item1.title.indexOf(searContent) != -1?item1.title.substr(item1.title.indexOf(searContent) + searContent.length):''}}
 									</span>
 									<span class="listItem listTime">{{item1.addtime?item1.addtime:'--'}}</span>
 									<span class="listItem listType" 
@@ -96,14 +96,14 @@
 									{{item1.terms_type?item1.terms_type:'--'}}
 									</span>
 									<span class="listItem listDo">
-										<span class="seeDeIcon" @click="reDetail(item1.id,bigType)">查看报告</span>
+										<span class="seeDeIcon" @click="reDetail(item1.id)">查看报告</span>
 										<span class="deleteIcon" @click="deleteRe(item1.id)" v-show="bigType != 1 && !searchModel">删除</span>
 									</span>
 								</li>
 								<div class="noData" v-show="reportslist1.length == 0">
 									<img src="../../../public/img/subscribe/noMessage.png" class="noDataImg">
 									<p class="noDatap1">暂时没有报告</p>
-									<p class="noDatap2">不要着急，要不再试试~</p>
+									<!-- <p class="noDatap2">不要着急，要不再试试~</p> -->
 								</div>
 								<el-pagination 
 								:page-size="pageSize1" 
@@ -796,8 +796,10 @@ export default {
 			this.f_type = aa
 			this.getReportList()
 		},
-		reDetail(aa,bb){
-			// this.$router.push({name:'reportDetail',query:{type:bb}})
+		reDetail(aa){
+			this.$router.push({name:'reportDetail',query:{id:aa}})
+			// type:bb,
+			// ,title:cc
 		},
 		deleteRe(aa){
 			this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {

@@ -84,6 +84,10 @@ const api = {
 		delete_report(data){
 			if(data) data = qs.stringify(data,{allowDots:true})
 			return service.post('/Api/Report/delete',data)
+		},
+		get_report_detail(data){
+			if(data) data = qs.stringify(data,{allowDots:true})
+			return service.post('/Api/Report/detail',data)
 		}
 }
 

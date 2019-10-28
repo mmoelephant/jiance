@@ -1,5 +1,5 @@
 <template>
-    <div style='height:100%' v-loading.fullscreen.lock="loading">        
+    <div style='height:100%;margin-top:78px;' v-loading.fullscreen.lock="loading">        
         <el-container class="refContainer">
             <el-aside class='cate'>
                 <div :class='t==0?"title acttitle":"title"'  @click='check(0)'>
@@ -37,12 +37,13 @@
                     <div class='left'>
                         <h1>云南省各地区材料数据</h1>
                         <div class='tab'>
-                            <p v-for="item in termstype" :key="item.id" :class="timetype == item.id?'active':''" @click="timetype = item.id">
+                            <p v-for="item in termstype" :key="item.id" :class="timetype == item.id?'active':''" @click="toggleTimeType(item.id)">
                                 {{item.name}}
                             </p>
                         </div>
                         <!-- “显示勾选对比图表”只在二级材料下显示 -->
-                        <div class='switch' @click='show_c(showcharts)' v-show='chosed_cate.level != 1'>
+                        <div class='switch' @click='show_c(showcharts)' v-show="t == 0">
+                             <!-- v-show='chosed_cate.level != 1' -->
                             显示勾选{{t==0?'地区':'材料'}}对比图表
                         </div>
                     </div>                   
@@ -243,7 +244,7 @@ export default {
             } else {
                 this.time = this.yearoptions[0].id
             }
-            this.isnext = false
+            // this.isnext = false
             if(this.t == 0){
                 this.get_area_data()
             }else{
@@ -251,9 +252,9 @@ export default {
             }
         },
         time(val) {
-            this.isnext = false
+            // this.isnext = false
             if(this.t == 0) {
-                this.areaid = 0
+                // this.areaid = 0
                 this.get_area_data()
             } else {
                 this.get_cate_data()
@@ -315,10 +316,13 @@ export default {
                 this.defaultExpand = []
             }
         },
+        toggleTimeType(aa){
+            this.timetype = aa
+        },
         toggleChoseType(bb){
             this.chosed_type = bb
-            this.areaid = 0
-            this.isnext = false
+            // this.areaid = 0
+            // this.isnext = false
         },
         back() {
             this.isnext = false
@@ -780,7 +784,7 @@ export default {
                 yAxis : [
                     {
                         type : 'value',
-                        name:'价格',
+                        name:'指数',
                         nameTextStyle:{
                             fontSize:14,
                             color:'#6064FD'
@@ -1153,7 +1157,7 @@ export default {
                 yAxis : [
                     {
                         type : 'value',
-                        name:'价格',
+                        name:'指数',
                         nameTextStyle:{
                             fontSize:14,
                             color:'#6064FD'
@@ -1265,7 +1269,6 @@ export default {
     padding 0 20px 0 0
     box-sizing border-box
     // display flex
-
 .title
     display flex
     align-items center

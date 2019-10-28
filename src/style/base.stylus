@@ -220,13 +220,15 @@ a
 	color #2C2D33
 .ba 
 	width 965px
+	background-color #F6F7FE
 	font-size 12px
 	font-family MicrosoftYaHei
 	font-weight 400
 	color #666
 	text-align center
 	margin 30px auto 0 auto
-.ba+.ba 
+.ba+.ba
+	background-color #F6F7FE
 	color #999
 	margin 10px auto 20px auto
 
