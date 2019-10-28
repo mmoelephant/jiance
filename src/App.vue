@@ -28,7 +28,7 @@
 					</div>
                 </div>
             </el-header>
-            <el-container style='min-height:100%;height:auto;flex-direction:column;overflow:auto;'>
+            <el-container style='min-height:100%;height:auto;margin-top:78px;flex-direction:column;overflow:auto'>
 				<!-- height:100%;max-height:100%; -->
 				<router-view></router-view>
             </el-container>

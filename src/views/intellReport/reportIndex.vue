@@ -1,5 +1,6 @@
 <template>
-<div style="height:calc(100% - 78px);margin-top:78px;" v-loading.fullscreen="loading">
+<div style="height:100%;" v-loading.fullscreen="loading">
+	<!-- calc(100% - 78px) -->
 	<div class="intellReport">
 		<div class="inteLeft">
 			<div :class="bigType == 0?'all allOn':'all'" @click="changeToAll(0,'全部报告')">
@@ -1179,7 +1180,7 @@ export default {
 .seeMoreBtn:hover
 	background #7f94ff
 .listUl
-	padding 20px 0
+	padding 10px 0 20px 0
 	box-sizing border-box
 	display flex
 	flex-direction column

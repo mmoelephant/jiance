@@ -1,5 +1,5 @@
 <template>
-    <div style='height:100%;margin-top:78px;' v-loading.fullscreen.lock="loading">        
+    <div style='height:100%;' v-loading.fullscreen.lock="loading">        
         <el-container class="refContainer">
             <el-aside class='cate'>
                 <div :class='t==0?"title acttitle":"title"'  @click='check(0)'>
