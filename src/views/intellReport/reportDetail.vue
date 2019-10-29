@@ -75,14 +75,14 @@
                                     <span class="colItem1 col7">{{item1.data && item1.data.chain_index?item1.data.chain_index:'--'}}</span>
                                     <span class="colItem1 col8">
                                         {{item1.data && item1.data.years_rate?item1.data.years_rate:'--'}}
-                                        <img src="../../../public/img/ru.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) > 0'>
-                                        <img src="../../../public/img/gd.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) < 0'>
+                                        <img src="../../../public/img/上.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) > 0'>
+                                        <img src="../../../public/img/下.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) < 0'>
                                         <img src="../../../public/img/bp.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) == 0'>
                                     </span>
                                     <span class="colItem1 col9">
                                         {{item1.data && item1.data.chain_rate?item1.data.chain_rate:'--'}}
-                                        <img src="../../../public/img/ru.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) > 0'>
-                                        <img src="../../../public/img/gd.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) < 0'>
+                                        <img src="../../../public/img/上.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) > 0'>
+                                        <img src="../../../public/img/下.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) < 0'>
                                         <img src="../../../public/img/bp.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) == 0'>
                                     </span>
                                 </li>
@@ -184,7 +184,6 @@ export default {
             data.id = this.reId
             data2 = datawork(data)
             this.$api.get_report_detail(data2).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0){
                     this.termtype = Number(v.data.data.selfData.terms_type)
                     this.reType = Number(v.data.data.selfData.type)
@@ -241,7 +240,6 @@ export default {
         nowDate(data){
             if(data == 1){
                 this.now = this.terms[0].slice(0,4) + '年'
-                console.log(this.now)
             }else if(data == 3){
                 this.now = this.terms[0].slice(0,4) + '年' + this.terms[0].slice(6,7) + '月'
             }else{

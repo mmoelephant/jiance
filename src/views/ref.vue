@@ -238,7 +238,7 @@ export default {
     watch:{
         timetype(type) {
             if(type==3) {
-                // this.time = this.monthoptions[0].id
+                this.time = this.monthoptions[2].id
             } else if(type==2) {
                 this.time = this.seasonoptions[0].id
             } else {
@@ -280,11 +280,12 @@ export default {
             this.isnext = false
             if(val == 0) {
                 this.areaid = 0
+                this.chosed_type = 'base_index_b'
                 this.get_area_data()
             } else {
                 //多区域材料对比
                 this.areaid = 0
-                if(this.chosed_type =='allprice') this.chosed_type = 'base_index_b'
+                this.chosed_type = 'base_index_b'
                 this.get_cate_data()
             }
         },
@@ -374,6 +375,7 @@ export default {
             data.access_token = localStorage.getItem('accesstoken')
             data1 = datawork(data)
             this.$api.get_cate(data1).then(v => {
+                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cateList = v.data.data.categorys
                     this.chosed_cate = v.data.data.categorys[0]
@@ -384,6 +386,7 @@ export default {
                     this.seasonoptions = v.data.data.quarter
                     this.yearoptions = v.data.data.years
                     // this.time = this.monthoptions[0].id
+                    this.time = v.data.data.month_default
                     this.get_area_data()
                 }else if(v.data.errcode == 1104){
                     //token失效的时候，再度获取token
@@ -615,7 +618,7 @@ export default {
                 if(this.chosed_cate.level == 1) {
                     this.chosed_type='base_index_b'
                 }else if(this.chosed_cate.level == 2){
-                    this.chosed_type = 'allprice'
+                    this.chosed_type = 'base_index_b'
                 }
                 this.chosed_name = data.name
                 this.get_area_data()

@@ -95,10 +95,7 @@ export default {
 		}
 	},
 	created(){
-        console.log('进入到首页了')
         this.list = []
-        console.log(this.list)
-        console.log(this.timer)
         clearInterval(this.timer)
         this.$store.commit('bigscreen/SET_CATE_ON', {})
         this.$store.commit('bigscreen/SET_CATE_LIST', [])
@@ -152,7 +149,7 @@ export default {
                 _that.list.shift()
                 _that.animate = false
                 _that.$store.commit('bigscreen/SET_CATE_ON', _that.list[0])
-                console.log(_that.list)
+                // console.log(_that.list)
             // },100)
             // setTimeout(()=>{
             //         _that.list.push(_that.list[0])
@@ -181,7 +178,6 @@ export default {
             }
             data.timestamp = Math.round(new Date().getTime() / 1000).toString()
             if(localStorage.getItem('clientid') && localStorage.getItem('accesstoken')){
-                console.log('存在clientid')
                 data.client_id = localStorage.getItem('clientid')
                 data.access_token = localStorage.getItem('accesstoken')
             }else{
@@ -194,12 +190,10 @@ export default {
             }
             data2 = datawork(data)
             this.$api.get_cate_level1(data2).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cityNum = v.data.data.areas_city
                     this.countyNum = v.data.data.areas_area
                     this.list = v.data.data.data
-                    console.log(this.list)
                     this.nowT = v.data.data.terms_name
                     this.$store.commit('bigscreen/SET_DISPLAY_TIME',v.data.data.terms_name)
                     this.$store.commit('bigscreen/SET_DISPLAY_NAME',v.data.data.areas_name)
@@ -417,4 +411,3 @@ export default {
 					.el-progress-bar__inner
 						border-radius 0 !important
 </style>
-

@@ -228,7 +228,6 @@ export default {
 		}
 	},
 	created(){
-		console.log(this.ruleForm.type)
 		this.userid = localStorage.getItem('userid')
 		this.uniquecode = localStorage.getItem('uniquecode')
 		this.clientid = localStorage.getItem('clientid')
@@ -352,7 +351,6 @@ export default {
 			data.type = aa
 			data2 = datawork(data)
 			this.$api.get_report_new_type(data2).then(v => {
-				console.log(v)
 				this.dialogFormVisible = true
 				if(v.data.errcode == 0){
 					this.materiaList = v.data.data.categoryData
@@ -372,7 +370,6 @@ export default {
 			})
 		},
 		changeType(vv){
-			console.log(vv)
 			if(this.bigType == 2){
 				if(vv == 1){
 					this.word = "请选择年份"
@@ -394,7 +391,6 @@ export default {
 			}
 		},
 		changeTime(vv){
-			console.log(vv)
 			this.ruleForm.timeInterval = vv
 		},
 		createNewNow(formName) {
@@ -438,7 +434,6 @@ export default {
 							data.start_terms = this.ruleForm.timeInterval[0]
 							data.end_terms = this.ruleForm.timeInterval[1]
 						}else if(this.ruleForm.type == 1){
-							console.log(this.ruleForm.timeInterval2)
 							data.start_terms = this.ruleForm.timeInterval
 							data.end_terms = this.ruleForm.timeInterval2
 						}
@@ -508,7 +503,6 @@ export default {
 			}
 			data2 = datawork(data)
 			this.$api.get_report_all(data2).then(v => {
-				console.log(v)
 				if(v.data.errcode == 0){
 					this.loading = false
 					this.reportslist = v.data.data.data
@@ -570,9 +564,7 @@ export default {
 				data.p = this.pageNum1
 			}
 			data2 = datawork(data)
-			console.log(data)
 			this.$api.get_report_list(data2).then(v => {
-				console.log(v)
 				if(v.data.errcode == 0){
 					this.loading = false
 					this.reportslist1 = v.data.data.data
@@ -1001,5 +993,3 @@ export default {
 			width 160px
 
 </style>
-
-

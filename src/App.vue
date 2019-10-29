@@ -75,11 +75,6 @@ export default {
 	data() {
         return {
             navList: [
-                // {
-                //     name: '我的首页',
-                //     icon: 'iconshouye',
-                //     router: '/'
-                // }, 
                 {
                     name: '数据查询',
                     icon: 'icon-shuju',
@@ -89,16 +84,6 @@ export default {
                     icon: 'icon-baogaoshoucang',
                     router: '/reportIndex'
 				}, 
-				// {
-                //     name: '数据订阅',
-                //     icon: 'icon-dingyue',
-                //     router: '/dataIndex'
-				// }, 
-				// {
-                //     name: '帮助中心',
-                //     icon: 'icon-bangzhu',
-                //     router: '/help'
-				// }, 
 				{
                     name: '账户设置',
                     icon: 'icon-setting',
@@ -106,7 +91,7 @@ export default {
                 }
             ],
 			mainHeight: 0,
-			defaultimg:'this.src="'+ require('../public/img/head.png') +'"',
+			// defaultimg:'this.src="'+ require('../public/img/head.png') +'"',
 			show:false,
 			dialogVisible:false,
 			formInline:{},
@@ -532,5 +517,4 @@ export default {
 	padding 0
 	border none
 	text-align center
-	
 </style>

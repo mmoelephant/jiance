@@ -147,7 +147,7 @@ export default {
 				}else{
 				}
 				if(this.type == 1){
-					console.log(this.newdata)
+					// console.log(this.newdata)
 				}	
         },
         deep:true
