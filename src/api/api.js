@@ -2,9 +2,6 @@ import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
 const test = 'http://test.dlzjzy.com'
 // const test = 'http://nindex.ynbzde.com'
-// const baseURL = '/api'
-// const baseURL = '/'
-// console.log(process.env.NODE_ENV === 'development' )
 const service = axios.create({ //hg
 		baseURL: process.env.NODE_ENV === 'development'?'/api':test+'/index.php',
     withCredentials: false,
