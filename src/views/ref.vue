@@ -133,8 +133,8 @@
         </el-container>
         <el-dialog :visible.sync="showcharts" width="60%" class="chartDialog">
             <div class='ch' v-show ='showcharts'>
-                <h1 v-show='t==0'>云南省{{areaname}}{{chosed_cate.name}}价格对比柱状图</h1>
-                <h1 v-show='t==1'>{{chosed_city.name}}材料价格对比柱状图</h1>
+                <h1 v-show='t==0'>云南省{{areaname}}{{chosed_cate.name}}指数对比柱状图</h1>
+                <h1 v-show='t==1'>{{chosed_city.name}}材料指数对比柱状图</h1>
                 <div class='tool'>
                     <ul>   
                         <li @click='change_charts="bar"' :class='change_charts=="bar"?"active":""'>
@@ -289,6 +289,7 @@ export default {
             }
         },
         chosed_type(val){
+            // 切换指数、同比、环比、价格
             if(this.t == 0){
                 this.get_area_data()
             }else{
@@ -424,6 +425,7 @@ export default {
             data4.access_token = localStorage.getItem('accesstoken')
             data4.categorys = Number(this.chosed_cate.id)
             data4.data_type = this.timetype
+            // 具体时间段不传值就返回默认的数据
             if(this.time){
                 data4.date_type = this.time
             }else{
@@ -493,7 +495,6 @@ export default {
             data2.timestamp = Math.round(new Date().getTime() / 1000).toString()
             data2.client_id = localStorage.getItem('clientid')
             data2.access_token = localStorage.getItem('accesstoken')
-            // data2.categorys = 
             data2.data_type = this.timetype
             if(this.time){
                 data2.date_type = this.time
@@ -956,7 +957,7 @@ export default {
                 yAxis : [
                     {
                         type : 'value',
-                        name:"价格",
+                        name:"指数",
                         nameTextStyle:{
                             fontSize:14,
                             color:'#6064FD'
