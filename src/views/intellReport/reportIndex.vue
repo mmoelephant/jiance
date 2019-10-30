@@ -131,10 +131,15 @@
 					</el-select>
 				</el-form-item>
   				<el-form-item label="时间选择" prop="timeInterval">
+					<el-cascader :disabled="ruleForm.type?false:true" v-model="ruleForm.timeInterval" :options="timeoptions" 
+					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange" ref="refHandle"></el-cascader>
+					<span style="margin:0 12px" v-show="bigType == 3">至</span>
+					<el-cascader :disabled="ruleForm.type?false:true" v-model="time_value" :options="timeoptions" 
+					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange" ref="refHandle" v-show="bigType == 3"></el-cascader>
   					<!-- <el-select v-model="ruleForm.timeInterval" :placeholder="word" @change="changeTime" v-if='ruleForm.type==2'>
   						<el-option v-for="item in seasons" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
   					</el-select> -->
-					<el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :disabled="ruleForm.type?false:true" :type="timeType" 
+					<!-- <el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :disabled="ruleForm.type?false:true" :type="timeType" 
 					value-format='yyyy-MM-dd' format="yyyy-MM-dd" :placeholder="word" v-show="bigType == 2 && ruleForm.type != 2"></el-date-picker>
 					<el-date-picker v-model="ruleForm.timeInterval" :disabled="ruleForm.type?false:true" :type="timeType" range-separator="至" :start-placeholder="startWord" :end-placeholder="endWord" 
 					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 3"></el-date-picker>
@@ -142,7 +147,7 @@
 					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker>
 					<span style="margin:0 12px" v-show="bigType == 3 && ruleForm.type == 1">至</span>
 					<el-date-picker class="picker" v-model="ruleForm.timeInterval2" :disabled="ruleForm.type?false:true" :type="timeType" :placeholder="endWord" 
-					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker>
+					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker> -->
   				</el-form-item>
   				<el-form-item label="材料类型" prop="materialType">
 					<el-select v-model="ruleForm.materialType" multiple collapse-tags placeholder="请选择材料类型">
@@ -200,6 +205,8 @@ export default {
 			endWord:'请选择结束月份',
 			timeType:'month',
 			reTypes:[],
+			timeoptions:[],
+			timevalue:'',
 			materiaList:[],
 			regions:[],
 			multiChose:true,
@@ -245,6 +252,15 @@ export default {
 				return false;
 			}
 		}
+		//点击文本就让它自动点击前面的input就可以触发选择。但是因组件阻止了冒泡，暂时想不到好方法来触发。
+		//这种比较耗性能，暂时想不到其他的，能实现效果了。
+		// setInterval(function() {
+		// 	document.querySelectorAll(".el-cascader-node__label").forEach(el => {
+		// 		el.onclick = function() {
+		// 			if (this.previousElementSibling) this.previousElementSibling.click();
+		// 		};
+		// 	});
+		// }, 1000);
 	},
 	methods:{
 		get_left(){
@@ -351,6 +367,7 @@ export default {
 			data.type = aa
 			data2 = datawork(data)
 			this.$api.get_report_new_type(data2).then(v => {
+				console.log(v)
 				this.dialogFormVisible = true
 				if(v.data.errcode == 0){
 					this.materiaList = v.data.data.categoryData
@@ -370,28 +387,47 @@ export default {
 			})
 		},
 		changeType(vv){
-			if(this.bigType == 2){
-				if(vv == 1){
-					this.word = "请选择年份"
-					this.timeType = 'year'
-				}else if(vv == 3){
-					this.word = '请选择月份'
-					this.timeType = 'month'
+			console.log(vv)
+			this.reTypes.map(item => {
+				if(item.id == vv){
+					this.timeoptions = item.data
 				}
-			}else if(this.bigType == 3){
-				if(vv == 1){
-					this.startWord = "请选择开始年份"
-					this.endWord = '请选择结束年份'
-					this.timeType = 'year'
-				}else if(vv == 3){
-					this.startWord = '请选择开始月份'
-					this.endWord = '请选择结束月份'
-					this.timeType = 'monthrange'
-				}
-			}
+			})
+			// if(this.bigType == 2){
+			// 	if(vv == 1){
+			// 		this.word = "请选择年份"
+			// 		this.timeType = 'year'
+			// 	}else if(vv == 3){
+			// 		this.word = '请选择月份'
+			// 		this.timeType = 'month'
+			// 	}
+			// }else if(this.bigType == 3){
+			// 	if(vv == 1){
+			// 		this.startWord = "请选择开始年份"
+			// 		this.endWord = '请选择结束年份'
+			// 		this.timeType = 'year'
+			// 	}else if(vv == 3){
+			// 		this.startWord = '请选择开始月份'
+			// 		this.endWord = '请选择结束月份'
+			// 		this.timeType = 'monthrange'
+			// 	}
+			// }
 		},
-		changeTime(vv){
-			this.ruleForm.timeInterval = vv
+		// changeTime(vv){
+		// 	this.ruleForm.timeInterval = vv
+		// },
+		timeChange(val){
+			console.log(val)
+			console.log(this.ruleForm.timeInterval)
+			// this.$refs.refHandle.dropDownVisible = false
+			if(this.ruleForm.type == 1){
+				this.timevalue = val[0] + '-01-01'
+				console.log(this.timevalue)
+			}else if(this.ruleForm.type == 2){
+				this.timevalue = val[0] + '-' + val[1] + '-01'
+			}else{
+				this.timevalue = val[0] + '-' + val[1] + '-01'
+			}
 		},
 		createNewNow(formName) {
 			this.$refs[formName].validate((valid) => {
@@ -427,7 +463,7 @@ export default {
 					data.categorys_ids = JSON.stringify(this.ruleForm.materialType)
 					data.areas_ids = JSON.stringify(this.ruleForm.compareRegion)
 					if(this.bigType == 2){
-						data.terms = this.ruleForm.timeInterval
+						data.terms = this.timevalue
 					}
 					if(this.bigType == 3){
 						if(this.ruleForm.type == 3){
@@ -438,6 +474,7 @@ export default {
 							data.end_terms = this.ruleForm.timeInterval2
 						}
 					}
+					console.log(data)
 					data2 = datawork(data)
 					this.$api.create_new_report(data2).then(v => {
 						if(v.data.errcode == 0){
@@ -737,7 +774,17 @@ export default {
 			}else{
 
 			}
-		}
+		},
+		// ruleForm(val) {
+		// 	console.log('1')
+		// 	if(val){
+		// 		console.log(val)
+		// 		if(val.)
+		// 	}
+		// 	if (this.$refs.refHandle) {
+		// 		this.$refs.refHandle.dropDownVisible = false; //监听值发生变化就关闭它
+		// 	}
+		// }
 	}
 }
 // }
@@ -989,7 +1036,7 @@ export default {
 			border none
 		.el-button.el-button--primary:hover
 			background #C7B7FF
-		.el-date-editor.picker.el-input
+		.el-cascader .el-input
 			width 160px
 
 </style>
