@@ -539,7 +539,7 @@ export default {
 								this.loading = false
 								this.$message({
 									type:'error',
-									message:'创建失败！'
+									message:v.data.errmsg
 								})
 							}
 						})
@@ -553,6 +553,7 @@ export default {
 							data.end_terms = this.timevalue3
 							data2 = datawork(data)
 							this.$api.create_new_report(data2).then(v => {
+								console.log(v)
 								if(v.data.errcode == 0){
 									this.loading = false
 									this.dialogFormVisible = false
@@ -577,7 +578,7 @@ export default {
 									this.loading = false
 									this.$message({
 										type:'error',
-										message:'创建失败！'
+										message:v.data.errmsg
 									})
 								}
 							})
@@ -585,36 +586,6 @@ export default {
 							this.error1 = '请选择结束时间'
 						}
 					}
-					// this.$api.create_new_report(data2).then(v => {
-					// 	console.log(v)
-					// 	if(v.data.errcode == 0){
-					// 		this.loading = false
-					// 		this.dialogFormVisible = false
-					// 		this.searContent = ''
-					// 		this.searchModel = false
-					// 		this.$refs[formName].resetFields()
-					// 		this.error1 = ''
-					// 		this.$message({
-					// 			type:'success',
-					// 			message:'创建成功！'
-					// 		})
-					// 		this.getReportList()
-					// 	}else if(v.data.errcode == 1104){
-					// 		let _that = this
-					// 		getToken(commondata)
-					// 		setTimeout(() => {
-					// 			if(localStorage.getItem('tokenDone')){
-					// 				_that.createNewNow(formName)
-					// 			}
-					// 		}, 1000);
-					// 	}else{
-					// 		this.loading = false
-					// 		this.$message({
-					// 			type:'error',
-					// 			message:'创建失败！'
-					// 		})
-					// 	}
-					// })
 				} else {
 					this.loading = false
 					console.log('error submit!!');

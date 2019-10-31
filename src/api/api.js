@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
-const test = 'http://test.dlzjzy.com'
-// const test = 'http://nindex.ynbzde.com'
+// const test = 'http://test.dlzjzy.com'
+const test = 'http://nindex.ynbzde.com'
 const service = axios.create({ //hg
 		baseURL: process.env.NODE_ENV === 'development'?'/api':test+'/index.php',
     withCredentials: false,
@@ -11,10 +11,10 @@ service.interceptors.response.use(
     response => {
       return response
     },
-    // (error) => {
-		// 	alert('网络错误，请稍后重试')
-		// 	return Promise.reject(error)
-    // }
+    (error) => {
+			alert('网络错误，请稍后重试')
+			return Promise.reject(error)
+    }
 )
 const api = {
 		get_client(data){
