@@ -27,9 +27,9 @@
                     本报告选取{{areasname}}{{areasnum}}个地区，针对{{catesname}}{{catesnum}}种材料进行相关对比分析。
                 </div>
                 <div class="mianTable">
-                    <div class="tableTil" v-show="reType == 1">建筑工程主要材料市场指数变动情况统计表</div>
+                    <!-- <div class="tableTil" v-show="reType == 1">建筑工程主要材料市场指数变动情况统计表</div> -->
                     <div>
-                        <div class="m-table" v-for="item in listdata" :key="item.id" v-show="reType == 1">
+                        <div class="m-table" v-for="item in listdata" :key="item.id" v-show="reType == 1" style="margin-top:20px">
                             <p class="mateName">{{item.name}}</p>
                             <ul class="mateList">
                                 <li class="listName">
@@ -39,8 +39,8 @@
                                 </li>
                                 <li class="listItem" v-for="item1 in item.children" :key="item1.id">
                                     <span class="colItem1 col1">{{item1.name}}</span>
-                                    <span class="colItem1 col2">{{item1.chain_index&&item1.chain_index != {}?item1.chain_index:'--'}}</span>
-                                    <span class="colItem1 col3">{{item1.chain_rate&&item1.chain_rate != {}?item1.chain_rate:'--'}}</span>
+                                    <span class="colItem1 col2">{{item1.data.chain_index&&item1.data.chain_index != {}?item1.data.chain_index:'--'}}</span>
+                                    <span class="colItem1 col3">{{item1.data.chain_rate&&item1.data.chain_rate != {}?item1.data.chain_rate:'--'}}</span>
                                 </li>
                             </ul>
                         </div>
@@ -62,28 +62,28 @@
                             <ul class="mateList" v-show="reType == 2">
                                 <li class="listName">
                                     <span class="colItem col4">地区</span>
+                                    <span class="colItem col7">{{hbdate}}(环比)</span>
                                     <span class="colItem col5">{{tbdate}}(同比)</span>
                                     <span class="colItem col6">{{now}}</span>
-                                    <span class="colItem col7">{{hbdate}}(环比)</span>
-                                    <span class="colItem col8">同比增长速度（%）</span>
                                     <span class="colItem col9">环比增长速度（%）</span>
+                                    <span class="colItem col8">同比增长速度（%）</span>
                                 </li>
                                 <li class="listItem" v-for="item1 in item.data" :key="item1.id">
                                     <span class="colItem1 col4">{{item1.name}}</span>
+                                    <span class="colItem1 col7">{{item1.data && item1.data.chain_index?item1.data.chain_index:'--'}}</span>
                                     <span class="colItem1 col5">{{item1.data && item1.data.years_index?item1.data.years_index:'--'}}</span>
                                     <span class="colItem1 col6">{{item1.data && item1.data.base_index_b?item1.data.base_index_b:'--'}}</span>
-                                    <span class="colItem1 col7">{{item1.data && item1.data.chain_index?item1.data.chain_index:'--'}}</span>
-                                    <span class="colItem1 col8">
-                                        {{item1.data && item1.data.years_rate?item1.data.years_rate:'--'}}
-                                        <img src="../../../public/img/上.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) > 0'>
-                                        <img src="../../../public/img/下.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) < 0'>
-                                        <img src="../../../public/img/bp.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) == 0'>
-                                    </span>
                                     <span class="colItem1 col9">
                                         {{item1.data && item1.data.chain_rate?item1.data.chain_rate:'--'}}
                                         <img src="../../../public/img/上.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) > 0'>
                                         <img src="../../../public/img/下.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) < 0'>
                                         <img src="../../../public/img/bp.png" alt="" v-show='item1.data && item1.data.chain_rate && Number(item1.data.chain_rate) == 0'>
+                                    </span>
+                                    <span class="colItem1 col8">
+                                        {{item1.data && item1.data.years_rate?item1.data.years_rate:'--'}}
+                                        <img src="../../../public/img/上.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) > 0'>
+                                        <img src="../../../public/img/下.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) < 0'>
+                                        <img src="../../../public/img/bp.png" alt="" v-show='item1.data && item1.data.years_rate && Number(item1.data.years_rate) == 0'>
                                     </span>
                                 </li>
                             </ul>
@@ -92,7 +92,7 @@
                                     <span class="colItem" v-for="item1 in item.data" :key="item1.id" :style="'width:' + itemWidth + '%'">{{item1.name?item1.name:'--'}}</span>
                                 </li>
                                 <li class="listItem">
-                                    <span class="colItem1" v-for="item1 in item.data" :key="item1.id" :style="'width:' + itemWidth + '%'">{{item1.data?item1.data:'--'}}</span>
+                                    <span class="colItem1" v-for="item1 in item.data" :key="item1.id" :style="'width:' + itemWidth + '%'">{{item1.data && item1.data.base_index_b?item1.data.base_index_b:'--'}}</span>
                                 </li>
                             </ul>
                             <p class="itemTitle" v-show="reType == 2">{{item.name}}材料多地区指数同比统计图</p>
@@ -243,7 +243,16 @@ export default {
             }else if(data == 3){
                 this.now = this.terms[0].slice(0,4) + '年' + this.terms[0].slice(6,7) + '月'
             }else{
-                this.now = ''
+                if(this.terms[0].slice(6,7) == 1){
+                    this.now = this.terms[0].slice(0,4) + '年第一季度'
+                }else if(this.terms[0].slice(6,7) == 4){
+                    this.now = this.terms[0].slice(0,4) + '年第二季度'
+                }else if(this.terms[0].slice(6,7) == 7){
+                    this.now = this.terms[0].slice(0,4) + '年第三季度'
+                }else{
+                    this.now = this.terms[0].slice(0,4) + '年第四季度'
+                }
+                
             }
         },
         renderGraph(data,aa){
