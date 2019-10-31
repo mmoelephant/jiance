@@ -124,7 +124,7 @@
 			</div>
 		</div>
 		<el-dialog :title="createTitle" :visible.sync="dialogFormVisible" :close-on-click-modal="false" :before-close="beforeCancel" width="600px" class="createNewBox">
-			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" v-show="bigType == 2">
 				<el-form-item label="报告类型" prop="type">
 					<el-select v-model="ruleForm.type" placeholder="请选择报告类型" @change="changeType">
 						<el-option v-for="item in reTypes" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
@@ -133,21 +133,6 @@
   				<el-form-item label="时间选择" prop="timeInterval">
 					<el-cascader :disabled="ruleForm.type?false:true" v-model="ruleForm.timeInterval" :options="timeoptions" 
 					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange" ref="refHandle"></el-cascader>
-					<span style="margin:0 12px" v-show="bigType == 3">至</span>
-					<el-cascader :disabled="ruleForm.type?false:true" v-model="time_value" :options="timeoptions" 
-					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange" ref="refHandle" v-show="bigType == 3"></el-cascader>
-  					<!-- <el-select v-model="ruleForm.timeInterval" :placeholder="word" @change="changeTime" v-if='ruleForm.type==2'>
-  						<el-option v-for="item in seasons" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
-  					</el-select> -->
-					<!-- <el-date-picker v-model="ruleForm.timeInterval" @change="changeTime" :disabled="ruleForm.type?false:true" :type="timeType" 
-					value-format='yyyy-MM-dd' format="yyyy-MM-dd" :placeholder="word" v-show="bigType == 2 && ruleForm.type != 2"></el-date-picker>
-					<el-date-picker v-model="ruleForm.timeInterval" :disabled="ruleForm.type?false:true" :type="timeType" range-separator="至" :start-placeholder="startWord" :end-placeholder="endWord" 
-					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 3"></el-date-picker>
-					<el-date-picker class="picker" v-model="ruleForm.timeInterval" :disabled="ruleForm.type?false:true" :type="timeType" :placeholder="startWord" 
-					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker>
-					<span style="margin:0 12px" v-show="bigType == 3 && ruleForm.type == 1">至</span>
-					<el-date-picker class="picker" v-model="ruleForm.timeInterval2" :disabled="ruleForm.type?false:true" :type="timeType" :placeholder="endWord" 
-					value-format='yyyy-MM-dd' format="yyyy-MM-dd" v-show="bigType == 3 && ruleForm.type == 1"></el-date-picker> -->
   				</el-form-item>
   				<el-form-item label="材料类型" prop="materialType">
 					<el-select v-model="ruleForm.materialType" multiple collapse-tags placeholder="请选择材料类型">
@@ -163,6 +148,35 @@
   				<el-form-item>
   					<el-button type="primary" @click="createNewNow('ruleForm')" class="newNow">立即创建</el-button>
   					<el-button @click="cancleNewReport('ruleForm')">取消</el-button>
+  				</el-form-item>
+			</el-form>
+			<el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-width="100px" v-show="bigType == 3">
+				<el-form-item label="报告类型" prop="type">
+					<el-select v-model="ruleForm2.type" placeholder="请选择报告类型" @change="changeType">
+						<el-option v-for="item in reTypes" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+					</el-select>
+				</el-form-item>
+  				<el-form-item label="时间选择" prop="timeInterval">
+					<el-cascader :disabled="ruleForm2.type?false:true" v-model="ruleForm2.timeInterval" :options="timeoptions" 
+					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange2" ref="refHandle" ></el-cascader>
+					<span style="margin:0 12px">至</span>
+					<el-cascader :disabled="ruleForm2.type?false:true" v-model="ruleForm2.timeInterval2" :options="timeoptions" 
+					:props="{ expandTrigger: 'click',label:'name',value:'id',checkStrictly:true}" @change="timeChange3" ref="refHandle"></el-cascader>
+  				</el-form-item>
+  				<el-form-item label="材料类型" prop="materialType">
+					<el-select v-model="ruleForm2.materialType" multiple collapse-tags placeholder="请选择材料类型">
+						<el-option v-for="item in materiaList" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+  					</el-select>
+  				</el-form-item>
+  				<el-form-item label="对比地区" prop="compareRegion">
+  					<el-select v-model="ruleForm2.compareRegion" :multiple="multiChose" collapse-tags placeholder="请选择对比地区">
+  						<el-option v-for="item in regions" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+  					</el-select>
+  				</el-form-item>
+				<p style="color:red;margin-left:100px">{{error1}}</p>
+  				<el-form-item>
+  					<el-button type="primary" @click="createNewNow('ruleForm2')" class="newNow">立即创建</el-button>
+  					<el-button @click="cancleNewReport('ruleForm2')">取消</el-button>
   				</el-form-item>
 			</el-form>
 		</el-dialog>
@@ -200,13 +214,34 @@ export default {
 					{required: true, message: '请选择对比地区', trigger: 'focus'}
 				]
 			},
-			word:'请选择月份',
-			startWord:'请选择开始月份',
-			endWord:'请选择结束月份',
-			timeType:'month',
+			ruleForm2: {},
+			rules2: {
+				type: [
+					{required: true, message: '请选择报告类型', trigger: 'change'}
+				],
+				timeInterval: [
+					{required: true, message: ' ', trigger: ''}
+				],
+				timeInterval2: [
+					{required: true, message: ' ', trigger: ''}
+				],
+				materialType: [
+					{required: true, message: '请选择材料类型', trigger: 'focus'}
+				],
+				compareRegion: [
+					{required: true, message: '请选择对比地区', trigger: 'focus'}
+				]
+			},
+			// word:'请选择月份',
+			// startWord:'请选择开始月份',
+			// endWord:'请选择结束月份',
+			// timeType:'month',
 			reTypes:[],
 			timeoptions:[],
 			timevalue:'',
+			timevalue2:'',
+			timevalue3:'',
+			error1:'',
 			materiaList:[],
 			regions:[],
 			multiChose:true,
@@ -254,13 +289,13 @@ export default {
 		}
 		//点击文本就让它自动点击前面的input就可以触发选择。但是因组件阻止了冒泡，暂时想不到好方法来触发。
 		//这种比较耗性能，暂时想不到其他的，能实现效果了。
-		// setInterval(function() {
-		// 	document.querySelectorAll(".el-cascader-node__label").forEach(el => {
-		// 		el.onclick = function() {
-		// 			if (this.previousElementSibling) this.previousElementSibling.click();
-		// 		};
-		// 	});
-		// }, 1000);
+		setInterval(function() {
+			document.querySelectorAll(".el-cascader-node__label").forEach(el => {
+				el.onclick = function() {
+					if (this.previousElementSibling) this.previousElementSibling.click();
+				};
+			});
+		}, 1000);
 	},
 	methods:{
 		get_left(){
@@ -367,7 +402,6 @@ export default {
 			data.type = aa
 			data2 = datawork(data)
 			this.$api.get_report_new_type(data2).then(v => {
-				console.log(v)
 				this.dialogFormVisible = true
 				if(v.data.errcode == 0){
 					this.materiaList = v.data.data.categoryData
@@ -387,7 +421,6 @@ export default {
 			})
 		},
 		changeType(vv){
-			console.log(vv)
 			this.reTypes.map(item => {
 				if(item.id == vv){
 					this.timeoptions = item.data
@@ -417,16 +450,31 @@ export default {
 		// 	this.ruleForm.timeInterval = vv
 		// },
 		timeChange(val){
-			console.log(val)
-			console.log(this.ruleForm.timeInterval)
 			// this.$refs.refHandle.dropDownVisible = false
 			if(this.ruleForm.type == 1){
 				this.timevalue = val[0] + '-01-01'
-				console.log(this.timevalue)
 			}else if(this.ruleForm.type == 2){
 				this.timevalue = val[0] + '-' + val[1] + '-01'
 			}else{
 				this.timevalue = val[0] + '-' + val[1] + '-01'
+			}
+		},
+		timeChange2(val){
+			if(this.ruleForm2.type == 1){
+				this.timevalue2 = val[0] + '-01-01'
+			}else if(this.ruleForm2.type == 2){
+				this.timevalue2 = val[0] + '-' + val[1] + '-01'
+			}else{
+				this.timevalue2 = val[0] + '-' + val[1] + '-01'
+			}
+		},
+		timeChange3(val){
+			if(this.ruleForm2.type == 1){
+				this.timevalue3 = val[0] + '-01-01'
+			}else if(this.ruleForm2.type == 2){
+				this.timevalue3 = val[0] + '-' + val[1] + '-01'
+			}else{
+				this.timevalue3 = val[0] + '-' + val[1] + '-01'
 			}
 		},
 		createNewNow(formName) {
@@ -459,51 +507,113 @@ export default {
 						data.access_token = localStorage.getItem('accesstoken')
 					}
 					data.type = this.bigType
-					data.terms_type = this.ruleForm.type
-					data.categorys_ids = JSON.stringify(this.ruleForm.materialType)
-					data.areas_ids = JSON.stringify(this.ruleForm.compareRegion)
 					if(this.bigType == 2){
+						data.terms_type = this.ruleForm.type
 						data.terms = this.timevalue
+						data.categorys_ids = JSON.stringify(this.ruleForm.materialType)
+						data.areas_ids = JSON.stringify(this.ruleForm.compareRegion)
+						data2 = datawork(data)
+						this.$api.create_new_report(data2).then(v => {
+							if(v.data.errcode == 0){
+								this.loading = false
+								this.dialogFormVisible = false
+								this.searContent = ''
+								this.searchModel = false
+								this.$refs[formName].resetFields()
+								this.error1 = ''
+								this.$message({
+									type:'success',
+									message:'创建成功！'
+								})
+								this.getReportList()
+							}else if(v.data.errcode == 1104){
+								let _that = this
+								getToken(commondata)
+								setTimeout(() => {
+									if(localStorage.getItem('tokenDone')){
+										_that.createNewNow(formName)
+									}
+								}, 1000);
+							}else{
+								this.loading = false
+								this.$message({
+									type:'error',
+									message:'创建失败！'
+								})
+							}
+						})
 					}
 					if(this.bigType == 3){
-						if(this.ruleForm.type == 3){
-							data.start_terms = this.ruleForm.timeInterval[0]
-							data.end_terms = this.ruleForm.timeInterval[1]
-						}else if(this.ruleForm.type == 1){
-							data.start_terms = this.ruleForm.timeInterval
-							data.end_terms = this.ruleForm.timeInterval2
+						if(this.timevalue3){
+							data.terms_type = this.ruleForm2.type
+							data.start_terms = this.timevalue2
+							data.categorys_ids = JSON.stringify(this.ruleForm2.materialType)
+							data.areas_ids = JSON.stringify(this.ruleForm2.compareRegion)
+							data.end_terms = this.timevalue3
+							data2 = datawork(data)
+							this.$api.create_new_report(data2).then(v => {
+								if(v.data.errcode == 0){
+									this.loading = false
+									this.dialogFormVisible = false
+									this.searContent = ''
+									this.searchModel = false
+									this.$refs[formName].resetFields()
+									this.error1 = ''
+									this.$message({
+										type:'success',
+										message:'创建成功！'
+									})
+									this.getReportList()
+								}else if(v.data.errcode == 1104){
+									let _that = this
+									getToken(commondata)
+									setTimeout(() => {
+										if(localStorage.getItem('tokenDone')){
+											_that.createNewNow(formName)
+										}
+									}, 1000);
+								}else{
+									this.loading = false
+									this.$message({
+										type:'error',
+										message:'创建失败！'
+									})
+								}
+							})
+						}else{
+							this.error1 = '请选择结束时间'
 						}
 					}
-					console.log(data)
-					data2 = datawork(data)
-					this.$api.create_new_report(data2).then(v => {
-						if(v.data.errcode == 0){
-							this.loading = false
-							this.dialogFormVisible = false
-							this.searContent = ''
-							this.searchModel = false
-							this.$refs[formName].resetFields()
-							this.$message({
-								type:'success',
-								message:'创建成功！'
-							})
-							this.getReportList()
-						}else if(v.data.errcode == 1104){
-							let _that = this
-							getToken(commondata)
-							setTimeout(() => {
-								if(localStorage.getItem('tokenDone')){
-									_that.createNewNow(formName)
-								}
-							}, 1000);
-						}else{
-							this.loading = false
-							this.$message({
-								type:'error',
-								message:'创建失败！'
-							})
-						}
-					})
+					// this.$api.create_new_report(data2).then(v => {
+					// 	console.log(v)
+					// 	if(v.data.errcode == 0){
+					// 		this.loading = false
+					// 		this.dialogFormVisible = false
+					// 		this.searContent = ''
+					// 		this.searchModel = false
+					// 		this.$refs[formName].resetFields()
+					// 		this.error1 = ''
+					// 		this.$message({
+					// 			type:'success',
+					// 			message:'创建成功！'
+					// 		})
+					// 		this.getReportList()
+					// 	}else if(v.data.errcode == 1104){
+					// 		let _that = this
+					// 		getToken(commondata)
+					// 		setTimeout(() => {
+					// 			if(localStorage.getItem('tokenDone')){
+					// 				_that.createNewNow(formName)
+					// 			}
+					// 		}, 1000);
+					// 	}else{
+					// 		this.loading = false
+					// 		this.$message({
+					// 			type:'error',
+					// 			message:'创建失败！'
+					// 		})
+					// 	}
+					// })
 				} else {
 					this.loading = false
 					console.log('error submit!!');
@@ -742,7 +852,8 @@ export default {
 				type: 'warning'
 			}).then(() => {
 				this.dialogFormVisible = false
-				this.$refs['ruleForm'].resetFields();			
+				this.$refs['ruleForm'].resetFields()
+				this.$refs['ruleForm2'].resetFields()	
 			}).catch(() => {
 				this.$message({
 					type:'info',
@@ -775,6 +886,29 @@ export default {
 
 			}
 		},
+		timevalue2(val){
+			if(this.timevalue3){
+				let time1 = new Date(this.timevalue3).getTime()
+				let time2 = new Date(this.timevalue2).getTime()
+				if(time2 >= time1){
+					this.error1 = '起始时间应小于结束时间'
+				}else{
+					this.error1 = ''
+				}
+			}
+		},
+		timevalue3(val){
+			this.error1 = ''
+			if(this.timevalue2){
+				let time1 = new Date(this.timevalue3).getTime()
+				let time2 = new Date(this.timevalue2).getTime()
+				if(time2 >= time1){
+					this.error1 = '起始时间应小于结束时间'
+				}else{
+					this.error1 = ''
+				}
+			}
+		}
 		// ruleForm(val) {
 		// 	console.log('1')
 		// 	if(val){
