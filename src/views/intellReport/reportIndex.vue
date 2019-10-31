@@ -327,6 +327,7 @@ export default {
 			}
 			data1 = datawork(data)
 			this.$api.get_report_left(data1).then(v => {
+				console.log(v)
 				if(v.data.errcode == 0){
 					this.loading = false
 					this.leftItems = v.data.data.data

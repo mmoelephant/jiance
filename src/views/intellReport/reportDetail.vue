@@ -636,7 +636,7 @@ export default {
                     z: 10
                 },
                 yAxis: {
-                    name: '指数增长速率（%）',
+                    name: '指数（定基1000）',
                     nameTextStyle:{
                         color:'#8E9099'
                     },
