@@ -50,7 +50,7 @@
 							<span>{{num && typeof num != 'object' ?num:'--'}}</span>
 							<img src="../../public/img/ru.png" alt="" v-show='num && typeof num != "object" && (t_type == "chain_rate" || t_type == "years_rate") && num > 0'>
 							<img src="../../public/img/gd.png" alt="" v-show='num && typeof num != "object" && (t_type == "chain_rate" || t_type == "years_rate") && num < 0'>
-							<img src="../../public/img/bp.png" alt="" v-show='num && typeof num != "object" && (t_type == "chain_rate" || t_type == "years_rate") && num == 0'>
+							<!-- <img src="../../public/img/bp.png" alt="" v-show='num && typeof num != "object" && (t_type == "chain_rate" || t_type == "years_rate") && num == 0'> -->
 						</p>
 					</div>
 					<div v-for="(c,ci) in i.children" :key="ci" :class='i.parent_id == "1"?"info":"hide"'>
