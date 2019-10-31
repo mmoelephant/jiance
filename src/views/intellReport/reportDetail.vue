@@ -50,10 +50,10 @@
                             <p class="itemTitle" v-show="reType == 3">{{areasname}}{{item.name}}材料各时间段指数对比分析</p>
                             <el-popover class='sm' placement="bottom-start" width="200" trigger="hover" title="指数说明">
                                 <p>
-                                    反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数
+                                    反映了市场材料价格变动情况的相对数。定基指数=（报告期价格/基期价格）* 基期价格指数
                                 </p>
                                 <p>基准期：2018年1月</p>
-                                <p>定基指数：1000</p>
+                                <p>基期价格指数：1000</p>
                                 <div slot="reference">
                                     <img src="../../../public/img/wh.png" alt="">
                                     指数定义说明
@@ -70,8 +70,8 @@
                                 </li>
                                 <li class="listItem" v-for="item1 in item.data" :key="item1.id">
                                     <span class="colItem1 col4">{{item1.name}}</span>
-                                    <span class="colItem1 col7">{{item1.data && item1.data.chain_index?item1.data.chain_index:'--'}}</span>
-                                    <span class="colItem1 col5">{{item1.data && item1.data.years_index?item1.data.years_index:'--'}}</span>
+                                    <span class="colItem1 col7">{{item1.prevData && item1.prevData.base_index_b?item1.prevData.base_index_b:'--'}}</span>
+                                    <span class="colItem1 col5">{{item1.prevYearsData && item1.prevYearsData.base_index_b?item1.prevYearsData.base_index_b:'--'}}</span>
                                     <span class="colItem1 col6">{{item1.data && item1.data.base_index_b?item1.data.base_index_b:'--'}}</span>
                                     <span class="colItem1 col9">
                                         {{item1.data && item1.data.chain_rate?item1.data.chain_rate:'--'}}
@@ -271,14 +271,17 @@ export default {
                         }else{
                             z.push(0)
                         }
-                        if(item.data.years_index){
-                            y.push(Number(item.data.years_index))
+                    }else{
+                        z.push(0)
+                    }
+                    if(item.prevYearsData){
+                        if(item.prevYearsData.base_index_b){
+                            y.push(Number(item.prevYearsData.base_index_b))
                         }else{
                             y.push(0)
                         }
                     }else{
                         y.push(0)
-                        z.push(0)
                     }
                 })
             }
@@ -299,7 +302,7 @@ export default {
                     z: 10
                 },
                 yAxis: {
-                    name: '指数（定基1000）',
+                    name: '指数',
                     nameTextStyle:{
                         color:'#8E9099'
                     },
@@ -382,14 +385,17 @@ export default {
                         }else{
                             z.push(0)
                         }
-                        if(item.data.chain_index){
-                            y.push(Number(item.data.chain_index))
+                    }else{
+                        z.push(0)
+                    }
+                    if(item.prevData){
+                        if(item.prevData.base_index_b){
+                            y.push(Number(item.prevData.base_index_b))
                         }else{
                             y.push(0)
                         }
                     }else{
                         y.push(0)
-                        z.push(0)
                     }
                 })
             }
@@ -410,7 +416,7 @@ export default {
                     z: 10
                 },
                 yAxis: {
-                    name: '指数（定基1000）',
+                    name: '指数',
                     nameTextStyle:{
                         color:'#8E9099'
                     },
@@ -487,20 +493,25 @@ export default {
             if(data && data.data){
                 data.data.forEach(item => {
                     x.push(item.name)
-                    if(item.data){
-                        if(item.data.years_rate){
-                            z.push(Number(item.data.years_rate))
+                    if(item.prevYearsData){
+                        // 附加同比数据
+                        if(item.prevYearsData.base_index_b){
+                            z.push(Number(item.prevYearsData.base_index_b))
                         }else{
                             z.push(0)
                         }
-                        if(item.data.chain_rate){
-                            y.push(Number(item.data.chain_rate))
+                    }else{
+                        z.push(0)
+                    }
+                    if(item.prevData){
+                        // 附加环比数据
+                        if(item.prevData.base_index_b){
+                            y.push(Number(item.prevData.base_index_b))
                         }else{
                             y.push(0)
                         }
                     }else{
                         y.push(0)
-                        z.push(0)
                     }
                 })
             }
@@ -521,7 +532,7 @@ export default {
                     z: 10
                 },
                 yAxis: {
-                    name: '指数（定基1000）',
+                    name: '指数',
                     nameTextStyle:{
                         color:'#8E9099'
                     },
@@ -636,7 +647,7 @@ export default {
                     z: 10
                 },
                 yAxis: {
-                    name: '指数（定基1000）',
+                    name: '指数',
                     nameTextStyle:{
                         color:'#8E9099'
                     },

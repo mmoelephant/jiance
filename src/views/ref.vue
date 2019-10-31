@@ -70,10 +70,10 @@
                                     trigger="hover"
                                     title="指数定义">
                                     <p>
-                                        反映了市场材料价格变动情况的相对数。报告期指数=（当期价格/基期价格）×定基指数
+                                        反映了市场材料价格变动情况的相对数。定基指数=（报告期价格/基期价格）* 基期价格指数
                                     </p>
                                     <p>基准期：2018年1月</p>
-                                    <p>定基指数：1000</p>
+                                    <p>基期价格指数：1000</p>
                                     <div slot="reference">
                                         指数说明
                                         <img src="../../public/img/wh.png" alt="">
@@ -328,6 +328,7 @@ export default {
         },
         back() {
             this.isnext = false
+            this.areaname = ''
             if(this.t ==0) {
                 // this.chosed_area = {
                 //     area:53
@@ -375,7 +376,6 @@ export default {
             data.access_token = localStorage.getItem('accesstoken')
             data1 = datawork(data)
             this.$api.get_cate(data1).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.cateList = v.data.data.categorys
                     this.chosed_cate = v.data.data.categorys[0]
@@ -512,6 +512,7 @@ export default {
             data2.field = this.chosed_type
             data3 = datawork(data2)
             this.$api.get_cate_time_list(data3).then(v => {
+                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.loading = false
                     this.tabledata = v.data.data

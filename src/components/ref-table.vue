@@ -30,7 +30,10 @@
 									<el-checkbox v-show='type==0' class='label' :label='c'>c</el-checkbox>
 									<!-- <el-checkbox v-show='type==1' class='label' :label='c'>c</el-checkbox> -->
 									<p v-show='type==0'>{{c.dateData&&c.name}}</p>
-									<p v-show='type==1' @click='toggleParentId(i)' style='cursor:pointer'>{{c.dateData&&c.name?c.name:'-'}}</p>
+									<p v-show='type==1' @click='toggleParentId(i)' style='cursor:pointer'>
+										{{c.dateData&&c.name?c.name:'-'}}
+										<span style="font-size:12px;color:#777" v-show="t_type == 'allprice'">（元/{{c.unit}}）</span>
+									</p>
 								</div>
 							</div>
 						</div>
@@ -41,7 +44,6 @@
 				<div class='head'>
 					<p v-for="i in time" :key="i.id">{{i.name?i.name:'-'}}</p>
 				</div>
-
 				<div class='info' v-for="(i,index) in newdata" :key="index">
 					<div :class='type == 0&&index==0?"nb n":"n"'>
 						<p v-for='(num,a) in i.dateData' :key='a'>
@@ -147,7 +149,7 @@ export default {
 				}else{
 				}
 				if(this.type == 1){
-					// console.log(this.newdata)
+					console.log(this.newdata)
 				}	
         },
         deep:true
@@ -279,7 +281,7 @@ export default {
 					background #F3F4FE
 	.nb,.nb p
 		background #8AA3FF!important
-		color #fff!important
+		color #fff !important
 			// border 1px yellow solid
 	.head 
 		background #B0BDFF
