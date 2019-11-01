@@ -512,7 +512,6 @@ export default {
             data2.field = this.chosed_type
             data3 = datawork(data2)
             this.$api.get_cate_time_list(data3).then(v => {
-                console.log(v)
                 if(v.data.errcode == 0 && v.data.errmsg == 'ok'){
                     this.loading = false
                     this.tabledata = v.data.data

@@ -533,7 +533,6 @@ export default {
 							data.end_terms = this.timevalue3
 							data2 = datawork(data)
 							this.$api.create_new_report(data2).then(v => {
-								console.log(v)
 								if(v.data.errcode == 0){
 									this.loading = false
 									this.dialogFormVisible = false
