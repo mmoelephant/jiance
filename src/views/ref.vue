@@ -814,7 +814,7 @@ export default {
                         }
                     }
                     if(this.t == 0){
-                        legend.push(i.name)
+                        legend.push(item.name)
                         y.push({
                             data:data,
                             type:'line',
@@ -928,7 +928,8 @@ export default {
                 },
                 legend: {
                     data:legend,
-                    bottom:0
+                    bottom:0,
+                    type:'scroll',
                 },
                 toolbox: {
                     show : false,
@@ -1129,7 +1130,8 @@ export default {
                 },
                 legend: {
                     data:legend,
-                    bottom:0
+                    bottom:0,
+                    type:'scroll',
                 },
                 toolbox: {
                     show : false,

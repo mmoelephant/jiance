@@ -10,11 +10,15 @@ import './assets/iconfont/iconfont.css'
 import './assets/font/font.css'
 import api from './api/api'
 import md5 from 'js-md5'
+import htmlToPdf from './plugins/htmlToPdf'
 
 
 Vue.prototype.$echarts = echarts;
 Vue.prototype.$api = api
 Vue.prototype.$md5 = md5;
+
+
+Vue.use(htmlToPdf)
 // Vue.use(ElementUI);
 
 Vue.config.productionTip = false

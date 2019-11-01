@@ -13,7 +13,7 @@
                     <span>返回</span>
                 </div>
 			</div>
-            <div class="detailBox">
+            <div class="detailBox" id="pdfCentent">
                 <p class="bigTit">{{reTitle}}</p>
                 <div class="markInfo">
                     <div class="source">来源：<span>行列科技</span></div>
@@ -109,6 +109,7 @@
             </div>
         </div>
     </div>
+    <el-button type="danger" @click="ExportSavePdf(reTitle,addtime)" class="downIcon"><i class="iconfont">&#xe60c;</i></el-button>
     <el-tooltip placement="top" content="回到顶部">
         <BackToTop :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="0" transition-name="fade"/>
     </el-tooltip>
@@ -850,4 +851,29 @@ export default {
         width 12px
         height 12px
         margin-left 5px
+
+.iconfont
+    font-size 22px
+    color #fff
+    text-align center
+</style>
+<style lang="stylus">
+.el-button.el-button--danger.downIcon
+    width 40px
+    height 40px
+    background #FEA178
+    padding 0
+    border 1px #FE7349 solid
+    box-sizing border-box
+    position fixed
+    right 50px
+    bottom 100px
+    i
+        font-size 22px
+        color #fff
+        text-align center
+.el-button.downIcon:hover
+    background #FFB595
+    border-color #FF825B
+
 </style>
