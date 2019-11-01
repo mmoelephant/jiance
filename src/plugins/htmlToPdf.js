@@ -24,9 +24,6 @@ export default {
         var a4w = 210; var a4h = 297 // A4大小，210mm x 297mm，四边各保留20mm的边距，显示区域170x257
         var imgHeight = Math.floor(a4h * canvas.width / a4w) // 按A4显示比例换算一页图像的像素高度，这是一页上面的像素数
         var renderedHeight = 0
-        console.log(canvas.height)
-        console.log(canvas.width)
-        console.log(imgHeight)
         while (renderedHeight < canvas.height) {
           var page = document.createElement("canvas")
           page.width = canvas.width

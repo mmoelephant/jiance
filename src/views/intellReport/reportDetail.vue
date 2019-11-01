@@ -851,11 +851,6 @@ export default {
         width 12px
         height 12px
         margin-left 5px
-
-.iconfont
-    font-size 22px
-    color #fff
-    text-align center
 </style>
 <style lang="stylus">
 .el-button.el-button--danger.downIcon

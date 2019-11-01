@@ -432,7 +432,6 @@ export default {
 		// },
 		timeChange(val){
 			// this.$refs.refHandle.dropDownVisible = false
-			console.log(val)
 			if(this.ruleForm.type == 1){
 				this.timevalue = val[0] + '-01-01'
 			}else if(this.ruleForm.type == 2){
@@ -442,7 +441,6 @@ export default {
 			}
 		},
 		timeChange2(val){
-			console.log(val)
 			if(this.ruleForm2.type == 1){
 				this.timevalue2 = val[0] + '-01-01'
 			}else if(this.ruleForm2.type == 2){
@@ -452,7 +450,6 @@ export default {
 			}
 		},
 		timeChange3(val){
-			console.log(val)
 			if(this.ruleForm2.type == 1){
 				this.timevalue3 = val[0] + '-01-01'
 			}else if(this.ruleForm2.type == 2){
@@ -623,6 +620,7 @@ export default {
 		},
 		getReportList(){
 			this.loading = true
+			this.resultCount = 0
 			let data = {}
 			let data2 = {}
 			let commondata = {}
