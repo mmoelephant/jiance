@@ -30,8 +30,8 @@
 									<el-checkbox v-show='type==0' class='label' :label='c'>c</el-checkbox>
 									<!-- <el-checkbox v-show='type==1' class='label' :label='c'>c</el-checkbox> -->
 									<p v-show='type==0'>{{c.dateData&&c.name}}</p>
-									<p v-show='type==1' @click='toggleParentId(i)' style='cursor:pointer'>
-										{{c.dateData&&c.name?c.name:'-'}}
+									<p v-show='type==1' @click='toggleParentId(i)' style='cursor:pointer;display:flex;align-items:center'>
+										<span>{{c.dateData&&c.name?c.name:'-'}}</span>
 										<span style="font-size:12px;color:#777" v-show="t_type == 'allprice'">（元/{{c.unit}}）</span>
 									</p>
 								</div>
@@ -116,7 +116,6 @@ export default {
 		},
 		allchecked:{
 			handler(val) {
-				console.log(val)
 				if(val){
 					this.checked = this.newdata
 				}else{
@@ -207,6 +206,7 @@ export default {
 			justify-content space-between
 			div
 				padding 0 15px
+				box-sizing border-box
 				display flex
 			p
 				color #6C7DFF

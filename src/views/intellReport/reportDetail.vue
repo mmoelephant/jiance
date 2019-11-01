@@ -109,12 +109,16 @@
             </div>
         </div>
     </div>
+    <el-tooltip placement="top" content="回到顶部">
+        <BackToTop :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="0" transition-name="fade"/>
+    </el-tooltip>
 </div>
 </template>
 <script>
 import $ from 'jquery'
 import {datawork} from '../../plugins/datawork.js'
 import { getToken } from '../../plugins/gettoken.js'
+import  BackToTop from '../../components/back-to-top'
 export default {
     data(){
         return {
@@ -142,9 +146,19 @@ export default {
             tbdate:'',
             hbdate:'',
             now:'',
-            itemWidth:10
+            itemWidth:10,
+            myBackToTopStyle: {
+                right: '50px',
+                bottom: '50px',
+                width: '40px',
+                height: '40px',
+                borderRadius: '4px',
+                lineHeight: '45px', // 请保持与高度一致以垂直居中
+                // background: '#78A4FE'// 按钮的背景颜色
+            }
         }
     },
+    components:{BackToTop},
     created(){
         this.reId = Number(this.$route.query.id)
         this.userid = localStorage.getItem('userid')

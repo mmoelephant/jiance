@@ -112,7 +112,7 @@
 								:pager-count="5" 
 								:current-page="pageNum1" 
 								:hide-on-single-page="false" 
-								layout="prev, pager, next" 
+								layout="total,prev, pager, next, jumper" 
 								class="reportPage" 
 								@current-change="get_data1">
 								<!-- v-show='bigType != 0' -->
@@ -327,7 +327,6 @@ export default {
 			}
 			data1 = datawork(data)
 			this.$api.get_report_left(data1).then(v => {
-				console.log(v)
 				if(v.data.errcode == 0){
 					this.loading = false
 					this.leftItems = v.data.data.data
@@ -427,31 +426,13 @@ export default {
 					this.timeoptions = item.data
 				}
 			})
-			// if(this.bigType == 2){
-			// 	if(vv == 1){
-			// 		this.word = "请选择年份"
-			// 		this.timeType = 'year'
-			// 	}else if(vv == 3){
-			// 		this.word = '请选择月份'
-			// 		this.timeType = 'month'
-			// 	}
-			// }else if(this.bigType == 3){
-			// 	if(vv == 1){
-			// 		this.startWord = "请选择开始年份"
-			// 		this.endWord = '请选择结束年份'
-			// 		this.timeType = 'year'
-			// 	}else if(vv == 3){
-			// 		this.startWord = '请选择开始月份'
-			// 		this.endWord = '请选择结束月份'
-			// 		this.timeType = 'monthrange'
-			// 	}
-			// }
 		},
 		// changeTime(vv){
 		// 	this.ruleForm.timeInterval = vv
 		// },
 		timeChange(val){
 			// this.$refs.refHandle.dropDownVisible = false
+			console.log(val)
 			if(this.ruleForm.type == 1){
 				this.timevalue = val[0] + '-01-01'
 			}else if(this.ruleForm.type == 2){
@@ -461,6 +442,7 @@ export default {
 			}
 		},
 		timeChange2(val){
+			console.log(val)
 			if(this.ruleForm2.type == 1){
 				this.timevalue2 = val[0] + '-01-01'
 			}else if(this.ruleForm2.type == 2){
@@ -470,6 +452,7 @@ export default {
 			}
 		},
 		timeChange3(val){
+			console.log(val)
 			if(this.ruleForm2.type == 1){
 				this.timevalue3 = val[0] + '-01-01'
 			}else if(this.ruleForm2.type == 2){
@@ -583,6 +566,7 @@ export default {
 								}
 							})
 						}else{
+							this.loading = false
 							this.error1 = '请选择结束时间'
 						}
 					}
