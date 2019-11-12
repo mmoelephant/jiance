@@ -261,7 +261,7 @@ export default {
 				background #B0BDFF
 				box-sizing border-box
 				img
-					cursor pointer	
+					cursor pointer
 		.info
 			p
 				width 130px
