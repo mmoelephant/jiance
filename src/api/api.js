@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import qs from 'qs'
-// const test = 'http://test.dlzjzy.com'
-const test = 'http://nindex.ynbzde.com'
+const test = 'http://test.dlzjzy.com'
+// const test = 'http://nindex.ynbzde.com'
 const service = axios.create({ //hg
 		baseURL: process.env.NODE_ENV === 'development'?'/api':test+'/index.php',
     withCredentials: false,
