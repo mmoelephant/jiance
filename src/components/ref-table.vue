@@ -42,7 +42,12 @@
 			</div>
 			<div class='right'>
 				<div class='head'>
-					<p v-for="i in time" :key="i.id">{{i.name?i.name:'-'}}</p>
+					<div v-for="i in time" :key="i.id" class="dateItem">
+						<span>{{i.name?i.name:'-'}}</span>
+						<el-tooltip class="item" effect="dark" :content="i.tips" placement="bottom">
+							<img src="../../public/img/wh.png" alt="" v-show="type == 0 && i.tips != ''">
+						</el-tooltip>
+					</div>
 				</div>
 				<div class='info' v-for="(i,index) in newdata" :key="index">
 					<div :class='type == 0&&index==0?"nb n":"n"'>
@@ -78,7 +83,7 @@ export default {
 			allCheckTxt:'全选',
 			checked:[],
 			time:[],
-			newdata:[]
+			newdata:[],
 		}
 	},
 	props:{
@@ -248,9 +253,15 @@ export default {
 		box-sizing border-box
 		.head 
 			display flex
-			p
+			.dateItem
 				width 130px
-				text-align center				
+				text-align center
+				border-right 1px solid #fff
+				flex-shrink 0
+				background #B0BDFF
+				box-sizing border-box
+				img
+					cursor pointer	
 		.info
 			p
 				width 130px
@@ -282,18 +293,12 @@ export default {
 	.nb,.nb p
 		background #8AA3FF!important
 		color #fff !important
-			// border 1px yellow solid
 	.head 
 		background #B0BDFF
 		color #fff
 		height 32px
 		line-height 32px
 		border-right 1px solid #fff
-		p
-			border-right 1px solid #fff
-			flex-shrink 0
-			background #B0BDFF
-			box-sizing border-box
 	.info 
 		// height 32px
 		line-height 32px
